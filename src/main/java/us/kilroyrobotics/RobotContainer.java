@@ -11,7 +11,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 // GNU General Public License for more details.
 
-package frc.robot;
+package us.kilroyrobotics;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -22,15 +22,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.commands.DriveCommands;
-import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.drive.GyroIO;
-import frc.robot.subsystems.drive.GyroIOPigeon2;
-import frc.robot.subsystems.drive.ModuleIO;
-import frc.robot.subsystems.drive.ModuleIOSim;
-import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import us.kilroyrobotics.commands.DriveCommands;
+import us.kilroyrobotics.generated.TunerConstants;
+import us.kilroyrobotics.subsystems.drive.Drive;
+import us.kilroyrobotics.subsystems.drive.GyroIO;
+import us.kilroyrobotics.subsystems.drive.GyroIOPigeon2;
+import us.kilroyrobotics.subsystems.drive.ModuleIO;
+import us.kilroyrobotics.subsystems.drive.ModuleIOSim;
+import us.kilroyrobotics.subsystems.drive.ModuleIOTalonFX;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
