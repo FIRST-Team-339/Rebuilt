@@ -25,6 +25,7 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import us.kilroyrobotics.generated.TunerConstants;
+import us.kilroyrobotics.subsystems.shifts.AllianceShifts;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -35,6 +36,7 @@ import us.kilroyrobotics.generated.TunerConstants;
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
   private RobotContainer robotContainer;
+  private AllianceShifts allianceShifts;
 
   public Robot() {
     // Record metadata
@@ -99,6 +101,7 @@ public class Robot extends LoggedRobot {
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our autonomous chooser on the dashboard.
     robotContainer = new RobotContainer();
+    allianceShifts = new AllianceShifts();
   }
 
   /** This function is called periodically during all modes. */
@@ -152,6 +155,8 @@ public class Robot extends LoggedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
+
+    allianceShifts.checkFirstAllianceShift();
   }
 
   /** This function is called periodically during operator control. */
