@@ -13,6 +13,9 @@
 
 package us.kilroyrobotics;
 
+import static edu.wpi.first.units.Units.MetersPerSecond;
+
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.RobotBase;
 
 /**
@@ -21,8 +24,8 @@ import edu.wpi.first.wpilibj.RobotBase;
  * (log replay from a file).
  */
 public final class Constants {
-  public static final Mode simMode = Mode.SIM;
-  public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
+  public static final Mode kSimMode = Mode.SIM;
+  public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : kSimMode;
 
   public static enum Mode {
     /** Running on a real robot. */
@@ -33,5 +36,9 @@ public final class Constants {
 
     /** Replaying from a log file. */
     REPLAY
+  }
+
+  public static final class DriveConstants {
+    public static final LinearVelocity kMaxDriveSpeed = MetersPerSecond.of(3);
   }
 }
