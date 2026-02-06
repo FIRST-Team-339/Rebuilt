@@ -44,7 +44,7 @@ public class Flywheel extends SubsystemBase {
     followerMotorDisconnected.set(
         !followerMotorConnectedDebouncer.calculate(inputs.followerConnected));
 
-    outputs.velocityRPM = 1000;
+    outputs.velocityRPM = 1;
     outputs.pose =
         new Pose3d(FlywheelConstants.kTranslation, new Rotation3d(0.0, inputs.positionRads, 0.0));
 

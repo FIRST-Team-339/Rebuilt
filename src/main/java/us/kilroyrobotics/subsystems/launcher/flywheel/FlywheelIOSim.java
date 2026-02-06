@@ -13,7 +13,8 @@ public class FlywheelIOSim implements FlywheelIO {
   private final DCMotorSim simMotor =
       new DCMotorSim(LinearSystemId.createDCMotorSystem(gearbox, 0.025, 1), gearbox);
 
-  private PIDController controller = new PIDController(FlywheelConstants.kP, FlywheelConstants.kI, FlywheelConstants.kD, 0.02);
+  private PIDController controller =
+      new PIDController(FlywheelConstants.kP, FlywheelConstants.kI, FlywheelConstants.kD, 0.02);
   private double appliedVoltage = 0.0;
   private double currentOutput = 0.0;
   private double currentRPM = 0.0;
