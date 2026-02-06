@@ -13,8 +13,11 @@
 
 package us.kilroyrobotics;
 
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -42,8 +45,24 @@ public final class Constants {
   /** Whether or not we are tuning the robot */
   public static final boolean kTuning = true;
 
+  public static final class FieldConstants {
+    public static final Pose2d hubPose =
+        new Pose2d(Inches.of(182.11), Inches.of(158.84), Rotation2d.kZero);
+  }
+
   public static final class DriveConstants {
     public static final LinearVelocity kMaxDriveSpeed = MetersPerSecond.of(3);
+
+    public static final double kDeadband = 0.1;
+
+    public static final double kAngleKP = 5.0;
+    public static final double kAngleKD = 0.4;
+    public static final double kAngleMaxVelocity = 8.0;
+    public static final double kAngleMaxAcceleration = 20.0;
+    public static final double kFFStartDelay = 2.0; // Secs
+    public static final double kFFRampRate = 0.1; // Volts/Sec
+    public static final double kWheelRadiusMaxVelocity = 0.25; // Rad/Sec
+    public static final double kWheelRadiusRampRate = 0.05; // Rad/Sec^2
   }
 
   public static final class LauncherConstants {
@@ -51,7 +70,7 @@ public final class Constants {
       public static final int kMotorId = 41;
       public static final int kFollowerMotorId = 42;
 
-      public static final double kP = 0;
+      public static final double kP = 0.1;
       public static final double kI = 0;
       public static final double kD = 0;
 

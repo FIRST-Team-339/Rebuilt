@@ -22,8 +22,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-import us.kilroyrobotics.commands.DriveCommands;
 import us.kilroyrobotics.generated.TunerConstants;
 import us.kilroyrobotics.subsystems.drive.Drive;
 import us.kilroyrobotics.subsystems.drive.GyroIO;
@@ -35,6 +35,8 @@ import us.kilroyrobotics.subsystems.launcher.Launcher;
 import us.kilroyrobotics.subsystems.launcher.flywheel.FlywheelIO;
 import us.kilroyrobotics.subsystems.launcher.flywheel.FlywheelIOSim;
 import us.kilroyrobotics.subsystems.launcher.flywheel.FlywheelIOSparkMax;
+import us.kilroyrobotics.subsystems.launcher.kicker.KickerIO;
+import us.kilroyrobotics.subsystems.launcher.serializer.SerializerIO;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -45,6 +47,8 @@ import us.kilroyrobotics.subsystems.launcher.flywheel.FlywheelIOSparkMax;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
+  private Command hubRotationUnlockedDrive;
+  private Command hubRotationLockedDrive;
   private final Launcher launcher;
 
   // Controller
@@ -52,6 +56,9 @@ public class RobotContainer {
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
+
+  @AutoLogOutput(key = "Drive/HubRotationLock")
+  private boolean hubRotationLock = false;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -66,7 +73,12 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
 
-        launcher = new Launcher(new FlywheelIOSparkMax(41, 42));
+        launcher =
+            new Launcher(
+                new SerializerIO() {},
+                new KickerIO() {},
+                new FlywheelIOSparkMax(41, 42),
+                drive::getPose);
         break;
 
       case SIM:
@@ -79,7 +91,9 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
 
-        launcher = new Launcher(new FlywheelIOSim());
+        launcher =
+            new Launcher(
+                new SerializerIO() {}, new KickerIO() {}, new FlywheelIOSim(), drive::getPose);
         break;
 
       default:
@@ -92,7 +106,9 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {});
 
-        launcher = new Launcher(new FlywheelIO() {});
+        launcher =
+            new Launcher(
+                new SerializerIO() {}, new KickerIO() {}, new FlywheelIO() {}, drive::getPose);
         break;
     }
 
@@ -101,9 +117,8 @@ public class RobotContainer {
 
     // Set up SysId routines
     autoChooser.addOption(
-        "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-    autoChooser.addOption(
-        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+        "Drive Wheel Radius Characterization", drive.wheelRadiusCharacterization());
+    autoChooser.addOption("Drive Simple FF Characterization", drive.feedforwardCharacterization());
     autoChooser.addOption(
         "Drive SysId (Quasistatic Forward)",
         drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
@@ -116,6 +131,16 @@ public class RobotContainer {
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // Configure the button bindings
+    hubRotationUnlockedDrive =
+        drive.joystickDrive(
+            () -> -controller.getLeftY(),
+            () -> -controller.getLeftX(),
+            () -> -controller.getRightX());
+    hubRotationLockedDrive =
+        drive.joystickDriveAtAngle(
+            () -> -controller.getLeftY(),
+            () -> -controller.getLeftX(),
+            () -> new Rotation2d(launcher.getTargetRotation()));
     configureButtonBindings();
   }
 
@@ -127,19 +152,13 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // Default command, normal field-relative drive
-    drive.setDefaultCommand(
-        DriveCommands.joystickDrive(
-            drive,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> -controller.getRightX()));
+    drive.setDefaultCommand(hubRotationUnlockedDrive);
 
     // Lock to 0° when A button is held
     controller
         .a()
         .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
+            drive.joystickDriveAtAngle(
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX(),
                 () -> new Rotation2d()));
@@ -157,6 +176,16 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
                     drive)
                 .ignoringDisable(true));
+
+    controller
+        .y()
+        .onChange(
+            Commands.runOnce(
+                () -> {
+                  hubRotationLock = !hubRotationLock;
+                  drive.setDefaultCommand(
+                      hubRotationLock ? hubRotationLockedDrive : hubRotationUnlockedDrive);
+                }));
   }
 
   /**
