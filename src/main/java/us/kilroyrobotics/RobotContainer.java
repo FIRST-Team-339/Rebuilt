@@ -31,6 +31,11 @@ import us.kilroyrobotics.subsystems.drive.GyroIOPigeon2;
 import us.kilroyrobotics.subsystems.drive.ModuleIO;
 import us.kilroyrobotics.subsystems.drive.ModuleIOSim;
 import us.kilroyrobotics.subsystems.drive.ModuleIOTalonFX;
+import us.kilroyrobotics.subsystems.intake.Intake;
+import us.kilroyrobotics.subsystems.intake.actuator.ActuatorIO;
+import us.kilroyrobotics.subsystems.intake.actuator.ActuatorIOSim;
+import us.kilroyrobotics.subsystems.intake.roller.RollerIO;
+import us.kilroyrobotics.subsystems.intake.roller.RollerIOSim;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -41,6 +46,7 @@ import us.kilroyrobotics.subsystems.drive.ModuleIOTalonFX;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
+  private final Intake intake;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -60,6 +66,8 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
+
+        intake = null;
         break;
 
       case SIM:
@@ -71,6 +79,8 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.FrontRight),
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
+
+        intake = new Intake(new RollerIOSim(), new ActuatorIOSim());
         break;
 
       default:
@@ -82,6 +92,8 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
+
+        intake = new Intake(new RollerIO() {}, new ActuatorIO() {});
         break;
     }
 
