@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import us.kilroyrobotics.Constants.VisionConstants;
 import us.kilroyrobotics.commands.DriveCommands;
 import us.kilroyrobotics.generated.TunerConstants;
 import us.kilroyrobotics.subsystems.drive.Drive;
@@ -31,6 +32,10 @@ import us.kilroyrobotics.subsystems.drive.GyroIOPigeon2;
 import us.kilroyrobotics.subsystems.drive.ModuleIO;
 import us.kilroyrobotics.subsystems.drive.ModuleIOSim;
 import us.kilroyrobotics.subsystems.drive.ModuleIOTalonFX;
+import us.kilroyrobotics.subsystems.vision.Vision;
+import us.kilroyrobotics.subsystems.vision.VisionIO;
+import us.kilroyrobotics.subsystems.vision.VisionIOLimelight;
+import us.kilroyrobotics.subsystems.vision.VisionIOPhotonVisionSim;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -41,6 +46,7 @@ import us.kilroyrobotics.subsystems.drive.ModuleIOTalonFX;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
+  private final Vision vision;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -60,6 +66,10 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
+
+        vision =
+            new Vision(
+                drive::addVisionMeasurement, new VisionIOLimelight("FL-LL2", drive::getRotation));
         break;
 
       case SIM:
@@ -71,6 +81,12 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.FrontRight),
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
+
+        vision =
+            new Vision(
+                drive::addVisionMeasurement,
+                new VisionIOPhotonVisionSim(
+                    VisionConstants.camera0Name, VisionConstants.robotToCamera0, drive::getPose));
         break;
 
       default:
@@ -82,6 +98,8 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
+
+        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
         break;
     }
 
