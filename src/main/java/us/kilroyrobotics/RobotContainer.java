@@ -31,6 +31,10 @@ import us.kilroyrobotics.subsystems.drive.GyroIOPigeon2;
 import us.kilroyrobotics.subsystems.drive.ModuleIO;
 import us.kilroyrobotics.subsystems.drive.ModuleIOSim;
 import us.kilroyrobotics.subsystems.drive.ModuleIOTalonFX;
+import us.kilroyrobotics.subsystems.launcher.Launcher;
+import us.kilroyrobotics.subsystems.launcher.flywheel.FlywheelIO;
+import us.kilroyrobotics.subsystems.launcher.flywheel.FlywheelIOSim;
+import us.kilroyrobotics.subsystems.launcher.flywheel.FlywheelIOSparkMax;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -41,6 +45,7 @@ import us.kilroyrobotics.subsystems.drive.ModuleIOTalonFX;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
+  private final Launcher launcher;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -60,6 +65,8 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
+
+        launcher = new Launcher(new FlywheelIOSparkMax(41, 42));
         break;
 
       case SIM:
@@ -71,6 +78,8 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.FrontRight),
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
+
+        launcher = new Launcher(new FlywheelIOSim());
         break;
 
       default:
@@ -82,6 +91,8 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
+
+        launcher = new Launcher(new FlywheelIO() {});
         break;
     }
 

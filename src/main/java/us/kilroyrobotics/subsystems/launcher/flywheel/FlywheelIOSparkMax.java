@@ -1,0 +1,61 @@
+package us.kilroyrobotics.subsystems.launcher.flywheel;
+
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Rotations;
+
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
+
+public class FlywheelIOSparkMax implements FlywheelIO {
+  private final SparkMax motor;
+  private final SparkMax followerMotor;
+
+  private final SparkClosedLoopController controller;
+
+  public FlywheelIOSparkMax(int motorId, int followerMotorId) {
+    this.motor = new SparkMax(motorId, MotorType.kBrushless);
+    this.followerMotor = new SparkMax(followerMotorId, MotorType.kBrushless);
+    this.controller = motor.getClosedLoopController();
+
+    SparkMaxConfig motorConfig = new SparkMaxConfig();
+    motorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pidf(0, 0, 0, 0);
+    motorConfig.idleMode(IdleMode.kCoast);
+    motorConfig.smartCurrentLimit(40);
+
+    SparkMaxConfig followerMotorConfig = new SparkMaxConfig();
+    followerMotorConfig.idleMode(IdleMode.kCoast);
+    followerMotorConfig.smartCurrentLimit(40);
+    followerMotorConfig.follow(motor, true);
+
+    motor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    followerMotor.configure(
+        followerMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+  }
+
+  @Override
+  public void updateInputs(FlywheelIOInputs inputs) {
+    inputs.connected = motor.getFaults().can;
+    inputs.positionRads = Rotations.of(motor.getEncoder().getPosition()).in(Radians);
+    inputs.velocityRPM = motor.getEncoder().getVelocity();
+    inputs.appliedVoltage = motor.getAppliedOutput();
+    inputs.supplyCurrentAmps = 0.0;
+    inputs.torqueCurrentAmps = motor.getOutputCurrent();
+    inputs.tempCelsius = motor.getMotorTemperature();
+
+    inputs.followerConnected = followerMotor.getFaults().can;
+    inputs.followerSupplyCurrentAmps = followerMotor.getOutputCurrent();
+    inputs.followerTempCelsius = followerMotor.getMotorTemperature();
+  }
+
+  @Override
+  public void applyOutputs(FlywheelIOOutputs outputs) {
+    controller.setReference(outputs.velocityRPM, ControlType.kVelocity);
+  }
+}
