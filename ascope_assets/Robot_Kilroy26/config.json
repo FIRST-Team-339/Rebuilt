@@ -25,8 +25,8 @@
           "degrees": -34
         },
         {
-          "axis": "x",
-          "degrees": 12.5
+          "axis": "z",
+          "degrees": -12.5
         }
       ],
       "position": [
