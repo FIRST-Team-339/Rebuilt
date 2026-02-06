@@ -5,9 +5,12 @@
 package us.kilroyrobotics.subsystems.launcher.flywheel;
 
 import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
+import us.kilroyrobotics.Constants.LauncherConstants.FlywheelConstants;
 import us.kilroyrobotics.subsystems.launcher.flywheel.FlywheelIO.FlywheelIOOutputs;
 
 public class Flywheel extends SubsystemBase {
@@ -42,6 +45,8 @@ public class Flywheel extends SubsystemBase {
         !followerMotorConnectedDebouncer.calculate(inputs.followerConnected));
 
     outputs.velocityRPM = 1000;
+    outputs.pose =
+        new Pose3d(FlywheelConstants.kTranslation, new Rotation3d(0.0, inputs.positionRads, 0.0));
 
     io.applyOutputs(outputs);
   }

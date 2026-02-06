@@ -15,6 +15,7 @@ package us.kilroyrobotics;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.RobotBase;
 
@@ -43,5 +44,18 @@ public final class Constants {
 
   public static final class DriveConstants {
     public static final LinearVelocity kMaxDriveSpeed = MetersPerSecond.of(3);
+  }
+
+  public static final class LauncherConstants {
+    public static final class FlywheelConstants {
+      public static final int kMotorId = 41;
+      public static final int kFollowerMotorId = 42;
+
+      public static final double kP = 0;
+      public static final double kI = 0;
+      public static final double kD = 0;
+
+      public static final Translation3d kTranslation = new Translation3d(0.2657602, 0.0, 0.3731006);
+    }
   }
 }
