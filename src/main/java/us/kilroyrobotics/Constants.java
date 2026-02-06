@@ -38,6 +38,9 @@ public final class Constants {
     REPLAY
   }
 
+  /** Whether or not we are tuning the robot */
+  public static final boolean kTuning = true;
+
   public static final class DriveConstants {
     public static final LinearVelocity kMaxDriveSpeed = MetersPerSecond.of(3);
   }

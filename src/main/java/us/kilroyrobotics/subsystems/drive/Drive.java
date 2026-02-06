@@ -29,8 +29,11 @@ import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -107,6 +110,27 @@ public class Drive extends SubsystemBase {
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
 
+  @AutoLogOutput(key = "Components/SwerveWheelPoses")
+  private Pose3d[] swerveWheelPoses =
+      new Pose3d[] {
+        new Pose3d(
+            new Translation3d(
+                TunerConstants.FrontLeft.LocationX, TunerConstants.FrontLeft.LocationY, 0.09),
+            Rotation3d.kZero),
+        new Pose3d(
+            new Translation3d(
+                TunerConstants.FrontRight.LocationX, TunerConstants.FrontRight.LocationY, 0.09),
+            Rotation3d.kZero),
+        new Pose3d(
+            new Translation3d(
+                TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY, 0.09),
+            Rotation3d.kZero),
+        new Pose3d(
+            new Translation3d(
+                TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY, 0.09),
+            Rotation3d.kZero)
+      };
+
   public Drive(
       GyroIO gyroIO,
       ModuleIO flModuleIO,
@@ -164,8 +188,12 @@ public class Drive extends SubsystemBase {
     odometryLock.lock(); // Prevents odometry updates while reading data
     gyroIO.updateInputs(gyroInputs);
     Logger.processInputs("Drive/Gyro", gyroInputs);
-    for (var module : modules) {
-      module.periodic();
+    for (int i = 0; i < modules.length; i++) {
+      modules[i].periodic();
+      swerveWheelPoses[i] =
+          new Pose3d(
+              swerveWheelPoses[i].getTranslation(),
+              new Rotation3d(0, 0, modules[i].getPosition().angle.getRadians()));
     }
     odometryLock.unlock();
 
