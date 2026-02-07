@@ -20,8 +20,10 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.RobotBase;
+import us.kilroyrobotics.util.LoggedTunableNumber;
 
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
@@ -87,5 +89,23 @@ public final class Constants {
     public static final double linearStdDevMegatag2Factor = 0.5; // More stable than full 3D solve
     public static final double angularStdDevMegatag2Factor =
         Double.POSITIVE_INFINITY; // No rotation data available
+  }
+
+  public static final class IntakeConstants {
+    public static final int kActuatorMotorCanId = 41;
+    public static final int kRollerMotorCanId = 42;
+
+    public static final LoggedTunableNumber kActuatorExtendedRads =
+        new LoggedTunableNumber("Intake/Actuator/ExtendedRads", Units.degreesToRadians(94));
+    public static final LoggedTunableNumber kRollerIntakeVolts =
+        new LoggedTunableNumber("Intake/Roller/IntakeVolts", 12.0);
+    public static final LoggedTunableNumber kRollerOuttakeVolts =
+        new LoggedTunableNumber("Intake/Roller/OuttakeVolts", -12.0);
+
+    public static final int kActuatorGearing = 5;
+
+    public static final double kAcuatorKP = 0.05;
+    public static final double kAcuatorKI = 0.0;
+    public static final double kAcuatorKD = 0.0;
   }
 }

@@ -32,15 +32,17 @@ import us.kilroyrobotics.subsystems.drive.GyroIOPigeon2;
 import us.kilroyrobotics.subsystems.drive.ModuleIO;
 import us.kilroyrobotics.subsystems.drive.ModuleIOSim;
 import us.kilroyrobotics.subsystems.drive.ModuleIOTalonFX;
-import us.kilroyrobotics.subsystems.vision.Vision;
-import us.kilroyrobotics.subsystems.vision.VisionIO;
-import us.kilroyrobotics.subsystems.vision.VisionIOLimelight;
-import us.kilroyrobotics.subsystems.vision.VisionIOPhotonVisionSim;
 import us.kilroyrobotics.subsystems.intake.Intake;
+import us.kilroyrobotics.subsystems.intake.IntakeEvent;
+import us.kilroyrobotics.subsystems.intake.IntakeState;
 import us.kilroyrobotics.subsystems.intake.actuator.ActuatorIO;
 import us.kilroyrobotics.subsystems.intake.actuator.ActuatorIOSim;
 import us.kilroyrobotics.subsystems.intake.roller.RollerIO;
 import us.kilroyrobotics.subsystems.intake.roller.RollerIOSim;
+import us.kilroyrobotics.subsystems.vision.Vision;
+import us.kilroyrobotics.subsystems.vision.VisionIO;
+import us.kilroyrobotics.subsystems.vision.VisionIOLimelight;
+import us.kilroyrobotics.subsystems.vision.VisionIOPhotonVisionSim;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -76,7 +78,7 @@ public class RobotContainer {
         vision =
             new Vision(
                 drive::addVisionMeasurement, new VisionIOLimelight("FL-LL2", drive::getRotation));
-        
+
         intake = null;
         break;
 
@@ -89,13 +91,13 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.FrontRight),
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
-        
+
         vision =
             new Vision(
                 drive::addVisionMeasurement,
                 new VisionIOPhotonVisionSim(
                     VisionConstants.camera0Name, VisionConstants.robotToCamera0, drive::getPose));
-        
+
         intake = new Intake(new RollerIOSim(), new ActuatorIOSim());
         break;
 
@@ -110,7 +112,7 @@ public class RobotContainer {
                 new ModuleIO() {});
 
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
-        
+
         intake = new Intake(new RollerIO() {}, new ActuatorIO() {});
         break;
     }
@@ -176,6 +178,16 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
                     drive)
                 .ignoringDisable(true));
+
+    controller.povDown().onTrue(intake.triggerEvent(IntakeEvent.EXTEND));
+    controller.povUp().onTrue(intake.triggerEvent(IntakeEvent.RETRACT));
+    controller.povRight().onTrue(Commands.runOnce(() -> {
+        if (intake.getCurrentState() == IntakeState.EXTENDED) {
+            intake.triggerEvent(IntakeEvent.START_INTAKING).schedule();
+        }  else if (intake.getCurrentState() == IntakeState.INTAKING) {
+            intake.triggerEvent(IntakeEvent.STOP_INTAKING).schedule();
+        }
+    }, intake));
   }
 
   /**

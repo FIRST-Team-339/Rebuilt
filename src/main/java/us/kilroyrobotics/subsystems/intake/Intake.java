@@ -4,19 +4,19 @@
 
 package us.kilroyrobotics.subsystems.intake;
 
+import static edu.wpi.first.units.Units.Radians;
+
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.AutoLogOutput;
+import us.kilroyrobotics.Constants.IntakeConstants;
 import us.kilroyrobotics.subsystems.intake.actuator.Actuator;
 import us.kilroyrobotics.subsystems.intake.actuator.ActuatorIO;
 import us.kilroyrobotics.subsystems.intake.roller.Roller;
 import us.kilroyrobotics.subsystems.intake.roller.RollerIO;
-import us.kilroyrobotics.util.LoggedTunableNumber;
 
 public class Intake extends SubsystemBase {
-  private static final LoggedTunableNumber rollerIntakeVolts =
-      new LoggedTunableNumber("Intake/Roller/IntakeVolts", 12.0);
-
   private final Roller roller;
   private final Actuator actuator;
 
@@ -38,6 +38,8 @@ public class Intake extends SubsystemBase {
     actuator.periodic();
 
     double rollerVolts = 0.0;
+    Angle actuatorAngle = actuator.getPosition();
+
     switch (currentState) {
       case RETRACTED -> {
         if (eventIsTriggered(IntakeEvent.EXTEND)) {
@@ -45,7 +47,12 @@ public class Intake extends SubsystemBase {
         }
       }
 
-      case EXTENDING -> {}
+      case EXTENDING -> {
+        actuatorAngle = Radians.of(IntakeConstants.kActuatorExtendedRads.get());
+        if (actuator.atSetpoint()) {
+          setState(IntakeState.EXTENDED);
+        }
+      }
 
       case EXTENDED -> {
         if (eventIsTriggered(IntakeEvent.AGITATE)) {
@@ -62,16 +69,22 @@ public class Intake extends SubsystemBase {
           rollerVolts = 0.0;
           setState(IntakeState.EXTENDED);
         } else {
-          rollerVolts = rollerIntakeVolts.get();
+          rollerVolts = IntakeConstants.kRollerIntakeVolts.get();
         }
       }
 
-      case RETRACTING -> {}
+      case RETRACTING -> {
+        actuatorAngle = Radians.of(0.0);
+        if (actuator.atSetpoint()) {
+          setState(IntakeState.RETRACTED);
+        }
+      }
 
       case AGITATING -> {}
     }
 
     roller.setVolts(rollerVolts);
+    actuator.setPosition(actuatorAngle);
   }
 
   private boolean eventIsTriggered(IntakeEvent event) {

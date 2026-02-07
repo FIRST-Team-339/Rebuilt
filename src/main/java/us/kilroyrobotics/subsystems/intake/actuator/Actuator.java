@@ -4,13 +4,15 @@
 
 package us.kilroyrobotics.subsystems.intake.actuator;
 
+import static edu.wpi.first.units.Units.Radians;
+
 import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-import static edu.wpi.first.units.Units.Radians;
-
 import org.littletonrobotics.junction.Logger;
 import us.kilroyrobotics.subsystems.intake.actuator.ActuatorIO.ActuatorIOOutputs;
 
@@ -26,6 +28,7 @@ public class Actuator extends SubsystemBase {
   private final ActuatorIOOutputs outputs = new ActuatorIOOutputs();
 
   private Angle position = Radians.of(0.0);
+  private boolean isAtSetpoint = false;
 
   /** Creates a new Actuator. */
   public Actuator(ActuatorIO io) {
@@ -40,7 +43,11 @@ public class Actuator extends SubsystemBase {
     Logger.processInputs(name, inputs);
     motorDisconnected.set(!motorConnectedDebouncer.calculate(inputs.connected));
 
+    isAtSetpoint = inputs.atSetpoint;
+
     outputs.positionRads = position.in(Radians);
+    outputs.hopperPose = new Pose3d(new Translation3d(inputs.positionRads * -0.1904, 0.0, 0.0), Rotation3d.kZero);
+    outputs.intakeWallsPose3d = new Pose3d(new Translation3d(-0.193, 0.0, 0.2), new Rotation3d(0.0, -inputs.positionRads, 0.0));
 
     io.applyOutputs(outputs);
   }
@@ -55,5 +62,13 @@ public class Actuator extends SubsystemBase {
 
   public void setPosition(Angle position) {
     this.position = position;
+  }
+
+  public Angle getPosition() {
+    return position;
+  }
+
+  public boolean atSetpoint() {
+    return isAtSetpoint;
   }
 }
