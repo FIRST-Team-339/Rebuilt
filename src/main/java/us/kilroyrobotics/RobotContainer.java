@@ -179,10 +179,11 @@ public class RobotContainer {
 
     controller
         .y()
-        .onChange(
+        .toggleOnTrue(
             Commands.runOnce(
                 () -> {
                   hubRotationLock = !hubRotationLock;
+                  drive.getDefaultCommand().cancel();
                   drive.setDefaultCommand(
                       hubRotationLock ? hubRotationLockedDrive : hubRotationUnlockedDrive);
                 }));
