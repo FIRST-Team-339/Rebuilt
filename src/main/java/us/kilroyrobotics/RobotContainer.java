@@ -178,7 +178,7 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     controller
-        .y()
+        .rightStick()
         .toggleOnTrue(
             Commands.runOnce(
                 () -> {
