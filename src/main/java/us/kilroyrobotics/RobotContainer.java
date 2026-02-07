@@ -24,6 +24,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import us.kilroyrobotics.Constants.LauncherConstants.FlywheelConstants;
+import us.kilroyrobotics.Constants.LauncherConstants.KickerConstants;
+import us.kilroyrobotics.Constants.LauncherConstants.SerializerConstants;
 import us.kilroyrobotics.generated.TunerConstants;
 import us.kilroyrobotics.subsystems.drive.Drive;
 import us.kilroyrobotics.subsystems.drive.GyroIO;
@@ -36,7 +39,9 @@ import us.kilroyrobotics.subsystems.launcher.flywheel.FlywheelIO;
 import us.kilroyrobotics.subsystems.launcher.flywheel.FlywheelIOSim;
 import us.kilroyrobotics.subsystems.launcher.flywheel.FlywheelIOSparkMax;
 import us.kilroyrobotics.subsystems.launcher.kicker.KickerIO;
+import us.kilroyrobotics.subsystems.launcher.kicker.KickerIOSparkMax;
 import us.kilroyrobotics.subsystems.launcher.serializer.SerializerIO;
+import us.kilroyrobotics.subsystems.launcher.serializer.SerializerIOSparkMax;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -75,9 +80,10 @@ public class RobotContainer {
 
         launcher =
             new Launcher(
-                new SerializerIO() {},
-                new KickerIO() {},
-                new FlywheelIOSparkMax(41, 42),
+                new SerializerIOSparkMax(SerializerConstants.kMotorId),
+                new KickerIOSparkMax(KickerConstants.kMotorId),
+                new FlywheelIOSparkMax(
+                    FlywheelConstants.kMotorId, FlywheelConstants.kFollowerMotorId),
                 drive::getPose);
         break;
 
@@ -187,6 +193,11 @@ public class RobotContainer {
                   drive.setDefaultCommand(
                       hubRotationLock ? hubRotationLockedDrive : hubRotationUnlockedDrive);
                 }));
+
+    controller
+        .rightTrigger()
+        .onTrue(launcher.spinUpSerializerAndKicker)
+        .onFalse(launcher.stopSerializerAndKicker);
   }
 
   /**

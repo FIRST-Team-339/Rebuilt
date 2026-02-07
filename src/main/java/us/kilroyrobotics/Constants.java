@@ -21,6 +21,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.RobotBase;
+import us.kilroyrobotics.util.LoggedTunableNumber;
 
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
@@ -28,7 +29,7 @@ import edu.wpi.first.wpilibj.RobotBase;
  * (log replay from a file).
  */
 public final class Constants {
-  public static final Mode kSimMode = Mode.SIM;
+  public static final Mode kSimMode = Mode.REPLAY;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : kSimMode;
 
   public static enum Mode {
@@ -66,9 +67,23 @@ public final class Constants {
   }
 
   public static final class LauncherConstants {
+    public static final class SerializerConstants {
+      public static final int kMotorId = 43;
+
+      public static final LoggedTunableNumber kSerializerPercent =
+          new LoggedTunableNumber("Launcher/Serializer/Percent", 0.4);
+    }
+
+    public static final class KickerConstants {
+      public static final int kMotorId = 44;
+
+      public static final LoggedTunableNumber kKickerPercent =
+          new LoggedTunableNumber("Launcher/Kicker/Percent", 0.6);
+    }
+
     public static final class FlywheelConstants {
-      public static final int kMotorId = 41;
-      public static final int kFollowerMotorId = 42;
+      public static final int kMotorId = 45;
+      public static final int kFollowerMotorId = 46;
 
       public static final double kP = 0.1;
       public static final double kI = 0;

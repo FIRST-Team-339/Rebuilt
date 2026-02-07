@@ -7,7 +7,6 @@ package us.kilroyrobotics.subsystems.launcher;
 import static edu.wpi.first.units.Units.Radians;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -15,20 +14,16 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import us.kilroyrobotics.Constants.FieldConstants;
+import us.kilroyrobotics.Constants.LauncherConstants.KickerConstants;
+import us.kilroyrobotics.Constants.LauncherConstants.SerializerConstants;
 import us.kilroyrobotics.subsystems.launcher.flywheel.Flywheel;
 import us.kilroyrobotics.subsystems.launcher.flywheel.FlywheelIO;
 import us.kilroyrobotics.subsystems.launcher.kicker.Kicker;
 import us.kilroyrobotics.subsystems.launcher.kicker.KickerIO;
 import us.kilroyrobotics.subsystems.launcher.serializer.Serializer;
 import us.kilroyrobotics.subsystems.launcher.serializer.SerializerIO;
-import us.kilroyrobotics.util.LoggedTunableNumber;
 
 public class Launcher extends SubsystemBase {
-  private static final LoggedTunableNumber serializerIntakeVolts =
-      new LoggedTunableNumber("Launcher/Serializer/IntakeVolts", 12.0);
-  private static final LoggedTunableNumber kickerIntakeVolts =
-      new LoggedTunableNumber("Launcher/Kicker/IntakeVolts", 12.0);
-
   private final Serializer serializer;
   private final Kicker kicker;
   private final Flywheel flywheel;
@@ -37,6 +32,7 @@ public class Launcher extends SubsystemBase {
 
   private boolean serializerOn = false;
   private boolean kickerOn = false;
+  public double rpm = 0.0;
 
   /** Creates a new Shooter. */
   public Launcher(
@@ -58,13 +54,13 @@ public class Launcher extends SubsystemBase {
     flywheel.periodic();
 
     if (serializerOn) {
-      serializer.setVolts(serializerIntakeVolts.get());
+      serializer.setPercent(SerializerConstants.kSerializerPercent.get());
     } else {
       serializer.stop();
     }
 
     if (kickerOn) {
-      kicker.setVolts(kickerIntakeVolts.get());
+      kicker.setPercent(KickerConstants.kKickerPercent.get());
     } else {
       kicker.stop();
     }
@@ -77,9 +73,6 @@ public class Launcher extends SubsystemBase {
             FieldConstants.hubPose.getY() - robotPoseSupplier.get().getY(),
             FieldConstants.hubPose.getX() - robotPoseSupplier.get().getX()));
   }
-
-  @AutoLogOutput(key = "Test/Pose")
-  public final Pose3d test = new Pose3d(FieldConstants.hubPose);
 
   public Command spinUpSerializerAndKicker =
       runOnce(() -> kickerOn = true)
