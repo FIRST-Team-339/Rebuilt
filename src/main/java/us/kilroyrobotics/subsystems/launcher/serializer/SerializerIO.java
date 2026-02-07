@@ -15,7 +15,7 @@ public interface SerializerIO {
   }
 
   public static class SerializerIOOutputs {
-    public double appliedVoltage = 0.0;
+    public double appliedPercent = 0.0;
   }
 
   default void updateInputs(SerializerIOInputs inputs) {}

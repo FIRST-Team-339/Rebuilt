@@ -21,7 +21,7 @@ public class Serializer extends SubsystemBase {
   private final SerializerIOInputsAutoLogged inputs = new SerializerIOInputsAutoLogged();
   private final SerializerIOOutputs outputs = new SerializerIOOutputs();
 
-  private double volts = 0.0;
+  private double percent = 0.0;
 
   /** Creates a new Serializer. */
   public Serializer(SerializerIO io) {
@@ -36,7 +36,7 @@ public class Serializer extends SubsystemBase {
     Logger.processInputs(name, inputs);
     motorDisconnected.set(!motorConnectedDebouncer.calculate(inputs.connected));
 
-    outputs.appliedVoltage = volts;
+    outputs.appliedPercent = percent;
 
     io.applyOutputs(outputs);
   }
@@ -49,11 +49,11 @@ public class Serializer extends SubsystemBase {
     return inputs.velocityRadsPerSec;
   }
 
-  public void setVolts(double volts) {
-    this.volts = volts;
+  public void setPercent(double percent) {
+    this.percent = percent;
   }
 
   public void stop() {
-    setVolts(0.0);
+    setPercent(0.0);
   }
 }
