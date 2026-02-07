@@ -15,7 +15,7 @@ public interface KickerIO {
   }
 
   public static class KickerIOOutputs {
-    public double appliedVoltage = 0.0;
+    public double appliedPercent = 0.0;
   }
 
   default void updateInputs(KickerIOInputs inputs) {}

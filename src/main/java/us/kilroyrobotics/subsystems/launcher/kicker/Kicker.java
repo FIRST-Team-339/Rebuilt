@@ -21,7 +21,7 @@ public class Kicker extends SubsystemBase {
   private final KickerIOInputsAutoLogged inputs = new KickerIOInputsAutoLogged();
   private final KickerIOOutputs outputs = new KickerIOOutputs();
 
-  private double volts = 0.0;
+  private double percent = 0.0;
 
   /** Creates a new Kicker. */
   public Kicker(KickerIO io) {
@@ -36,7 +36,7 @@ public class Kicker extends SubsystemBase {
     Logger.processInputs(name, inputs);
     motorDisconnected.set(!motorConnectedDebouncer.calculate(inputs.connected));
 
-    outputs.appliedVoltage = volts;
+    outputs.appliedPercent = percent;
 
     io.applyOutputs(outputs);
   }
@@ -49,11 +49,11 @@ public class Kicker extends SubsystemBase {
     return inputs.velocityRadsPerSec;
   }
 
-  public void setVolts(double volts) {
-    this.volts = volts;
+  public void setPercent(double percent) {
+    this.percent = percent;
   }
 
   public void stop() {
-    setVolts(0.0);
+    setPercent(0.0);
   }
 }
