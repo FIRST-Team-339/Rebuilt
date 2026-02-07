@@ -25,7 +25,10 @@ public class FlywheelIOSparkMax implements FlywheelIO {
     this.controller = motor.getClosedLoopController();
 
     SparkMaxConfig motorConfig = new SparkMaxConfig();
-    motorConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pidf(0, 0, 0, 0);
+    motorConfig
+        .closedLoop
+        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+        .pidf(0.0005, 0.00000025, 0.005, 0);
     motorConfig.idleMode(IdleMode.kCoast);
     motorConfig.smartCurrentLimit(40);
 
@@ -41,7 +44,7 @@ public class FlywheelIOSparkMax implements FlywheelIO {
 
   @Override
   public void updateInputs(FlywheelIOInputs inputs) {
-    inputs.connected = motor.getFaults().can;
+    inputs.connected = !Double.isNaN(motor.getAppliedOutput());
     inputs.positionRads = Rotations.of(motor.getEncoder().getPosition()).in(Radians);
     inputs.velocityRPM = motor.getEncoder().getVelocity();
     inputs.appliedVoltage = motor.getAppliedOutput();
@@ -49,7 +52,7 @@ public class FlywheelIOSparkMax implements FlywheelIO {
     inputs.torqueCurrentAmps = motor.getOutputCurrent();
     inputs.tempCelsius = motor.getMotorTemperature();
 
-    inputs.followerConnected = followerMotor.getFaults().can;
+    inputs.followerConnected = !Double.isNaN(followerMotor.getAppliedOutput());
     inputs.followerSupplyCurrentAmps = followerMotor.getOutputCurrent();
     inputs.followerTempCelsius = followerMotor.getMotorTemperature();
   }
