@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import us.kilroyrobotics.Constants.VisionConstants;
 import us.kilroyrobotics.commands.DriveCommands;
 import us.kilroyrobotics.generated.TunerConstants;
 import us.kilroyrobotics.subsystems.drive.Drive;
@@ -31,6 +32,10 @@ import us.kilroyrobotics.subsystems.drive.GyroIOPigeon2;
 import us.kilroyrobotics.subsystems.drive.ModuleIO;
 import us.kilroyrobotics.subsystems.drive.ModuleIOSim;
 import us.kilroyrobotics.subsystems.drive.ModuleIOTalonFX;
+import us.kilroyrobotics.subsystems.vision.Vision;
+import us.kilroyrobotics.subsystems.vision.VisionIO;
+import us.kilroyrobotics.subsystems.vision.VisionIOLimelight;
+import us.kilroyrobotics.subsystems.vision.VisionIOPhotonVisionSim;
 import us.kilroyrobotics.subsystems.intake.Intake;
 import us.kilroyrobotics.subsystems.intake.actuator.ActuatorIO;
 import us.kilroyrobotics.subsystems.intake.actuator.ActuatorIOSim;
@@ -46,6 +51,7 @@ import us.kilroyrobotics.subsystems.intake.roller.RollerIOSim;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
+  private final Vision vision;
   private final Intake intake;
 
   // Controller
@@ -67,6 +73,10 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
 
+        vision =
+            new Vision(
+                drive::addVisionMeasurement, new VisionIOLimelight("FL-LL2", drive::getRotation));
+        
         intake = null;
         break;
 
@@ -79,7 +89,13 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.FrontRight),
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
-
+        
+        vision =
+            new Vision(
+                drive::addVisionMeasurement,
+                new VisionIOPhotonVisionSim(
+                    VisionConstants.camera0Name, VisionConstants.robotToCamera0, drive::getPose));
+        
         intake = new Intake(new RollerIOSim(), new ActuatorIOSim());
         break;
 
@@ -93,6 +109,8 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {});
 
+        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
+        
         intake = new Intake(new RollerIO() {}, new ActuatorIO() {});
         break;
     }
