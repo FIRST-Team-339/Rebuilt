@@ -18,23 +18,27 @@
   ],
   "cameras": [
     {
-      "name": "Northstar 0",
+      "name": "Limelight 2",
       "rotations": [
         {
           "axis": "y",
-          "degrees": -22.5
+          "degrees": -34
+        },
+        {
+          "axis": "z",
+          "degrees": -12.5
         }
       ],
       "position": [
-        -0.3282696,
-        0.0,
-        0.7170674
+        0.2031492,
+        0.2619502,
+        0.191389
       ],
       "resolution": [
-        1600,
-        1200
+        1280,
+        960
       ],
-      "fov": 66.62
+      "fov": 62.5
     }
   ],
   "components": [
@@ -67,9 +71,9 @@
         }
       ],
       "zeroedPosition": [
+        0.193,
         0.0,
-        0.0,
-        0.0
+        -0.2
       ]
     },
     {
@@ -80,7 +84,7 @@
         },
         {
           "axis": "z",
-          "degrees": 90
+          "degrees": 0
         }
       ],
       "zeroedPosition": [

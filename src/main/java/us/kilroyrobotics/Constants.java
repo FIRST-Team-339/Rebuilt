@@ -13,6 +13,8 @@
 
 package us.kilroyrobotics;
 
+
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
@@ -21,6 +23,11 @@ import com.pathplanner.lib.util.FlippingUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -98,6 +105,78 @@ public final class Constants {
       public static final double kD = 0;
 
       public static final Translation3d kTranslation = new Translation3d(0.2657602, 0.0, 0.3731006);
+    }
+  }
+
+  public static final class VisionConstants {
+    // AprilTag layout
+    public static final AprilTagFieldLayout aprilTagLayout =
+        AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField); // TODO: Update to 2026
+
+    // Camera names, must match names configured on coprocessor
+    public static final String camera0Name = "FL-LL2";
+
+    // Robot to camera transforms
+    // (Not used by Limelight, configure in web UI instead)
+    public static final Transform3d robotToCamera0 =
+        new Transform3d(
+            0.2031492,
+            0.2619502,
+            0.191389,
+            new Rotation3d(Degrees.of(0.0), Degrees.of(-34.0), Degrees.of(-12.5)));
+
+    // Basic filtering thresholds
+    public static final double maxAmbiguity = 0.3;
+    public static final double maxZError = 0.75;
+
+    // Standard deviation baselines, for 1 meter distance and 1 tag
+    // (Adjusted automatically based on distance and # of tags)
+    public static final double linearStdDevBaseline = 0.02; // Meters
+    public static final double angularStdDevBaseline = 0.06; // Radians
+
+    // Standard deviation multipliers for each camera
+    // (Adjust to trust some cameras more than others)
+    public static final double[] cameraStdDevFactors =
+        new double[] {
+          1.0, // Camera 0
+        };
+
+    // Multipliers to apply for MegaTag 2 observations
+    public static final double linearStdDevMegatag2Factor = 0.5; // More stable than full 3D solve
+    public static final double angularStdDevMegatag2Factor =
+        Double.POSITIVE_INFINITY; // No rotation data available
+  }
+
+  public static final class IntakeConstants {
+    public static final class ActuatorConstants {
+      /** The CAN ID of the actuator motor */
+      public static final int kMotorCanId = 41;
+
+      /** The setpoint for the actuator when fully extended */
+      public static final LoggedTunableNumber kExtendedRads =
+          new LoggedTunableNumber("Intake/Actuator/ExtendedRads", Units.degreesToRadians(94));
+
+      /** The gear ratio of the actuator motor */
+      public static final int kGearing = 5;
+
+      public static final double kP = 0.05;
+      public static final double kI = 0.0;
+      public static final double kD = 0.0;
+    }
+
+    public static final class RollerConstants {
+      /** The CAN ID of the roller motor */
+      public static final int kMotorCanId = 42;
+
+      /** The set percent of the motor when intaking fuel */
+      public static final LoggedTunableNumber kIntakePercent =
+          new LoggedTunableNumber("Intake/Roller/IntakePercent", 0.4);
+      /** The set percent of the motor when agitating/launching fuel */
+      public static final LoggedTunableNumber kAgitatePercent =
+          new LoggedTunableNumber("Intake/Roller/AgitatePercent", 0.1);
+      /** The set percent of the motor when outtaking fuel */
+      public static final LoggedTunableNumber kOuttakePercent =
+          new LoggedTunableNumber("Intake/Roller/OuttakePercent", -0.4);
     }
   }
 }

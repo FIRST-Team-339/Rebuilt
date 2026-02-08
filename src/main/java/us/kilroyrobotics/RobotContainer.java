@@ -27,6 +27,9 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import us.kilroyrobotics.Constants.LauncherConstants.FlywheelConstants;
 import us.kilroyrobotics.Constants.LauncherConstants.KickerConstants;
 import us.kilroyrobotics.Constants.LauncherConstants.SerializerConstants;
+import us.kilroyrobotics.Constants.IntakeConstants.ActuatorConstants;
+import us.kilroyrobotics.Constants.IntakeConstants.RollerConstants;
+import us.kilroyrobotics.Constants.VisionConstants;
 import us.kilroyrobotics.generated.TunerConstants;
 import us.kilroyrobotics.subsystems.drive.Drive;
 import us.kilroyrobotics.subsystems.drive.GyroIO;
@@ -42,6 +45,19 @@ import us.kilroyrobotics.subsystems.launcher.kicker.KickerIO;
 import us.kilroyrobotics.subsystems.launcher.kicker.KickerIOSparkMax;
 import us.kilroyrobotics.subsystems.launcher.serializer.SerializerIO;
 import us.kilroyrobotics.subsystems.launcher.serializer.SerializerIOSparkMax;
+import us.kilroyrobotics.subsystems.intake.Intake;
+import us.kilroyrobotics.subsystems.intake.IntakeEvent;
+import us.kilroyrobotics.subsystems.intake.IntakeState;
+import us.kilroyrobotics.subsystems.intake.actuator.ActuatorIO;
+import us.kilroyrobotics.subsystems.intake.actuator.ActuatorIOSim;
+import us.kilroyrobotics.subsystems.intake.actuator.ActuatorIOSparkMax;
+import us.kilroyrobotics.subsystems.intake.roller.RollerIO;
+import us.kilroyrobotics.subsystems.intake.roller.RollerIOSim;
+import us.kilroyrobotics.subsystems.intake.roller.RollerIOSparkMax;
+import us.kilroyrobotics.subsystems.vision.Vision;
+import us.kilroyrobotics.subsystems.vision.VisionIO;
+import us.kilroyrobotics.subsystems.vision.VisionIOLimelight;
+import us.kilroyrobotics.subsystems.vision.VisionIOPhotonVisionSim;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -55,6 +71,11 @@ public class RobotContainer {
   private Command hubRotationUnlockedDrive;
   private Command hubRotationLockedDrive;
   private final Launcher launcher;
+
+  @SuppressWarnings("unused")
+  private final Vision vision;
+
+  private final Intake intake;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -78,6 +99,15 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
 
+        vision =
+            new Vision(
+                drive::addVisionMeasurement, new VisionIOLimelight("FL-LL2", drive::getRotation));
+
+        intake =
+            new Intake(
+                new ActuatorIOSparkMax(ActuatorConstants.kMotorCanId),
+                new RollerIOSparkMax(RollerConstants.kMotorCanId));
+        
         launcher =
             new Launcher(
                 new SerializerIOSparkMax(SerializerConstants.kMotorId),
@@ -97,6 +127,14 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
 
+        vision =
+            new Vision(
+                drive::addVisionMeasurement,
+                new VisionIOPhotonVisionSim(
+                    VisionConstants.camera0Name, VisionConstants.robotToCamera0, drive::getPose));
+
+        intake = new Intake(new ActuatorIOSim(), new RollerIOSim());
+        
         launcher =
             new Launcher(
                 new SerializerIO() {}, new KickerIO() {}, new FlywheelIOSim(), drive::getPose);
@@ -112,6 +150,10 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {});
 
+        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
+
+        intake = new Intake(new ActuatorIO() {}, new RollerIO() {});
+        
         launcher =
             new Launcher(
                 new SerializerIO() {}, new KickerIO() {}, new FlywheelIO() {}, drive::getPose);
@@ -198,6 +240,20 @@ public class RobotContainer {
         .rightTrigger()
         .onTrue(launcher.spinUpSerializerAndKicker)
         .onFalse(launcher.stopSerializerAndKicker);
+    controller.povDown().onTrue(intake.triggerEvent(IntakeEvent.EXTEND));
+    controller.povUp().onTrue(intake.triggerEvent(IntakeEvent.RETRACT));
+    controller
+        .povRight()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  if (intake.getCurrentState() == IntakeState.EXTENDED) {
+                    intake.triggerEvent(IntakeEvent.START_INTAKING).schedule();
+                  } else if (intake.getCurrentState() == IntakeState.INTAKING) {
+                    intake.triggerEvent(IntakeEvent.STOP_INTAKING).schedule();
+                  }
+                },
+                intake));
   }
 
   /**
