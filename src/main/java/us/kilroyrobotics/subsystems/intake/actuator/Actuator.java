@@ -33,7 +33,7 @@ public class Actuator extends SubsystemBase {
 
   /**
    * Creates a new Actuator.
-   * 
+   *
    * @param io A compatible Actuator IO interface
    */
   public Actuator(ActuatorIO io) {
@@ -65,6 +65,7 @@ public class Actuator extends SubsystemBase {
 
   /**
    * Get the torque current of the actuator
+   *
    * @return torque current in amps
    */
   public double getTorqueCurrent() {
@@ -72,7 +73,8 @@ public class Actuator extends SubsystemBase {
   }
 
   /**
-   * Get the velocity of the actuator 
+   * Get the velocity of the actuator
+   *
    * @return velocity in Radians/Sec
    */
   public double getVelocity() {
@@ -81,6 +83,7 @@ public class Actuator extends SubsystemBase {
 
   /**
    * Set the desired position of the actuator
+   *
    * @param position the desired position as an {@link Angle}
    */
   public void setPosition(Angle position) {

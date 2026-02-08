@@ -91,7 +91,8 @@ public class Intake extends SubsystemBase {
       }
 
       case AGITATING -> {
-        // Switch to retracting state to finish out if retraction is triggered, or if you are less than 5deg away
+        // Switch to retracting state to finish out if retraction is triggered, or if you are less
+        // than 5deg away
         if (eventIsTriggered(IntakeEvent.RETRACT) || actuatorAngle.lt(Degrees.of(5))) {
           rollerOutput = 0.0;
           setState(IntakeState.RETRACTING);
@@ -115,7 +116,7 @@ public class Intake extends SubsystemBase {
 
   /**
    * Check if an event is pending and should be triggered
-   * 
+   *
    * @param event {@link IntakeEvent}
    * @return if event is triggered/pending
    */
@@ -130,7 +131,7 @@ public class Intake extends SubsystemBase {
 
   /**
    * Get the command to trigger a desired event
-   * 
+   *
    * @param event {@link IntakeEvent}
    * @returna a {@link Command}
    */
@@ -140,7 +141,7 @@ public class Intake extends SubsystemBase {
 
   /**
    * Get the pending event
-   * 
+   *
    * @return the currently pending {@link IntakeEvent}
    */
   public IntakeEvent getPendingEvent() {
@@ -149,7 +150,7 @@ public class Intake extends SubsystemBase {
 
   /**
    * Get the current state of the intake
-   * 
+   *
    * @return the current {@link IntakeState}
    */
   public IntakeState getCurrentState() {
@@ -158,7 +159,7 @@ public class Intake extends SubsystemBase {
 
   /**
    * Set the state of the intake
-   * 
+   *
    * @param state {@link IntakeState}
    */
   public void setState(IntakeState state) {

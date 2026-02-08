@@ -11,12 +11,10 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
+import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import us.kilroyrobotics.Constants.IntakeConstants.ActuatorConstants;
-
-import com.revrobotics.spark.config.SparkMaxConfig;
 
 public class ActuatorIOSparkMax implements ActuatorIO {
   private final SparkMax motor;
@@ -25,11 +23,11 @@ public class ActuatorIOSparkMax implements ActuatorIO {
 
   private Angle desiredAngle = Radians.of(0.0);
 
-  /** 
+  /**
    * Creates a new AcuatorIOSparkMax.
-   * 
+   *
    * @param motorId the CAN ID of the motor
-   * */
+   */
   public ActuatorIOSparkMax(int motorId) {
     this.motor = new SparkMax(motorId, MotorType.kBrushless);
     this.controller = motor.getClosedLoopController();

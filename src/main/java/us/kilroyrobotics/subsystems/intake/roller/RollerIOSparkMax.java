@@ -14,11 +14,11 @@ import edu.wpi.first.math.util.Units;
 public class RollerIOSparkMax implements RollerIO {
   private final SparkMax motor;
 
-  /** 
+  /**
    * Creates a new RollerIOSparkMax.
-   * 
+   *
    * @param motorId the CAN ID of the motor
-   * */
+   */
   public RollerIOSparkMax(int motorId) {
     this.motor = new SparkMax(motorId, MotorType.kBrushless);
 

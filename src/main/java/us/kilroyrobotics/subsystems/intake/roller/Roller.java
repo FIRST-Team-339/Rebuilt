@@ -32,9 +32,9 @@ public class Roller extends SubsystemBase {
 
   private double output = 0.0;
 
-  /** 
-   * Creates a new Roller. 
-   * 
+  /**
+   * Creates a new Roller.
+   *
    * @param io A compatible Actuator IO interface
    * @param actuatorRadsSupplier an {@link Supplier Angle Supplier} for the actuator
    */
@@ -66,6 +66,7 @@ public class Roller extends SubsystemBase {
 
   /**
    * Get the torque current of the actuator
+   *
    * @return torque current in amps
    */
   public double getTorqueCurrent() {
@@ -73,7 +74,8 @@ public class Roller extends SubsystemBase {
   }
 
   /**
-   * Get the velocity of the actuator 
+   * Get the velocity of the actuator
+   *
    * @return velocity in Radians/Sec
    */
   public double getVelocity() {
@@ -82,15 +84,14 @@ public class Roller extends SubsystemBase {
 
   /**
    * Set the desired speed of the motor as a percent output
+   *
    * @param output percent output (-1.0 to 1.0)
    */
   public void set(double output) {
     this.output = output;
   }
 
-  /**
-   * Stop the motor
-   */
+  /** Stop the motor */
   public void stop() {
     set(0.0);
   }

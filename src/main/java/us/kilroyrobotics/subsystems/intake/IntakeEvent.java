@@ -16,9 +16,9 @@ public enum IntakeEvent {
   /** Request for the intake to retract */
   RETRACT,
 
-  /** 
+  /**
    * Request for the intake to agitate
-   * 
+   *
    * <p>This should be triggered when the robot is launching fuel
    */
   AGITATE

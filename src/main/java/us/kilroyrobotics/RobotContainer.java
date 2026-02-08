@@ -23,7 +23,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-
 import us.kilroyrobotics.Constants.IntakeConstants.ActuatorConstants;
 import us.kilroyrobotics.Constants.IntakeConstants.RollerConstants;
 import us.kilroyrobotics.Constants.VisionConstants;
@@ -87,7 +86,10 @@ public class RobotContainer {
             new Vision(
                 drive::addVisionMeasurement, new VisionIOLimelight("FL-LL2", drive::getRotation));
 
-        intake = new Intake(new ActuatorIOSparkMax (ActuatorConstants.kMotorCanId), new RollerIOSparkMax(RollerConstants.kMotorCanId));
+        intake =
+            new Intake(
+                new ActuatorIOSparkMax(ActuatorConstants.kMotorCanId),
+                new RollerIOSparkMax(RollerConstants.kMotorCanId));
         break;
 
       case SIM:
