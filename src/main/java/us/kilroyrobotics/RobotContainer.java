@@ -24,11 +24,11 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import us.kilroyrobotics.Constants.IntakeConstants.ActuatorConstants;
+import us.kilroyrobotics.Constants.IntakeConstants.RollerConstants;
 import us.kilroyrobotics.Constants.LauncherConstants.FlywheelConstants;
 import us.kilroyrobotics.Constants.LauncherConstants.KickerConstants;
 import us.kilroyrobotics.Constants.LauncherConstants.SerializerConstants;
-import us.kilroyrobotics.Constants.IntakeConstants.ActuatorConstants;
-import us.kilroyrobotics.Constants.IntakeConstants.RollerConstants;
 import us.kilroyrobotics.Constants.VisionConstants;
 import us.kilroyrobotics.generated.TunerConstants;
 import us.kilroyrobotics.subsystems.drive.Drive;
@@ -37,14 +37,6 @@ import us.kilroyrobotics.subsystems.drive.GyroIOPigeon2;
 import us.kilroyrobotics.subsystems.drive.ModuleIO;
 import us.kilroyrobotics.subsystems.drive.ModuleIOSim;
 import us.kilroyrobotics.subsystems.drive.ModuleIOTalonFX;
-import us.kilroyrobotics.subsystems.launcher.Launcher;
-import us.kilroyrobotics.subsystems.launcher.flywheel.FlywheelIO;
-import us.kilroyrobotics.subsystems.launcher.flywheel.FlywheelIOSim;
-import us.kilroyrobotics.subsystems.launcher.flywheel.FlywheelIOSparkMax;
-import us.kilroyrobotics.subsystems.launcher.kicker.KickerIO;
-import us.kilroyrobotics.subsystems.launcher.kicker.KickerIOSparkMax;
-import us.kilroyrobotics.subsystems.launcher.serializer.SerializerIO;
-import us.kilroyrobotics.subsystems.launcher.serializer.SerializerIOSparkMax;
 import us.kilroyrobotics.subsystems.intake.Intake;
 import us.kilroyrobotics.subsystems.intake.IntakeEvent;
 import us.kilroyrobotics.subsystems.intake.IntakeState;
@@ -54,6 +46,14 @@ import us.kilroyrobotics.subsystems.intake.actuator.ActuatorIOSparkMax;
 import us.kilroyrobotics.subsystems.intake.roller.RollerIO;
 import us.kilroyrobotics.subsystems.intake.roller.RollerIOSim;
 import us.kilroyrobotics.subsystems.intake.roller.RollerIOSparkMax;
+import us.kilroyrobotics.subsystems.launcher.Launcher;
+import us.kilroyrobotics.subsystems.launcher.flywheel.FlywheelIO;
+import us.kilroyrobotics.subsystems.launcher.flywheel.FlywheelIOSim;
+import us.kilroyrobotics.subsystems.launcher.flywheel.FlywheelIOSparkMax;
+import us.kilroyrobotics.subsystems.launcher.kicker.KickerIO;
+import us.kilroyrobotics.subsystems.launcher.kicker.KickerIOSparkMax;
+import us.kilroyrobotics.subsystems.launcher.serializer.SerializerIO;
+import us.kilroyrobotics.subsystems.launcher.serializer.SerializerIOSparkMax;
 import us.kilroyrobotics.subsystems.vision.Vision;
 import us.kilroyrobotics.subsystems.vision.VisionIO;
 import us.kilroyrobotics.subsystems.vision.VisionIOLimelight;
@@ -107,7 +107,7 @@ public class RobotContainer {
             new Intake(
                 new ActuatorIOSparkMax(ActuatorConstants.kMotorCanId),
                 new RollerIOSparkMax(RollerConstants.kMotorCanId));
-        
+
         launcher =
             new Launcher(
                 new SerializerIOSparkMax(SerializerConstants.kMotorId),
@@ -134,7 +134,7 @@ public class RobotContainer {
                     VisionConstants.camera0Name, VisionConstants.robotToCamera0, drive::getPose));
 
         intake = new Intake(new ActuatorIOSim(), new RollerIOSim());
-        
+
         launcher =
             new Launcher(
                 new SerializerIO() {}, new KickerIO() {}, new FlywheelIOSim(), drive::getPose);
@@ -153,7 +153,7 @@ public class RobotContainer {
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
 
         intake = new Intake(new ActuatorIO() {}, new RollerIO() {});
-        
+
         launcher =
             new Launcher(
                 new SerializerIO() {}, new KickerIO() {}, new FlywheelIO() {}, drive::getPose);

@@ -17,7 +17,8 @@ import us.kilroyrobotics.util.LoggedTunableNumber;
 public class Flywheel extends SubsystemBase {
   public static final String name = "Launcher/Flywheel";
 
-  private final LoggedTunableNumber tuningRPM = new LoggedTunableNumber("Launcher/Flywheel/RPM", 3000);
+  private final LoggedTunableNumber tuningRPM =
+      new LoggedTunableNumber("Launcher/Flywheel/RPM", 3000);
 
   private final Debouncer motorConnectedDebouncer =
       new Debouncer(0.5, Debouncer.DebounceType.kFalling);
