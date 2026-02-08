@@ -96,16 +96,22 @@ public class Intake extends SubsystemBase {
         if (eventIsTriggered(IntakeEvent.RETRACT) || actuatorAngle.lt(Degrees.of(5))) {
           rollerOutput = 0.0;
           setState(IntakeState.RETRACTING);
-        } else if (agitateBackwards && timer.hasElapsed(1.25)) { // Semi-oscillate back and forth
-          timer.restart();
+        } else {
+          // Semi-oscillate back and forth
+          rollerOutput = RollerConstants.kAgitatePercent.get();
 
-          agitateBackwards = false;
-          actuatorAngle = actuatorAngle.plus(Degrees.of(35));
-        } else if (!agitateBackwards && timer.hasElapsed(0.75)) {
-          timer.restart();
+          if (agitateBackwards && timer.hasElapsed(1.25)) {
+            rollerOutput = RollerConstants.kAgitatePercent.get();
+            timer.restart();
 
-          agitateBackwards = true;
-          actuatorAngle = actuatorAngle.minus(Degrees.of(40));
+            agitateBackwards = false;
+            actuatorAngle = actuatorAngle.plus(Degrees.of(35));
+          } else if (!agitateBackwards && timer.hasElapsed(0.75)) {
+            timer.restart();
+
+            agitateBackwards = true;
+            actuatorAngle = actuatorAngle.minus(Degrees.of(40));
+          }
         }
       }
     }
