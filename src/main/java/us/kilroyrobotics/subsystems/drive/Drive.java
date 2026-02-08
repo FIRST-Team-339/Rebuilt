@@ -125,7 +125,7 @@ public class Drive extends SubsystemBase {
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
 
-  @AutoLogOutput(key = "Components/SwerveWheelPoses")
+  @AutoLogOutput(key = "Components/SwerveSteer")
   private Pose3d[] swerveWheelPoses =
       new Pose3d[] {
         new Pose3d(
