@@ -92,20 +92,32 @@ public final class Constants {
   }
 
   public static final class IntakeConstants {
-    public static final int kActuatorMotorCanId = 41;
-    public static final int kRollerMotorCanId = 42;
+    public static final class ActuatorConstants {
+      /** The CAN ID of the actuator motor */
+      public static final int kMotorCanId = 41;
 
-    public static final LoggedTunableNumber kActuatorExtendedRads =
-        new LoggedTunableNumber("Intake/Actuator/ExtendedRads", Units.degreesToRadians(94));
-    public static final LoggedTunableNumber kRollerIntakeVolts =
-        new LoggedTunableNumber("Intake/Roller/IntakeVolts", 12.0);
-    public static final LoggedTunableNumber kRollerOuttakeVolts =
-        new LoggedTunableNumber("Intake/Roller/OuttakeVolts", -12.0);
+      /** The setpoint for the actuator when fully extended */
+      public static final LoggedTunableNumber kExtendedRads =
+          new LoggedTunableNumber("Intake/Actuator/ExtendedRads", Units.degreesToRadians(94));
 
-    public static final int kActuatorGearing = 5;
+      /** The gear ratio of the actuator motor */
+      public static final int kGearing = 5;
 
-    public static final double kAcuatorKP = 0.05;
-    public static final double kAcuatorKI = 0.0;
-    public static final double kAcuatorKD = 0.0;
+      public static final double kP = 0.05;
+      public static final double kI = 0.0;
+      public static final double kD = 0.0;
+    }
+
+    public static final class RollerConstants {
+      /** The CAN ID of the roller motor */
+      public static final int kMotorCanId = 42;
+
+      /** The set percent of the motor when intaking fuel */
+      public static final LoggedTunableNumber kIntakePercent =
+          new LoggedTunableNumber("Intake/Roller/IntakePercent", 0.4);
+      /** The set percent of the motor when outtaking fuel */
+      public static final LoggedTunableNumber kOuttakePercent =
+          new LoggedTunableNumber("Intake/Roller/OuttakePercent", -0.4);
+    }
   }
 }

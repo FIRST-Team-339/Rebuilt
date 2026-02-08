@@ -30,9 +30,14 @@ public class Roller extends SubsystemBase {
 
   private final Supplier<Angle> actuatorRadsSupplier;
 
-  private double percent = 0.0;
+  private double output = 0.0;
 
-  /** Creates a new Roller. */
+  /** 
+   * Creates a new Roller. 
+   * 
+   * @param io A compatible Actuator IO interface
+   * @param actuatorRadsSupplier an {@link Supplier Angle Supplier} for the actuator
+   */
   public Roller(RollerIO io, Supplier<Angle> actuatorRadsSupplier) {
     this.io = io;
     this.actuatorRadsSupplier = actuatorRadsSupplier;
@@ -46,7 +51,7 @@ public class Roller extends SubsystemBase {
     Logger.processInputs(name, inputs);
     motorDisconnected.set(!motorConnectedDebouncer.calculate(inputs.connected));
 
-    outputs.appliedOutput = percent;
+    outputs.appliedOutput = output;
     double actualRadsTheta = actuatorRadsSupplier.get().in(Radians);
     outputs.pose =
         new Pose3d(
@@ -59,19 +64,34 @@ public class Roller extends SubsystemBase {
     io.applyOutputs(outputs);
   }
 
+  /**
+   * Get the torque current of the actuator
+   * @return torque current in amps
+   */
   public double getTorqueCurrent() {
     return inputs.torqueCurrentAmps;
   }
 
+  /**
+   * Get the velocity of the actuator 
+   * @return velocity in Radians/Sec
+   */
   public double getVelocity() {
     return inputs.velocityRadsPerSec;
   }
 
-  public void setPercent(double percent) {
-    this.percent = percent;
+  /**
+   * Set the desired speed of the motor as a percent output
+   * @param output percent output (-1.0 to 1.0)
+   */
+  public void set(double output) {
+    this.output = output;
   }
 
+  /**
+   * Stop the motor
+   */
   public void stop() {
-    setPercent(0.0);
+    set(0.0);
   }
 }

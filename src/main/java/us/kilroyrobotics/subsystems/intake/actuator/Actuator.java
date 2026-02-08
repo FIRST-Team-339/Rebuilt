@@ -31,7 +31,11 @@ public class Actuator extends SubsystemBase {
   private Angle position = Radians.of(0.0);
   private boolean isAtSetpoint = false;
 
-  /** Creates a new Actuator. */
+  /**
+   * Creates a new Actuator.
+   * 
+   * @param io A compatible Actuator IO interface
+   */
   public Actuator(ActuatorIO io) {
     this.io = io;
 
@@ -59,26 +63,47 @@ public class Actuator extends SubsystemBase {
     io.applyOutputs(outputs);
   }
 
+  /**
+   * Get the torque current of the actuator
+   * @return torque current in amps
+   */
   public double getTorqueCurrent() {
     return inputs.torqueCurrentAmps;
   }
 
+  /**
+   * Get the velocity of the actuator 
+   * @return velocity in Radians/Sec
+   */
   public double getVelocity() {
     return inputs.velocityRadsPerSec;
   }
 
+  /**
+   * Set the desired position of the actuator
+   * @param position the desired position as an {@link Angle}
+   */
   public void setPosition(Angle position) {
     this.position = position;
   }
 
+  /**
+   * @return the setpoint position as an {@link Angle}
+   */
   public Angle getSetPosition() {
     return position;
   }
 
+  /**
+   * @return the current position of the actuator as an {@link Angle}
+   */
   public Angle getCurrentPosition() {
     return Radians.of(inputs.positionRads);
   }
 
+  /**
+   * @return if the actuator is at the set position
+   */
   public boolean atSetpoint() {
     return isAtSetpoint;
   }

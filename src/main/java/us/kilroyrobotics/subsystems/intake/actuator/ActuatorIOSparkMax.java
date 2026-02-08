@@ -25,6 +25,11 @@ public class ActuatorIOSparkMax implements ActuatorIO {
 
   private Angle desiredAngle = Radians.of(0.0);
 
+  /** 
+   * Creates a new AcuatorIOSparkMax.
+   * 
+   * @param motorId the CAN ID of the motor
+   * */
   public ActuatorIOSparkMax(int motorId) {
     this.motor = new SparkMax(motorId, MotorType.kBrushless);
     this.controller = motor.getClosedLoopController();

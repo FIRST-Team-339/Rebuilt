@@ -8,14 +8,17 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
-import edu.wpi.first.math.util.Units;
-
 import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.wpi.first.math.util.Units;
 
 public class RollerIOSparkMax implements RollerIO {
   private final SparkMax motor;
 
+  /** 
+   * Creates a new RollerIOSparkMax.
+   * 
+   * @param motorId the CAN ID of the motor
+   * */
   public RollerIOSparkMax(int motorId) {
     this.motor = new SparkMax(motorId, MotorType.kBrushless);
 
@@ -28,10 +31,10 @@ public class RollerIOSparkMax implements RollerIO {
 
   @Override
   public void updateInputs(RollerIOInputs inputs) {
-    inputs.connected = !Double.isNaN(motor.getAppliedOutput());
-    
+    inputs.connected = motor.hasStickyFault();
     inputs.positionRads = Rotations.of(motor.getEncoder().getPosition()).in(Radians);
-    inputs.velocityRadsPerSec = Units.rotationsPerMinuteToRadiansPerSecond(motor.getEncoder().getVelocity());
+    inputs.velocityRadsPerSec =
+        Units.rotationsPerMinuteToRadiansPerSecond(motor.getEncoder().getVelocity());
     inputs.appliedVoltage = motor.getAppliedOutput();
     inputs.supplyCurrentAmps = 0.0;
     inputs.torqueCurrentAmps = motor.getOutputCurrent();

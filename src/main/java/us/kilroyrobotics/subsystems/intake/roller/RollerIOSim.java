@@ -11,12 +11,12 @@ public class RollerIOSim implements RollerIO {
   private final DCMotor gearbox = DCMotor.getNeoVortex(1);
   private final DCMotorSim simMotor =
       new DCMotorSim(LinearSystemId.createDCMotorSystem(gearbox, 0.0001, 1), gearbox);
-      
-  private PIDController controller =
-      new PIDController(0.1, 0, 0, 0.02);
+
+  private PIDController controller = new PIDController(0.1, 0, 0, 0.02);
   private double appliedVoltage = 0.0;
   private double currentOutput = 0.0;
 
+  /** Creates a new RollerIOSim. */
   public RollerIOSim() {}
 
   @Override
@@ -40,7 +40,8 @@ public class RollerIOSim implements RollerIO {
     if (DriverStation.isDisabled()) {
       currentOutput = controller.calculate(simMotor.getAngularVelocityRPM() / 6784, 0.0);
     } else {
-      currentOutput = controller.calculate(simMotor.getAngularVelocityRPM() / 6784, -outputs.appliedOutput);
+      currentOutput =
+          controller.calculate(simMotor.getAngularVelocityRPM() / 6784, -outputs.appliedOutput);
     }
 
     simMotor.setInputVoltage(MathUtil.clamp(appliedVoltage, -12.0, 12.0));
