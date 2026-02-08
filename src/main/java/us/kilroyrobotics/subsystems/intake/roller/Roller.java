@@ -4,9 +4,16 @@
 
 package us.kilroyrobotics.subsystems.intake.roller;
 
+import static edu.wpi.first.units.Units.Radians;
+
 import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 import us.kilroyrobotics.subsystems.intake.roller.RollerIO.RollerIOOutputs;
 
@@ -21,11 +28,14 @@ public class Roller extends SubsystemBase {
   private final RollerIOInputsAutoLogged inputs = new RollerIOInputsAutoLogged();
   private final RollerIOOutputs outputs = new RollerIOOutputs();
 
-  private double volts = 0.0;
+  private final Supplier<Angle> actuatorRadsSupplier;
+
+  private double percent = 0.0;
 
   /** Creates a new Roller. */
-  public Roller(RollerIO io) {
+  public Roller(RollerIO io, Supplier<Angle> actuatorRadsSupplier) {
     this.io = io;
+    this.actuatorRadsSupplier = actuatorRadsSupplier;
 
     motorDisconnected = new Alert(name + "motor disconnected!", Alert.AlertType.kWarning);
   }
@@ -36,7 +46,15 @@ public class Roller extends SubsystemBase {
     Logger.processInputs(name, inputs);
     motorDisconnected.set(!motorConnectedDebouncer.calculate(inputs.connected));
 
-    outputs.appliedVoltage = volts;
+    outputs.appliedOutput = percent;
+    double actualRadsTheta = actuatorRadsSupplier.get().in(Radians);
+    outputs.pose =
+        new Pose3d(
+            new Translation3d(
+                -0.193 + (0.031 * Math.cos(actualRadsTheta)) - (0.393 * Math.sin(actualRadsTheta)),
+                0.0,
+                0.2 + (0.031 * Math.sin(actualRadsTheta)) + (0.393 * Math.cos(actualRadsTheta))),
+            new Rotation3d(0.0, inputs.positionRads, 0.0));
 
     io.applyOutputs(outputs);
   }
@@ -49,11 +67,11 @@ public class Roller extends SubsystemBase {
     return inputs.velocityRadsPerSec;
   }
 
-  public void setVolts(double volts) {
-    this.volts = volts;
+  public void setPercent(double percent) {
+    this.percent = percent;
   }
 
   public void stop() {
-    setVolts(0.0);
+    setPercent(0.0);
   }
 }

@@ -10,6 +10,7 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -46,8 +47,14 @@ public class Actuator extends SubsystemBase {
     isAtSetpoint = inputs.atSetpoint;
 
     outputs.positionRads = position.in(Radians);
-    outputs.hopperPose = new Pose3d(new Translation3d(inputs.positionRads * -0.1904, 0.0, 0.0), Rotation3d.kZero);
-    outputs.intakeWallsPose3d = new Pose3d(new Translation3d(-0.193, 0.0, 0.2), new Rotation3d(0.0, -inputs.positionRads, 0.0));
+    outputs.hopperPose =
+        new Pose3d(
+            new Translation3d(
+                (-Math.cos(inputs.positionRads - Units.degreesToRadians(90)) * 0.311658), 0.0, 0.0),
+            Rotation3d.kZero);
+    outputs.intakeWallsPose3d =
+        new Pose3d(
+            new Translation3d(-0.193, 0.0, 0.2), new Rotation3d(0.0, -inputs.positionRads, 0.0));
 
     io.applyOutputs(outputs);
   }
@@ -64,8 +71,12 @@ public class Actuator extends SubsystemBase {
     this.position = position;
   }
 
-  public Angle getPosition() {
+  public Angle getSetPosition() {
     return position;
+  }
+
+  public Angle getCurrentPosition() {
+    return Radians.of(inputs.positionRads);
   }
 
   public boolean atSetpoint() {

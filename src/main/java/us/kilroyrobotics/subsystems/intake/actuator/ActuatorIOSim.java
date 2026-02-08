@@ -11,7 +11,9 @@ import us.kilroyrobotics.Constants.IntakeConstants;
 public class ActuatorIOSim implements ActuatorIO {
   private final DCMotor gearbox = DCMotor.getNEO(1);
   private final DCMotorSim simMotor =
-      new DCMotorSim(LinearSystemId.createDCMotorSystem(gearbox, 0.025, IntakeConstants.kActuatorGearing), gearbox);
+      new DCMotorSim(
+          LinearSystemId.createDCMotorSystem(gearbox, 0.025, IntakeConstants.kActuatorGearing),
+          gearbox);
 
   private PIDController controller =
       new PIDController(
