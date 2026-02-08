@@ -20,8 +20,10 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.RobotBase;
+import us.kilroyrobotics.util.LoggedTunableNumber;
 
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
@@ -87,5 +89,38 @@ public final class Constants {
     public static final double linearStdDevMegatag2Factor = 0.5; // More stable than full 3D solve
     public static final double angularStdDevMegatag2Factor =
         Double.POSITIVE_INFINITY; // No rotation data available
+  }
+
+  public static final class IntakeConstants {
+    public static final class ActuatorConstants {
+      /** The CAN ID of the actuator motor */
+      public static final int kMotorCanId = 41;
+
+      /** The setpoint for the actuator when fully extended */
+      public static final LoggedTunableNumber kExtendedRads =
+          new LoggedTunableNumber("Intake/Actuator/ExtendedRads", Units.degreesToRadians(94));
+
+      /** The gear ratio of the actuator motor */
+      public static final int kGearing = 5;
+
+      public static final double kP = 0.05;
+      public static final double kI = 0.0;
+      public static final double kD = 0.0;
+    }
+
+    public static final class RollerConstants {
+      /** The CAN ID of the roller motor */
+      public static final int kMotorCanId = 42;
+
+      /** The set percent of the motor when intaking fuel */
+      public static final LoggedTunableNumber kIntakePercent =
+          new LoggedTunableNumber("Intake/Roller/IntakePercent", 0.4);
+      /** The set percent of the motor when agitating/launching fuel */
+      public static final LoggedTunableNumber kAgitatePercent =
+          new LoggedTunableNumber("Intake/Roller/AgitatePercent", 0.1);
+      /** The set percent of the motor when outtaking fuel */
+      public static final LoggedTunableNumber kOuttakePercent =
+          new LoggedTunableNumber("Intake/Roller/OuttakePercent", -0.4);
+    }
   }
 }

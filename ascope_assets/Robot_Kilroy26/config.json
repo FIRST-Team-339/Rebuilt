@@ -71,9 +71,9 @@
         }
       ],
       "zeroedPosition": [
+        0.193,
         0.0,
-        0.0,
-        0.0
+        -0.2
       ]
     },
     {
@@ -84,7 +84,7 @@
         },
         {
           "axis": "z",
-          "degrees": 90
+          "degrees": 0
         }
       ],
       "zeroedPosition": [

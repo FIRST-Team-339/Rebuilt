@@ -23,6 +23,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import us.kilroyrobotics.Constants.IntakeConstants.ActuatorConstants;
+import us.kilroyrobotics.Constants.IntakeConstants.RollerConstants;
 import us.kilroyrobotics.Constants.VisionConstants;
 import us.kilroyrobotics.commands.DriveCommands;
 import us.kilroyrobotics.generated.TunerConstants;
@@ -32,6 +34,15 @@ import us.kilroyrobotics.subsystems.drive.GyroIOPigeon2;
 import us.kilroyrobotics.subsystems.drive.ModuleIO;
 import us.kilroyrobotics.subsystems.drive.ModuleIOSim;
 import us.kilroyrobotics.subsystems.drive.ModuleIOTalonFX;
+import us.kilroyrobotics.subsystems.intake.Intake;
+import us.kilroyrobotics.subsystems.intake.IntakeEvent;
+import us.kilroyrobotics.subsystems.intake.IntakeState;
+import us.kilroyrobotics.subsystems.intake.actuator.ActuatorIO;
+import us.kilroyrobotics.subsystems.intake.actuator.ActuatorIOSim;
+import us.kilroyrobotics.subsystems.intake.actuator.ActuatorIOSparkMax;
+import us.kilroyrobotics.subsystems.intake.roller.RollerIO;
+import us.kilroyrobotics.subsystems.intake.roller.RollerIOSim;
+import us.kilroyrobotics.subsystems.intake.roller.RollerIOSparkMax;
 import us.kilroyrobotics.subsystems.vision.Vision;
 import us.kilroyrobotics.subsystems.vision.VisionIO;
 import us.kilroyrobotics.subsystems.vision.VisionIOLimelight;
@@ -46,7 +57,11 @@ import us.kilroyrobotics.subsystems.vision.VisionIOPhotonVisionSim;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
+
+  @SuppressWarnings("unused")
   private final Vision vision;
+
+  private final Intake intake;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -70,6 +85,11 @@ public class RobotContainer {
         vision =
             new Vision(
                 drive::addVisionMeasurement, new VisionIOLimelight("FL-LL2", drive::getRotation));
+
+        intake =
+            new Intake(
+                new ActuatorIOSparkMax(ActuatorConstants.kMotorCanId),
+                new RollerIOSparkMax(RollerConstants.kMotorCanId));
         break;
 
       case SIM:
@@ -87,6 +107,8 @@ public class RobotContainer {
                 drive::addVisionMeasurement,
                 new VisionIOPhotonVisionSim(
                     VisionConstants.camera0Name, VisionConstants.robotToCamera0, drive::getPose));
+
+        intake = new Intake(new ActuatorIOSim(), new RollerIOSim());
         break;
 
       default:
@@ -100,6 +122,8 @@ public class RobotContainer {
                 new ModuleIO() {});
 
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
+
+        intake = new Intake(new ActuatorIO() {}, new RollerIO() {});
         break;
     }
 
@@ -164,6 +188,21 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
                     drive)
                 .ignoringDisable(true));
+
+    controller.povDown().onTrue(intake.triggerEvent(IntakeEvent.EXTEND));
+    controller.povUp().onTrue(intake.triggerEvent(IntakeEvent.RETRACT));
+    controller
+        .povRight()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  if (intake.getCurrentState() == IntakeState.EXTENDED) {
+                    intake.triggerEvent(IntakeEvent.START_INTAKING).schedule();
+                  } else if (intake.getCurrentState() == IntakeState.INTAKING) {
+                    intake.triggerEvent(IntakeEvent.STOP_INTAKING).schedule();
+                  }
+                },
+                intake));
   }
 
   /**
