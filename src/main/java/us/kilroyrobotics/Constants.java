@@ -16,11 +16,15 @@ package us.kilroyrobotics;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
+import com.pathplanner.lib.util.FlippingUtil;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import us.kilroyrobotics.util.LoggedTunableNumber;
 
 /**
@@ -47,8 +51,12 @@ public final class Constants {
   public static final boolean kTuning = true;
 
   public static final class FieldConstants {
-    public static final Pose2d hubPose =
-        new Pose2d(Inches.of(182.11), Inches.of(158.84), Rotation2d.kZero);
+    public static final Pose2d blueHubPose = new Pose2d(Inches.of(182.11), Inches.of(158.84), Rotation2d.kZero);
+    public static final Pose2d redHubPose = FlippingUtil.flipFieldPose(blueHubPose);
+
+    public static Pose2d getHubPose() {
+      return DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue ? blueHubPose : redHubPose; 
+    }
   }
 
   public static final class DriveConstants {

@@ -70,8 +70,8 @@ public class Launcher extends SubsystemBase {
   public Angle getTargetRotation() {
     return Radians.of(
         Math.atan2(
-            FieldConstants.hubPose.getY() - robotPoseSupplier.get().getY(),
-            FieldConstants.hubPose.getX() - robotPoseSupplier.get().getX()));
+            FieldConstants.getHubPose().getY() - robotPoseSupplier.get().getY(),
+            FieldConstants.getHubPose().getX() - robotPoseSupplier.get().getX()));
   }
 
   public Command spinUpSerializerAndKicker =
