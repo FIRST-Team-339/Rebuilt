@@ -39,6 +39,6 @@ public class SerializerIOSparkMax implements SerializerIO {
 
   @Override
   public void applyOutputs(SerializerIOOutputs outputs) {
-    motor.set(outputs.appliedPercent);
+    motor.set(outputs.appliedOutput);
   }
 }
