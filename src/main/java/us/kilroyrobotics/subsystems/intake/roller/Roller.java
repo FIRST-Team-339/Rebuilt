@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
+
+import us.kilroyrobotics.Constants.IntakeConstants.ActuatorConstants;
 import us.kilroyrobotics.subsystems.intake.roller.RollerIO.RollerIOOutputs;
 
 public class Roller extends SubsystemBase {
@@ -55,11 +57,12 @@ public class Roller extends SubsystemBase {
     double actualRadsTheta = actuatorRadsSupplier.get().in(Radians);
     outputs.pose =
         new Pose3d(
-            new Translation3d(
-                -0.193 + (0.031 * Math.cos(actualRadsTheta)) - (0.393 * Math.sin(actualRadsTheta)),
-                0.0,
-                0.2 + (0.031 * Math.sin(actualRadsTheta)) + (0.393 * Math.cos(actualRadsTheta))),
-            new Rotation3d(0.0, inputs.positionRads, 0.0));
+            ActuatorConstants.kIntakeWallsTranslation.plus(
+                new Translation3d(
+                    (0.031 * Math.cos(actualRadsTheta)) - (0.393 * Math.sin(actualRadsTheta)),
+                    0.0,
+                    (0.031 * Math.sin(actualRadsTheta)) + (0.393 * Math.cos(actualRadsTheta)))),
+            new Rotation3d(0.0, -inputs.positionRads, 0.0));
 
     io.applyOutputs(outputs);
   }

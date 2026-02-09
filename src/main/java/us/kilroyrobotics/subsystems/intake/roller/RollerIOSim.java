@@ -41,7 +41,7 @@ public class RollerIOSim implements RollerIO {
       currentOutput = controller.calculate(simMotor.getAngularVelocityRPM() / 6784, 0.0);
     } else {
       currentOutput =
-          controller.calculate(simMotor.getAngularVelocityRPM() / 6784, -outputs.appliedOutput);
+          controller.calculate(simMotor.getAngularVelocityRPM() / 6784, outputs.appliedOutput);
     }
 
     simMotor.setInputVoltage(MathUtil.clamp(appliedVoltage, -12.0, 12.0));
