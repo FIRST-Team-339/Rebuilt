@@ -32,7 +32,6 @@ public class Launcher extends SubsystemBase {
 
   private boolean serializerOn = false;
   private boolean kickerOn = false;
-  public double rpm = 0.0;
 
   /** Creates a new Shooter. */
   public Launcher(
