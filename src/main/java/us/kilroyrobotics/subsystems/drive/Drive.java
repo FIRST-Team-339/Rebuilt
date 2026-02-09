@@ -356,6 +356,18 @@ public class Drive extends SubsystemBase {
     return poseEstimator.getEstimatedPosition();
   }
 
+  /** Returns the current zone of the robot. */
+  @AutoLogOutput(key = "Odometry/Zone")
+  public Zone getZone() {
+    return Zone.getZoneFromPose(getPose());
+  }
+
+  /** Returns the current zone of the robot. */
+  @AutoLogOutput(key = "Odometry/ZoneType")
+  public Zone.ZoneType getZoneType() {
+    return getZone().getType();
+  }
+
   /** Returns the current odometry rotation. */
   public Rotation2d getRotation() {
     return getPose().getRotation();
