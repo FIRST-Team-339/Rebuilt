@@ -54,13 +54,13 @@ public class Launcher extends SubsystemBase {
     flywheel.periodic();
 
     if (serializerOn) {
-      serializer.setPercent(SerializerConstants.kSerializerPercent.get());
+      serializer.set(SerializerConstants.kSerializerPercent.get());
     } else {
       serializer.stop();
     }
 
     if (kickerOn) {
-      kicker.setPercent(KickerConstants.kKickerPercent.get());
+      kicker.set(KickerConstants.kKickerPercent.get());
     } else {
       kicker.stop();
     }

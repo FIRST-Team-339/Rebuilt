@@ -38,7 +38,7 @@ import us.kilroyrobotics.util.LoggedTunableNumber;
  * (log replay from a file).
  */
 public final class Constants {
-  public static final Mode kSimMode = Mode.REPLAY;
+  public static final Mode kSimMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : kSimMode;
 
   public static enum Mode {
@@ -80,33 +80,6 @@ public final class Constants {
     public static final double kFFRampRate = 0.1; // Volts/Sec
     public static final double kWheelRadiusMaxVelocity = 0.25; // Rad/Sec
     public static final double kWheelRadiusRampRate = 0.05; // Rad/Sec^2
-  }
-
-  public static final class LauncherConstants {
-    public static final class SerializerConstants {
-      public static final int kMotorId = 43;
-
-      public static final LoggedTunableNumber kSerializerPercent =
-          new LoggedTunableNumber("Launcher/Serializer/Percent", 0.4);
-    }
-
-    public static final class KickerConstants {
-      public static final int kMotorId = 44;
-
-      public static final LoggedTunableNumber kKickerPercent =
-          new LoggedTunableNumber("Launcher/Kicker/Percent", 0.6);
-    }
-
-    public static final class FlywheelConstants {
-      public static final int kMotorId = 45;
-      public static final int kFollowerMotorId = 46;
-
-      public static final double kP = 0.1;
-      public static final double kI = 0;
-      public static final double kD = 0;
-
-      public static final Translation3d kTranslation = new Translation3d(0.2657602, 0.0, 0.3731006);
-    }
   }
 
   public static final class VisionConstants {
@@ -163,6 +136,9 @@ public final class Constants {
       public static final double kP = 0.05;
       public static final double kI = 0.0;
       public static final double kD = 0.0;
+
+      public static final Translation3d kIntakeWallsTranslation =
+          new Translation3d(-0.193, 0.0, 0.2);
     }
 
     public static final class RollerConstants {
@@ -178,6 +154,42 @@ public final class Constants {
       /** The set percent of the motor when outtaking fuel */
       public static final LoggedTunableNumber kOuttakePercent =
           new LoggedTunableNumber("Intake/Roller/OuttakePercent", -0.4);
+
+      public static final Translation3d kRollerTranslation = new Translation3d(-0.162, 0.0, 0.593);
+    }
+  }
+
+  public static final class LauncherConstants {
+    public static final class SerializerConstants {
+      public static final int kMotorCanId = 43;
+
+      public static final LoggedTunableNumber kSerializerPercent =
+          new LoggedTunableNumber("Launcher/Serializer/Percent", 0.4);
+
+      public static final Translation3d kBottomTranslation = new Translation3d(0.0545, 0.0, 0.111);
+      public static final Translation3d kTopTranslation = new Translation3d(0.08, 0.0, 0.297);
+    }
+
+    public static final class KickerConstants {
+      public static final int kMotorCanId = 44;
+
+      public static final LoggedTunableNumber kKickerPercent =
+          new LoggedTunableNumber("Launcher/Kicker/Percent", 0.6);
+
+      public static final Translation3d kBottomTranslation = new Translation3d(0.1195, 0.0, 0.1295);
+      public static final Translation3d kMiddleTranslation = new Translation3d(0.207, 0.0, 0.181);
+      public static final Translation3d kTopTranslation = new Translation3d(0.2505, 0.0, 0.2735);
+    }
+
+    public static final class FlywheelConstants {
+      public static final int kMotorCanId = 45;
+      public static final int kFollowerMotorCanId = 46;
+
+      public static final double kP = 0.1;
+      public static final double kI = 0;
+      public static final double kD = 0;
+
+      public static final Translation3d kTranslation = new Translation3d(0.2657602, 0.0, 0.3731006);
     }
   }
 }

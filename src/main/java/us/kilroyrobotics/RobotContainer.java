@@ -51,8 +51,10 @@ import us.kilroyrobotics.subsystems.launcher.flywheel.FlywheelIO;
 import us.kilroyrobotics.subsystems.launcher.flywheel.FlywheelIOSim;
 import us.kilroyrobotics.subsystems.launcher.flywheel.FlywheelIOSparkMax;
 import us.kilroyrobotics.subsystems.launcher.kicker.KickerIO;
+import us.kilroyrobotics.subsystems.launcher.kicker.KickerIOSim;
 import us.kilroyrobotics.subsystems.launcher.kicker.KickerIOSparkMax;
 import us.kilroyrobotics.subsystems.launcher.serializer.SerializerIO;
+import us.kilroyrobotics.subsystems.launcher.serializer.SerializerIOSim;
 import us.kilroyrobotics.subsystems.launcher.serializer.SerializerIOSparkMax;
 import us.kilroyrobotics.subsystems.vision.Vision;
 import us.kilroyrobotics.subsystems.vision.VisionIO;
@@ -110,10 +112,10 @@ public class RobotContainer {
 
         launcher =
             new Launcher(
-                new SerializerIOSparkMax(SerializerConstants.kMotorId),
-                new KickerIOSparkMax(KickerConstants.kMotorId),
+                new SerializerIOSparkMax(SerializerConstants.kMotorCanId),
+                new KickerIOSparkMax(KickerConstants.kMotorCanId),
                 new FlywheelIOSparkMax(
-                    FlywheelConstants.kMotorId, FlywheelConstants.kFollowerMotorId),
+                    FlywheelConstants.kMotorCanId, FlywheelConstants.kFollowerMotorCanId),
                 drive::getPose);
         break;
 
@@ -137,7 +139,7 @@ public class RobotContainer {
 
         launcher =
             new Launcher(
-                new SerializerIO() {}, new KickerIO() {}, new FlywheelIOSim(), drive::getPose);
+                new SerializerIOSim(), new KickerIOSim() {}, new FlywheelIOSim(), drive::getPose);
         break;
 
       default:
@@ -238,8 +240,12 @@ public class RobotContainer {
 
     controller
         .rightTrigger()
-        .onTrue(launcher.spinUpSerializerAndKicker)
-        .onFalse(launcher.stopSerializerAndKicker);
+        .onTrue(
+            Commands.parallel(
+                launcher.spinUpSerializerAndKicker, intake.triggerEvent(IntakeEvent.AGITATE)))
+        .onFalse(
+            Commands.parallel(
+                launcher.stopSerializerAndKicker, intake.triggerEvent(IntakeEvent.RETRACT)));
     controller.povDown().onTrue(intake.triggerEvent(IntakeEvent.EXTEND));
     controller.povUp().onTrue(intake.triggerEvent(IntakeEvent.RETRACT));
     controller
