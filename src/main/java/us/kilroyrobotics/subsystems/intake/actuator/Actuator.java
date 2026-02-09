@@ -15,6 +15,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
+import us.kilroyrobotics.Constants.IntakeConstants.ActuatorConstants;
 import us.kilroyrobotics.subsystems.intake.actuator.ActuatorIO.ActuatorIOOutputs;
 
 public class Actuator extends SubsystemBase {
@@ -58,7 +59,8 @@ public class Actuator extends SubsystemBase {
             Rotation3d.kZero);
     outputs.intakeWallsPose3d =
         new Pose3d(
-            new Translation3d(-0.193, 0.0, 0.2), new Rotation3d(0.0, -inputs.positionRads, 0.0));
+            ActuatorConstants.kIntakeWallsTranslation,
+            new Rotation3d(0.0, -inputs.positionRads, 0.0));
 
     io.applyOutputs(outputs);
   }
