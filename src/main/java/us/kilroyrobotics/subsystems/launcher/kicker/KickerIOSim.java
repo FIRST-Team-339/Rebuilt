@@ -1,6 +1,7 @@
 package us.kilroyrobotics.subsystems.launcher.kicker;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -10,12 +11,17 @@ public class KickerIOSim implements KickerIO {
   private final DCMotor gearbox = DCMotor.getNeoVortex(1);
   private final DCMotorSim simMotor =
       new DCMotorSim(LinearSystemId.createDCMotorSystem(gearbox, 0.0001, 1), gearbox);
+
+  private PIDController controller = new PIDController(0.1, 0, 0, 0.02);
   private double appliedVoltage = 0.0;
+  private double currentOutput = 0.0;
 
   public KickerIOSim() {}
 
   @Override
   public void updateInputs(KickerIOInputs inputs) {
+    appliedVoltage = gearbox.getVoltage(currentOutput, simMotor.getAngularVelocityRadPerSec());
+
     simMotor.update(0.02);
 
     inputs.connected = true;
@@ -31,10 +37,12 @@ public class KickerIOSim implements KickerIO {
   @Override
   public void applyOutputs(KickerIOOutputs outputs) {
     if (DriverStation.isDisabled()) {
-      appliedVoltage = 0.0;
+      currentOutput = controller.calculate(simMotor.getAngularVelocityRPM() / 6784, 0.0);
     } else {
-      appliedVoltage = MathUtil.clamp(outputs.appliedPercent, -12.0, 12.0);
+      currentOutput =
+          controller.calculate(simMotor.getAngularVelocityRPM() / 6784, outputs.appliedOutput);
     }
-    simMotor.setInputVoltage(appliedVoltage);
+
+    simMotor.setInputVoltage(MathUtil.clamp(appliedVoltage, -12.0, 12.0));
   }
 }

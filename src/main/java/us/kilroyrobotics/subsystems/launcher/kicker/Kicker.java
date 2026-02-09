@@ -5,9 +5,12 @@
 package us.kilroyrobotics.subsystems.launcher.kicker;
 
 import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
+import us.kilroyrobotics.Constants.LauncherConstants.KickerConstants;
 import us.kilroyrobotics.subsystems.launcher.kicker.KickerIO.KickerIOOutputs;
 
 public class Kicker extends SubsystemBase {
@@ -21,7 +24,7 @@ public class Kicker extends SubsystemBase {
   private final KickerIOInputsAutoLogged inputs = new KickerIOInputsAutoLogged();
   private final KickerIOOutputs outputs = new KickerIOOutputs();
 
-  private double percent = 0.0;
+  private double output = 0.0;
 
   /** Creates a new Kicker. */
   public Kicker(KickerIO io) {
@@ -36,7 +39,13 @@ public class Kicker extends SubsystemBase {
     Logger.processInputs(name, inputs);
     motorDisconnected.set(!motorConnectedDebouncer.calculate(inputs.connected));
 
-    outputs.appliedPercent = percent;
+    outputs.appliedOutput = output;
+
+    var rotation = new Rotation3d(0.0, inputs.positionRads, 0.0);
+
+    outputs.bottomPose = new Pose3d(KickerConstants.kBottomTranslation, rotation);
+    outputs.middlePose = new Pose3d(KickerConstants.kMiddleTranslation, rotation);
+    outputs.topPose = new Pose3d(KickerConstants.kTopTranslation, rotation);
 
     io.applyOutputs(outputs);
   }
@@ -49,11 +58,11 @@ public class Kicker extends SubsystemBase {
     return inputs.velocityRadsPerSec;
   }
 
-  public void setPercent(double percent) {
-    this.percent = percent;
+  public void set(double output) {
+    this.output = output;
   }
 
   public void stop() {
-    setPercent(0.0);
+    set(0.0);
   }
 }

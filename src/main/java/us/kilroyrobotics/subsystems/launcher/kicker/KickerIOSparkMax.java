@@ -40,6 +40,6 @@ public class KickerIOSparkMax implements KickerIO {
 
   @Override
   public void applyOutputs(KickerIOOutputs outputs) {
-    motor.set(outputs.appliedPercent);
+    motor.set(outputs.appliedOutput);
   }
 }
