@@ -19,6 +19,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -197,9 +198,11 @@ public class RobotContainer {
             Commands.runOnce(
                 () -> {
                   if (intake.getCurrentState() == IntakeState.EXTENDED) {
-                    intake.triggerEvent(IntakeEvent.START_INTAKING).schedule();
+                    CommandScheduler.getInstance()
+                        .schedule(intake.triggerEvent(IntakeEvent.START_INTAKING));
                   } else if (intake.getCurrentState() == IntakeState.INTAKING) {
-                    intake.triggerEvent(IntakeEvent.STOP_INTAKING).schedule();
+                    CommandScheduler.getInstance()
+                        .schedule(intake.triggerEvent(IntakeEvent.STOP_INTAKING));
                   }
                 },
                 intake));

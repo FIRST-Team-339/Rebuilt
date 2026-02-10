@@ -3,13 +3,13 @@ package us.kilroyrobotics.subsystems.intake.actuator;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
 
+import com.revrobotics.PersistMode;
+import com.revrobotics.ResetMode;
+import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.util.Units;
@@ -36,7 +36,7 @@ public class ActuatorIOSparkMax implements ActuatorIO {
     motorConfig
         .closedLoop
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
-        .pidf(ActuatorConstants.kP, ActuatorConstants.kI, ActuatorConstants.kD, 0);
+        .pid(ActuatorConstants.kP, ActuatorConstants.kI, ActuatorConstants.kD);
     motorConfig.closedLoop.positionWrappingEnabled(true);
     motorConfig.closedLoop.positionWrappingInputRange(0.0, 0.3);
     motorConfig.idleMode(IdleMode.kCoast);
@@ -60,6 +60,6 @@ public class ActuatorIOSparkMax implements ActuatorIO {
   public void applyOutputs(ActuatorIOOutputs outputs) {
     desiredAngle = Radians.of(outputs.positionRads);
 
-    controller.setReference(desiredAngle.in(Rotations), ControlType.kPosition);
+    controller.setSetpoint(desiredAngle.in(Rotations), ControlType.kPosition);
   }
 }
