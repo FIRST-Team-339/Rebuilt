@@ -4,12 +4,12 @@ import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
 
 import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.PersistMode;
+import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
@@ -28,7 +28,7 @@ public class FlywheelIOSparkMax implements FlywheelIO {
     motorConfig
         .closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-        .pidf(0.0005, 0.00000025, 0.005, 0);
+        .pid(0.0005, 0.00000025, 0.005);
     motorConfig.idleMode(IdleMode.kCoast);
     motorConfig.smartCurrentLimit(40);
 
@@ -59,6 +59,6 @@ public class FlywheelIOSparkMax implements FlywheelIO {
 
   @Override
   public void applyOutputs(FlywheelIOOutputs outputs) {
-    controller.setReference(outputs.velocityRPM, ControlType.kVelocity);
+    controller.setSetpoint(outputs.velocityRPM, ControlType.kVelocity);
   }
 }
