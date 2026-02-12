@@ -128,4 +128,57 @@ public final class Constants {
           new LoggedTunableNumber("Intake/Roller/OuttakePercent", -0.4);
     }
   }
+
+  public static final class ElevatorConstants {
+    /** The CAN ID of the leader motor */
+    public static final int kLeaderMotorCanId = 50;
+
+    /** The CAN ID of the follower motor */
+    public static final int kFollowerMotorCanId = 51;
+
+    /** The gear ratio of the elevator (9:1) */
+    public static final double kGearing = 9.0;
+
+    /** The drum radius for the elevator in meters (example: 1 inch = 0.0254 meters) */
+    public static final double kDrumRadiusMeters = 0.0254;
+
+    /** The carriage mass in kg (example: 5 kg) */
+    public static final double kCarriageMassKg = 5.0;
+
+    /** The minimum height of the elevator in meters */
+    public static final double kMinHeightMeters = 0.0;
+
+    /** The maximum height of the elevator in meters (example: 1 meter) */
+    public static final double kMaxHeightMeters = 1.0;
+
+    /**
+     * Position conversion factor: motor rotations to meters
+     * Formula: (drum circumference) / (gear ratio)
+     * = (2 * PI * radius) / gearing
+     */
+    public static final double kPositionConversionFactor = 
+        (2.0 * Math.PI * kDrumRadiusMeters) / kGearing;
+
+    /**
+     * Velocity conversion factor: motor RPM to meters per second
+     * = position conversion factor / 60
+     */
+    public static final double kVelocityConversionFactor = kPositionConversionFactor / 60.0;
+
+    /** PID constants - tunable for optimal performance */
+    public static final LoggedTunableNumber kP = 
+        new LoggedTunableNumber("Elevator/kP", 5.0);
+    public static final LoggedTunableNumber kI = 
+        new LoggedTunableNumber("Elevator/kI", 0.0);
+    public static final LoggedTunableNumber kD = 
+        new LoggedTunableNumber("Elevator/kD", 0.1);
+
+    /** Common elevator positions */
+    public static final LoggedTunableNumber kStowedPositionMeters =
+        new LoggedTunableNumber("Elevator/StowedPosition", 0.0);
+    public static final LoggedTunableNumber kMidPositionMeters =
+        new LoggedTunableNumber("Elevator/MidPosition", 0.5);
+    public static final LoggedTunableNumber kHighPositionMeters =
+        new LoggedTunableNumber("Elevator/HighPosition", 1.0);
+  }
 }

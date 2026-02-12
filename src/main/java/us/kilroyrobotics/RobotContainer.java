@@ -28,6 +28,7 @@ import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import us.kilroyrobotics.Constants.IntakeConstants.ActuatorConstants;
 import us.kilroyrobotics.Constants.IntakeConstants.RollerConstants;
+import us.kilroyrobotics.Constants.ElevatorConstants;
 import us.kilroyrobotics.Constants.VisionConstants;
 import us.kilroyrobotics.commands.DriveCommands;
 import us.kilroyrobotics.generated.TunerConstants;
@@ -47,6 +48,10 @@ import us.kilroyrobotics.subsystems.intake.actuator.ActuatorIOSparkMax;
 import us.kilroyrobotics.subsystems.intake.roller.RollerIO;
 import us.kilroyrobotics.subsystems.intake.roller.RollerIOSim;
 import us.kilroyrobotics.subsystems.intake.roller.RollerIOSparkMax;
+import us.kilroyrobotics.subsystems.elevator.Elevator;
+import us.kilroyrobotics.subsystems.elevator.ElevatorIO;
+import us.kilroyrobotics.subsystems.elevator.ElevatorIOSim;
+import us.kilroyrobotics.subsystems.elevator.ElevatorIOSparkMax;
 import us.kilroyrobotics.subsystems.vision.Vision;
 import us.kilroyrobotics.subsystems.vision.VisionIO;
 import us.kilroyrobotics.subsystems.vision.VisionIOLimelight;
@@ -67,6 +72,8 @@ public class RobotContainer {
   private final Vision vision;
 
   private final Intake intake;
+
+  private final Elevator elevator;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -96,6 +103,11 @@ public class RobotContainer {
             new Intake(
                 new ActuatorIOSparkMax(ActuatorConstants.kMotorCanId),
                 new RollerIOSparkMax(RollerConstants.kMotorCanId));
+
+        elevator =
+            new Elevator(
+                new ElevatorIOSparkMax(
+                    ElevatorConstants.kLeaderMotorCanId, ElevatorConstants.kFollowerMotorCanId));
         break;
 
       case SIM:
@@ -124,6 +136,8 @@ public class RobotContainer {
                     driveSimulation::getSimulatedDriveTrainPose));
 
         intake = new Intake(new ActuatorIOSim(), new RollerIOSim(), driveSimulation);
+
+        elevator = new Elevator(new ElevatorIOSim());
         break;
 
       default:
@@ -140,6 +154,8 @@ public class RobotContainer {
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
 
         intake = new Intake(new ActuatorIO() {}, new RollerIO() {});
+
+        elevator = new Elevator(new ElevatorIO() {});
         break;
     }
 
@@ -221,6 +237,29 @@ public class RobotContainer {
                   }
                 },
                 intake));
+
+    // Elevator button bindings using left and right bumpers
+    controller
+        .leftBumper()
+        .onTrue(
+            Commands.runOnce(
+                () -> elevator.setPosition(
+                    edu.wpi.first.units.Units.Meters.of(ElevatorConstants.kStowedPositionMeters.get())),
+                elevator));
+    controller
+        .rightBumper()
+        .onTrue(
+            Commands.runOnce(
+                () -> elevator.setPosition(
+                    edu.wpi.first.units.Units.Meters.of(ElevatorConstants.kHighPositionMeters.get())),
+                elevator));
+    controller
+        .y()
+        .onTrue(
+            Commands.runOnce(
+                () -> elevator.setPosition(
+                    edu.wpi.first.units.Units.Meters.of(ElevatorConstants.kMidPositionMeters.get())),
+                elevator));
   }
 
   /**
