@@ -51,6 +51,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
+import org.ironmaple.simulation.drivesims.COTS;
+import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
+import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import us.kilroyrobotics.Constants;
@@ -88,6 +92,23 @@ public class Drive extends SubsystemBase {
               TunerConstants.FrontLeft.SlipCurrent,
               1),
           getModuleTranslations());
+
+  public static final DriveTrainSimulationConfig mapleSimConfig =
+      DriveTrainSimulationConfig.Default()
+          .withRobotMass(Kilograms.of(ROBOT_MASS_KG))
+          .withCustomModuleTranslations(getModuleTranslations())
+          .withGyro(COTS.ofPigeon2())
+          .withSwerveModule(
+              new SwerveModuleSimulationConfig(
+                  DCMotor.getKrakenX60(1),
+                  DCMotor.getFalcon500(1),
+                  TunerConstants.FrontLeft.DriveMotorGearRatio,
+                  TunerConstants.FrontLeft.SteerMotorGearRatio,
+                  Volts.of(TunerConstants.FrontLeft.DriveFrictionVoltage),
+                  Volts.of(TunerConstants.FrontLeft.SteerFrictionVoltage),
+                  Meters.of(TunerConstants.FrontLeft.WheelRadius),
+                  KilogramSquareMeters.of(TunerConstants.FrontLeft.SteerInertia),
+                  WHEEL_COF));
 
   static final Lock odometryLock = new ReentrantLock();
   private final GyroIO gyroIO;
@@ -131,17 +152,31 @@ public class Drive extends SubsystemBase {
             Rotation3d.kZero)
       };
 
+  private final Consumer<Pose2d> resetSimulationPoseCallBack;
+
   public Drive(
       GyroIO gyroIO,
       ModuleIO flModuleIO,
       ModuleIO frModuleIO,
       ModuleIO blModuleIO,
       ModuleIO brModuleIO) {
+    this(gyroIO, flModuleIO, frModuleIO, blModuleIO, brModuleIO, (pose) -> {});
+  }
+
+  public Drive(
+      GyroIO gyroIO,
+      ModuleIO flModuleIO,
+      ModuleIO frModuleIO,
+      ModuleIO blModuleIO,
+      ModuleIO brModuleIO,
+      Consumer<Pose2d> resetSimulationPoseCallBack) {
     this.gyroIO = gyroIO;
     modules[0] = new Module(flModuleIO, 0, TunerConstants.FrontLeft);
     modules[1] = new Module(frModuleIO, 1, TunerConstants.FrontRight);
     modules[2] = new Module(blModuleIO, 2, TunerConstants.BackLeft);
     modules[3] = new Module(brModuleIO, 3, TunerConstants.BackRight);
+
+    this.resetSimulationPoseCallBack = resetSimulationPoseCallBack;
 
     // Usage reporting for swerve template
     HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
@@ -363,6 +398,7 @@ public class Drive extends SubsystemBase {
 
   /** Resets the current odometry pose. */
   public void setPose(Pose2d pose) {
+    resetSimulationPoseCallBack.accept(pose);
     poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
   }
 

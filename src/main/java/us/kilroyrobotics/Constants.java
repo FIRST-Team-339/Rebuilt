@@ -23,6 +23,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.RobotBase;
+import org.photonvision.simulation.SimCameraProperties;
 import us.kilroyrobotics.util.LoggedTunableNumber;
 
 /**
@@ -64,10 +65,12 @@ public final class Constants {
     // (Not used by Limelight, configure in web UI instead)
     public static final Transform3d robotToCamera0 =
         new Transform3d(
-            0.2031492,
-            0.2619502,
-            0.191389,
+            0.2745,
+            0.19575,
+            0.2135,
             new Rotation3d(Degrees.of(0.0), Degrees.of(-34.0), Degrees.of(-12.5)));
+    public static final SimCameraProperties camera0SimProperties =
+        SimCameraProperties.LL2_640_480();
 
     // Basic filtering thresholds
     public static final double maxAmbiguity = 0.3;
