@@ -36,8 +36,8 @@ import us.kilroyrobotics.subsystems.drive.GyroIO;
 import us.kilroyrobotics.subsystems.drive.GyroIOPigeon2;
 import us.kilroyrobotics.subsystems.drive.GyroIOSim;
 import us.kilroyrobotics.subsystems.drive.ModuleIO;
-import us.kilroyrobotics.subsystems.drive.ModuleIOTalonFXReal;
-import us.kilroyrobotics.subsystems.drive.ModuleIOTalonFXSim;
+import us.kilroyrobotics.subsystems.drive.ModuleIOSim;
+import us.kilroyrobotics.subsystems.drive.ModuleIOTalonFX;
 import us.kilroyrobotics.subsystems.intake.Intake;
 import us.kilroyrobotics.subsystems.intake.IntakeEvent;
 import us.kilroyrobotics.subsystems.intake.IntakeState;
@@ -83,10 +83,10 @@ public class RobotContainer {
         drive =
             new Drive(
                 new GyroIOPigeon2(),
-                new ModuleIOTalonFXReal(TunerConstants.FrontLeft),
-                new ModuleIOTalonFXReal(TunerConstants.FrontRight),
-                new ModuleIOTalonFXReal(TunerConstants.BackLeft),
-                new ModuleIOTalonFXReal(TunerConstants.BackRight));
+                new ModuleIOTalonFX(TunerConstants.FrontLeft),
+                new ModuleIOTalonFX(TunerConstants.FrontRight),
+                new ModuleIOTalonFX(TunerConstants.BackLeft),
+                new ModuleIOTalonFX(TunerConstants.BackRight));
 
         vision =
             new Vision(
@@ -101,15 +101,16 @@ public class RobotContainer {
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
         driveSimulation =
-            new SwerveDriveSimulation(Drive.mapleSimConfig, new Pose2d(2.0, 2.0, Rotation2d.kZero));
+            new SwerveDriveSimulation(Drive.getMapleSimConfig(), new Pose2d(2.0, 2.0, Rotation2d.kZero));
         SimulatedArena.getInstance().addDriveTrainSimulation(driveSimulation);
+
         drive =
             new Drive(
                 new GyroIOSim(driveSimulation.getGyroSimulation()),
-                new ModuleIOTalonFXSim(TunerConstants.FrontLeft, driveSimulation.getModules()[0]),
-                new ModuleIOTalonFXSim(TunerConstants.FrontRight, driveSimulation.getModules()[1]),
-                new ModuleIOTalonFXSim(TunerConstants.BackLeft, driveSimulation.getModules()[2]),
-                new ModuleIOTalonFXSim(TunerConstants.BackRight, driveSimulation.getModules()[3]),
+                new ModuleIOSim(driveSimulation.getModules()[0]),
+                new ModuleIOSim(driveSimulation.getModules()[1]),
+                new ModuleIOSim(driveSimulation.getModules()[2]),
+                new ModuleIOSim(driveSimulation.getModules()[3]),
                 driveSimulation::setSimulationWorldPose);
 
         vision =
