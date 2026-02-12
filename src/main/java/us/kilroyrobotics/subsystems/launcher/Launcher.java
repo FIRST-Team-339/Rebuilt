@@ -4,10 +4,12 @@
 
 package us.kilroyrobotics.subsystems.launcher;
 
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -71,6 +73,11 @@ public class Launcher extends SubsystemBase {
         Math.atan2(
             FieldConstants.getHubPose().getY() - robotPoseSupplier.get().getY(),
             FieldConstants.getHubPose().getX() - robotPoseSupplier.get().getX()));
+  }
+
+  @AutoLogOutput(key = "Launcher/DistanceFromHub")
+  public Distance getDistanceFromHub() {
+    return Meters.of(FieldConstants.getHubPose().getTranslation().getDistance(robotPoseSupplier.get().getTranslation()));
   }
 
   public Command spinUpSerializerAndKicker =
