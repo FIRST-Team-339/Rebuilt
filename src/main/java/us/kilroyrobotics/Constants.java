@@ -56,7 +56,7 @@ public final class Constants {
   public static final class VisionConstants {
     // AprilTag layout
     public static final AprilTagFieldLayout aprilTagLayout =
-        AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+        AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
 
     // Camera names, must match names configured on coprocessor
     public static final String camera0Name = "FL-LL2";
