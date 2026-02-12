@@ -187,7 +187,6 @@ compileJava.options.encoding = "UTF-8"
 compileTestJava.options.encoding = "UTF-8"
 project.compileJava.dependsOn(spotlessApply)
 spotless {
-    lineEndings = 'WINDOWS'
     java {
         target fileTree(".") {
             include "**/*.java"
