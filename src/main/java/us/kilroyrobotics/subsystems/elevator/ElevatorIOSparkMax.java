@@ -70,8 +70,10 @@ public class ElevatorIOSparkMax implements ElevatorIO {
     inputs.velocityMetersPerSec = leaderMotor.getEncoder().getVelocity();
     inputs.atSetpoint = Meters.of(inputs.positionMeters).isNear(desiredPosition, 0.02);
     inputs.appliedVoltage = leaderMotor.getAppliedOutput() * leaderMotor.getBusVoltage();
-    inputs.supplyCurrentAmps = 0.0;
-    inputs.torqueCurrentAmps = leaderMotor.getOutputCurrent() + followerMotor.getOutputCurrent();
+    // For SparkMax brushless motors, output current represents the total current draw
+    double totalCurrent = leaderMotor.getOutputCurrent() + followerMotor.getOutputCurrent();
+    inputs.supplyCurrentAmps = totalCurrent;
+    inputs.torqueCurrentAmps = totalCurrent;
     inputs.tempCelsius = Math.max(leaderMotor.getMotorTemperature(), followerMotor.getMotorTemperature());
     
     // Update PID coefficients if they've changed (tunable)
