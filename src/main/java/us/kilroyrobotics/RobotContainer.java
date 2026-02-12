@@ -122,7 +122,7 @@ public class RobotContainer {
                     VisionConstants.robotToCamera0,
                     driveSimulation::getSimulatedDriveTrainPose));
 
-        intake = new Intake(new ActuatorIOSim(), new RollerIOSim());
+        intake = new Intake(new ActuatorIOSim(), new RollerIOSim(), driveSimulation);
         break;
 
       default:

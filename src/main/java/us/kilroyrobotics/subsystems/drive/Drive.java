@@ -100,6 +100,7 @@ public class Drive extends SubsystemBase {
 
       return mapleSimConfig = DriveTrainSimulationConfig.Default()
               .withRobotMass(Kilograms.of(ROBOT_MASS_KG))
+              .withBumperSize(Inches.of(33.5), Inches.of(33.5))
               .withCustomModuleTranslations(getModuleTranslations())
               .withGyro(COTS.ofPigeon2())
               .withSwerveModule(new SwerveModuleSimulationConfig(
