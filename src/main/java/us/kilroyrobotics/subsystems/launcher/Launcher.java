@@ -77,7 +77,10 @@ public class Launcher extends SubsystemBase {
 
   @AutoLogOutput(key = "Launcher/DistanceFromHub")
   public Distance getDistanceFromHub() {
-    return Meters.of(FieldConstants.getHubPose().getTranslation().getDistance(robotPoseSupplier.get().getTranslation()));
+    return Meters.of(
+        FieldConstants.getHubPose()
+            .getTranslation()
+            .getDistance(robotPoseSupplier.get().getTranslation()));
   }
 
   public Command spinUpSerializerAndKicker =
