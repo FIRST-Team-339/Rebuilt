@@ -18,7 +18,6 @@ git checkout feat/new-feature-branch
 After this operation, the following branches are available locally:
 - `main` - The main development branch
 - `feat/new-feature-branch` - The newly created feature branch
-- `copilot/create-new-branch` - The branch used for this task
 
 ## Next Steps
 You can now:
