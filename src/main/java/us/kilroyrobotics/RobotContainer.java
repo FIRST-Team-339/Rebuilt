@@ -23,6 +23,8 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import org.ironmaple.simulation.SimulatedArena;
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import us.kilroyrobotics.Constants.IntakeConstants.ActuatorConstants;
@@ -35,6 +37,7 @@ import us.kilroyrobotics.generated.TunerConstants;
 import us.kilroyrobotics.subsystems.drive.Drive;
 import us.kilroyrobotics.subsystems.drive.GyroIO;
 import us.kilroyrobotics.subsystems.drive.GyroIOPigeon2;
+import us.kilroyrobotics.subsystems.drive.GyroIOSim;
 import us.kilroyrobotics.subsystems.drive.ModuleIO;
 import us.kilroyrobotics.subsystems.drive.ModuleIOSim;
 import us.kilroyrobotics.subsystems.drive.ModuleIOTalonFX;
@@ -71,6 +74,7 @@ import us.kilroyrobotics.subsystems.vision.VisionIOPhotonVisionSim;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
+  public final SwerveDriveSimulation driveSimulation;
   private Command hubRotationUnlockedDrive;
   private Command hubRotationLockedDrive;
   private final Launcher launcher;
@@ -94,6 +98,7 @@ public class RobotContainer {
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
+        driveSimulation = null;
         drive =
             new Drive(
                 new GyroIOPigeon2(),
@@ -122,21 +127,30 @@ public class RobotContainer {
 
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
+        driveSimulation =
+            new SwerveDriveSimulation(
+                Drive.getMapleSimConfig(), new Pose2d(2.0, 2.0, Rotation2d.kZero));
+        SimulatedArena.getInstance().addDriveTrainSimulation(driveSimulation);
+
         drive =
             new Drive(
-                new GyroIO() {},
-                new ModuleIOSim(TunerConstants.FrontLeft),
-                new ModuleIOSim(TunerConstants.FrontRight),
-                new ModuleIOSim(TunerConstants.BackLeft),
-                new ModuleIOSim(TunerConstants.BackRight));
+                new GyroIOSim(driveSimulation.getGyroSimulation()),
+                new ModuleIOSim(driveSimulation.getModules()[0]),
+                new ModuleIOSim(driveSimulation.getModules()[1]),
+                new ModuleIOSim(driveSimulation.getModules()[2]),
+                new ModuleIOSim(driveSimulation.getModules()[3]),
+                driveSimulation::setSimulationWorldPose);
 
         vision =
             new Vision(
                 drive::addVisionMeasurement,
                 new VisionIOPhotonVisionSim(
-                    VisionConstants.camera0Name, VisionConstants.robotToCamera0, drive::getPose));
+                    VisionConstants.camera0Name,
+                    VisionConstants.camera0SimProperties,
+                    VisionConstants.robotToCamera0,
+                    driveSimulation::getSimulatedDriveTrainPose));
 
-        intake = new Intake(new ActuatorIOSim(), new RollerIOSim());
+        intake = new Intake(new ActuatorIOSim(), new RollerIOSim(), driveSimulation);
 
         launcher =
             new Launcher(
@@ -145,6 +159,7 @@ public class RobotContainer {
 
       default:
         // Replayed robot, disable IO implementations
+        driveSimulation = null;
         drive =
             new Drive(
                 new GyroIO() {},
