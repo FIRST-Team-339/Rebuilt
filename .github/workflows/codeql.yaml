@@ -30,7 +30,7 @@ jobs:
     runs-on: ${{matrix.os}}
 
     # This grabs the WPILib docker container
-    container: wpilib/roborio-cross-ubuntu:2024-22.04
+    container: wpilib/roborio-cross-ubuntu:2026-22.04
 
     permissions:
       # required for all workflows
