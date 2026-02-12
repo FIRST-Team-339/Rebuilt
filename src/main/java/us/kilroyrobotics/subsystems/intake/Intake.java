@@ -12,15 +12,13 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 import org.ironmaple.simulation.IntakeSimulation;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.AutoLogOutput;
-
 import us.kilroyrobotics.Constants;
-import us.kilroyrobotics.Constants.Mode;
 import us.kilroyrobotics.Constants.IntakeConstants.ActuatorConstants;
 import us.kilroyrobotics.Constants.IntakeConstants.RollerConstants;
+import us.kilroyrobotics.Constants.Mode;
 import us.kilroyrobotics.subsystems.intake.actuator.Actuator;
 import us.kilroyrobotics.subsystems.intake.actuator.ActuatorIO;
 import us.kilroyrobotics.subsystems.intake.roller.Roller;
@@ -40,7 +38,14 @@ public class Intake extends SubsystemBase {
 
   public Intake(ActuatorIO actuatorIO, RollerIO rollerIO, SwerveDriveSimulation driveSimulation) {
     this(actuatorIO, rollerIO);
-    this.intakeSimulation = IntakeSimulation.OverTheBumperIntake("Fuel", driveSimulation, Inches.of(22), Inches.of(11), IntakeSimulation.IntakeSide.BACK, 45);
+    this.intakeSimulation =
+        IntakeSimulation.OverTheBumperIntake(
+            "Fuel",
+            driveSimulation,
+            Inches.of(22),
+            Inches.of(11),
+            IntakeSimulation.IntakeSide.BACK,
+            45);
   }
 
   /** Creates a new Intake. */
@@ -91,12 +96,10 @@ public class Intake extends SubsystemBase {
       case INTAKING -> {
         if (eventIsTriggered(IntakeEvent.STOP_INTAKING)) {
           rollerOutput = 0.0;
-          if (Constants.currentMode == Mode.SIM)
-            intakeSimulation.stopIntake();
+          if (Constants.currentMode == Mode.SIM) intakeSimulation.stopIntake();
           setState(IntakeState.EXTENDED);
         } else {
-          if (Constants.currentMode == Mode.SIM)
-            intakeSimulation.startIntake();
+          if (Constants.currentMode == Mode.SIM) intakeSimulation.startIntake();
           rollerOutput = RollerConstants.kIntakePercent.get();
         }
       }

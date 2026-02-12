@@ -101,7 +101,8 @@ public class RobotContainer {
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
         driveSimulation =
-            new SwerveDriveSimulation(Drive.getMapleSimConfig(), new Pose2d(2.0, 2.0, Rotation2d.kZero));
+            new SwerveDriveSimulation(
+                Drive.getMapleSimConfig(), new Pose2d(2.0, 2.0, Rotation2d.kZero));
         SimulatedArena.getInstance().addDriveTrainSimulation(driveSimulation);
 
         drive =
