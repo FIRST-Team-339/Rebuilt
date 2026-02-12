@@ -115,7 +115,11 @@ wpi.sim.addDriverstation()
 // in order to make them all available at runtime. Also adding the manifest so WPILib
 // knows where to look for our Robot Class.
 jar {
-    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    from {
+        configurations.runtimeClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
     from sourceSets.main.allSource
     manifest edu.wpi.first.gradlerio.GradleRIOPlugin.javaManifest(ROBOT_MAIN_CLASS)
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
@@ -143,9 +147,12 @@ gversion {
 }
 
 // Create commit with working changes on event branches
+// Capture deploy request at configuration time to avoid accessing Task.project during task execution
+def isDeployRequested = gradle.startParameter.taskNames.any { it.toLowerCase().contains("deploy") }
+
 task(eventDeploy) {
     doLast {
-        if (project.gradle.startParameter.taskNames.any({ it.toLowerCase().contains("deploy") })) {
+        if (isDeployRequested) {
             def branchPrefix = "event"
             def branch = 'git branch --show-current'.execute().text.trim()
             def commitMessage = "Update at '${new Date().toString()}'"
@@ -178,6 +185,7 @@ createVersionFile.dependsOn(eventDeploy)
 // Spotless formatting
 project.compileJava.dependsOn(spotlessApply)
 spotless {
+    lineEndings = 'WINDOWS'
     java {
         target fileTree(".") {
             include "**/*.java"
@@ -186,6 +194,16 @@ spotless {
         toggleOffOn()
         googleJavaFormat()
         removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    groovyGradle {
+        target fileTree(".") {
+            include "**/*.gradle"
+            exclude "**/build/**", "**/build-*/**"
+        }
+        greclipse()
+        leadingTabsToSpaces()
         trimTrailingWhitespace()
         endWithNewline()
     }
@@ -202,7 +220,7 @@ spotless {
             exclude "**/build/**", "**/build-*/**"
         }
         trimTrailingWhitespace()
-        indentWithSpaces(2)
+        leadingTabsToSpaces(2)
         endWithNewline()
     }
 }
