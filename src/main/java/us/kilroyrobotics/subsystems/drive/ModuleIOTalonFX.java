@@ -98,9 +98,9 @@ public class ModuleIOTalonFX implements ModuleIO {
       SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
           constants) {
     this.constants = constants;
-    driveTalon = new TalonFX(constants.DriveMotorId, TunerConstants.DrivetrainConstants.CANBusName);
-    turnTalon = new TalonFX(constants.SteerMotorId, TunerConstants.DrivetrainConstants.CANBusName);
-    cancoder = new CANcoder(constants.EncoderId, TunerConstants.DrivetrainConstants.CANBusName);
+    driveTalon = new TalonFX(constants.DriveMotorId, TunerConstants.kCANBus);
+    turnTalon = new TalonFX(constants.SteerMotorId, TunerConstants.kCANBus);
+    cancoder = new CANcoder(constants.EncoderId, TunerConstants.kCANBus);
 
     // Configure drive motor
     var driveConfig = constants.DriveMotorInitialConfigs;
@@ -128,8 +128,9 @@ public class ModuleIOTalonFX implements ModuleIO {
           case RemoteCANcoder -> FeedbackSensorSourceValue.RemoteCANcoder;
           case FusedCANcoder -> FeedbackSensorSourceValue.FusedCANcoder;
           case SyncCANcoder -> FeedbackSensorSourceValue.SyncCANcoder;
-          default -> throw new RuntimeException(
-              "You are using an unsupported swerve configuration, which this template does not support without manual customization. The 2025 release of Phoenix supports some swerve configurations which were not available during 2025 beta testing, preventing any development and support from the AdvantageKit developers.");
+          default ->
+              throw new RuntimeException(
+                  "You are using an unsupported swerve configuration, which this template does not support without manual customization. The 2025 release of Phoenix supports some swerve configurations which were not available during 2025 beta testing, preventing any development and support from the AdvantageKit developers.");
         };
     turnConfig.Feedback.RotorToSensorRatio = constants.SteerMotorGearRatio;
     turnConfig.MotionMagic.MotionMagicCruiseVelocity = 100.0 / constants.SteerMotorGearRatio;
@@ -261,8 +262,8 @@ public class ModuleIOTalonFX implements ModuleIO {
     turnTalon.setControl(
         switch (constants.SteerMotorClosedLoopOutput) {
           case Voltage -> positionVoltageRequest.withPosition(rotation.getRotations());
-          case TorqueCurrentFOC -> positionTorqueCurrentRequest.withPosition(
-              rotation.getRotations());
+          case TorqueCurrentFOC ->
+              positionTorqueCurrentRequest.withPosition(rotation.getRotations());
         });
   }
 }

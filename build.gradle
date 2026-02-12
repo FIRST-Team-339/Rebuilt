@@ -1,8 +1,8 @@
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2025.3.2"
-    id "com.peterabeles.gversion" version "1.10"
-    id "com.diffplug.spotless" version "6.12.0"
+    id "edu.wpi.first.GradleRIO" version "2026.2.1"
+    id "com.peterabeles.gversion" version "1.10.3"
+    id "com.diffplug.spotless" version "8.2.1"
 }
 
 java {
@@ -90,7 +90,7 @@ dependencies {
     nativeRelease wpi.java.vendor.jniRelease(wpi.platforms.desktop)
     simulationRelease wpi.sim.enableRelease()
 
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter:6.0.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     def akitJson = new groovy.json.JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
@@ -115,7 +115,11 @@ wpi.sim.addDriverstation()
 // in order to make them all available at runtime. Also adding the manifest so WPILib
 // knows where to look for our Robot Class.
 jar {
-    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    from {
+        configurations.runtimeClasspath.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
     from sourceSets.main.allSource
     manifest edu.wpi.first.gradlerio.GradleRIOPlugin.javaManifest(ROBOT_MAIN_CLASS)
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
@@ -143,9 +147,12 @@ gversion {
 }
 
 // Create commit with working changes on event branches
+// Capture deploy request at configuration time to avoid accessing Task.project during task execution
+def isDeployRequested = gradle.startParameter.taskNames.any { it.toLowerCase().contains("deploy") }
+
 task(eventDeploy) {
     doLast {
-        if (project.gradle.startParameter.taskNames.any({ it.toLowerCase().contains("deploy") })) {
+        if (isDeployRequested) {
             def branchPrefix = "event"
             def branch = 'git branch --show-current'.execute().text.trim()
             def commitMessage = "Update at '${new Date().toString()}'"
@@ -176,6 +183,8 @@ task(eventDeploy) {
 createVersionFile.dependsOn(eventDeploy)
 
 // Spotless formatting
+compileJava.options.encoding = "UTF-8"
+compileTestJava.options.encoding = "UTF-8"
 project.compileJava.dependsOn(spotlessApply)
 spotless {
     java {
@@ -195,7 +204,7 @@ spotless {
             exclude "**/build/**", "**/build-*/**"
         }
         greclipse()
-        indentWithSpaces(4)
+        leadingTabsToSpaces()
         trimTrailingWhitespace()
         endWithNewline()
     }
@@ -212,7 +221,7 @@ spotless {
             exclude "**/build/**", "**/build-*/**"
         }
         trimTrailingWhitespace()
-        indentWithSpaces(2)
+        leadingTabsToSpaces(2)
         endWithNewline()
     }
 }

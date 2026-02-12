@@ -16,14 +16,20 @@ package us.kilroyrobotics;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import org.ironmaple.simulation.SimulatedArena;
+import org.ironmaple.simulation.seasonspecific.rebuilt2026.RebuiltFuelOnField;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import us.kilroyrobotics.Constants.Mode;
+import us.kilroyrobotics.Constants.VisionConstants;
 import us.kilroyrobotics.generated.BuildConstants;
 import us.kilroyrobotics.generated.TunerConstants;
 
@@ -135,7 +141,7 @@ public class Robot extends LoggedRobot {
 
     // schedule the autonomous command (example)
     if (autonomousCommand != null) {
-      autonomousCommand.schedule();
+      CommandScheduler.getInstance().schedule(autonomousCommand);
     }
   }
 
@@ -172,9 +178,65 @@ public class Robot extends LoggedRobot {
 
   /** This function is called once when the robot is first started up. */
   @Override
-  public void simulationInit() {}
+  public void simulationInit() {
+    if (Constants.currentMode != Mode.SIM) return;
+
+    final double FIELD_LENGTH = 16.51;
+    final double FIELD_WIDTH = 8.04;
+    var arenaInstance = SimulatedArena.getInstance();
+
+    // Center fuel
+    Translation2d center = new Translation2d(FIELD_LENGTH / 2, FIELD_WIDTH / 2);
+    for (int i = 0; i < 15; i++) {
+      for (int j = 0; j < 6; j++) {
+        arenaInstance.addGamePiece(
+            new RebuiltFuelOnField(
+                center.plus(new Translation2d(0.076 + 0.152 * j, 0.0254 + 0.076 + 0.152 * i))));
+        arenaInstance.addGamePiece(
+            new RebuiltFuelOnField(
+                center.plus(new Translation2d(-0.076 - 0.152 * j, 0.0254 + 0.076 + 0.152 * i))));
+        arenaInstance.addGamePiece(
+            new RebuiltFuelOnField(
+                center.plus(new Translation2d(0.076 + 0.152 * j, -0.0254 - 0.076 - 0.152 * i))));
+        arenaInstance.addGamePiece(
+            new RebuiltFuelOnField(
+                center.plus(new Translation2d(-0.076 - 0.152 * j, -0.0254 - 0.076 - 0.152 * i))));
+      }
+    }
+
+    // Depots
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 4; j++) {
+        arenaInstance.addGamePiece(
+            new RebuiltFuelOnField(new Translation2d(0.076 + 0.152 * j, 5.95 + 0.076 + 0.152 * i)));
+        arenaInstance.addGamePiece(
+            new RebuiltFuelOnField(new Translation2d(0.076 + 0.152 * j, 5.95 - 0.076 - 0.152 * i)));
+        arenaInstance.addGamePiece(
+            new RebuiltFuelOnField(
+                new Translation2d(FIELD_LENGTH - 0.076 - 0.152 * j, 2.09 + 0.076 + 0.152 * i)));
+        arenaInstance.addGamePiece(
+            new RebuiltFuelOnField(
+                new Translation2d(FIELD_LENGTH - 0.076 - 0.152 * j, 2.09 - 0.076 - 0.152 * i)));
+      }
+    }
+  }
 
   /** This function is called periodically whilst in simulation. */
   @Override
-  public void simulationPeriodic() {}
+  public void simulationPeriodic() {
+    if (Constants.currentMode != Mode.SIM) return;
+
+    SimulatedArena.getInstance().simulationPeriodic();
+
+    Logger.recordOutput(
+        "FieldSimulation/RobotPosition",
+        robotContainer.driveSimulation.getSimulatedDriveTrainPose());
+
+    // Get the positions of the fuel (both on the field and in the air)
+    Pose3d[] fuelPoses = SimulatedArena.getInstance().getGamePiecesArrayByType("Fuel");
+    // Publish to telemetry using AdvantageKit
+    Logger.recordOutput("FieldSimulation/FuelPositions", fuelPoses);
+
+    Logger.recordOutput("test", VisionConstants.robotToCamera0);
+  }
 }

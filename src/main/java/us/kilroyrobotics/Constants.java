@@ -23,6 +23,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.RobotBase;
+import org.photonvision.simulation.SimCameraProperties;
 import us.kilroyrobotics.util.LoggedTunableNumber;
 
 /**
@@ -55,7 +56,7 @@ public final class Constants {
   public static final class VisionConstants {
     // AprilTag layout
     public static final AprilTagFieldLayout aprilTagLayout =
-        AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField); // TODO: Update to 2026
+        AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
 
     // Camera names, must match names configured on coprocessor
     public static final String camera0Name = "FL-LL2";
@@ -64,10 +65,12 @@ public final class Constants {
     // (Not used by Limelight, configure in web UI instead)
     public static final Transform3d robotToCamera0 =
         new Transform3d(
-            0.2031492,
-            0.2619502,
-            0.191389,
+            0.2745,
+            0.19575,
+            0.2135,
             new Rotation3d(Degrees.of(0.0), Degrees.of(-34.0), Degrees.of(-12.5)));
+    public static final SimCameraProperties camera0SimProperties =
+        SimCameraProperties.LL2_640_480();
 
     // Basic filtering thresholds
     public static final double maxAmbiguity = 0.3;
@@ -115,9 +118,11 @@ public final class Constants {
       /** The set percent of the motor when intaking fuel */
       public static final LoggedTunableNumber kIntakePercent =
           new LoggedTunableNumber("Intake/Roller/IntakePercent", 0.4);
+
       /** The set percent of the motor when agitating/launching fuel */
       public static final LoggedTunableNumber kAgitatePercent =
           new LoggedTunableNumber("Intake/Roller/AgitatePercent", 0.1);
+
       /** The set percent of the motor when outtaking fuel */
       public static final LoggedTunableNumber kOuttakePercent =
           new LoggedTunableNumber("Intake/Roller/OuttakePercent", -0.4);
