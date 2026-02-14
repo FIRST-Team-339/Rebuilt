@@ -15,6 +15,7 @@ package us.kilroyrobotics;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import com.pathplanner.lib.util.FlippingUtil;
@@ -26,6 +27,8 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -196,5 +199,9 @@ public final class Constants {
 
       public static final Translation3d kTranslation = new Translation3d(0.2657602, 0.0, 0.3731006);
     }
+
+    public static final Distance kInitialBallHeight =
+        Meters.of(FlywheelConstants.kTranslation.getZ() + 0.150);
+    public static final Angle kLaunchAngle = Degrees.of(75);
   }
 }

@@ -122,6 +122,7 @@ public class RobotContainer {
                 new KickerIOSparkMax(KickerConstants.kMotorCanId),
                 new FlywheelIOSparkMax(
                     FlywheelConstants.kMotorCanId, FlywheelConstants.kFollowerMotorCanId),
+                drive::getChassisSpeeds,
                 drive::getPose);
         break;
 
@@ -154,7 +155,13 @@ public class RobotContainer {
 
         launcher =
             new Launcher(
-                new SerializerIOSim(), new KickerIOSim() {}, new FlywheelIOSim(), drive::getPose);
+                new SerializerIOSim(),
+                new KickerIOSim() {},
+                new FlywheelIOSim(),
+                drive::getChassisSpeeds,
+                drive::getPose,
+                driveSimulation,
+                intake.getIntakeSimulation());
         break;
 
       default:
@@ -174,7 +181,11 @@ public class RobotContainer {
 
         launcher =
             new Launcher(
-                new SerializerIO() {}, new KickerIO() {}, new FlywheelIO() {}, drive::getPose);
+                new SerializerIO() {},
+                new KickerIO() {},
+                new FlywheelIO() {},
+                drive::getChassisSpeeds,
+                drive::getPose);
         break;
     }
 
