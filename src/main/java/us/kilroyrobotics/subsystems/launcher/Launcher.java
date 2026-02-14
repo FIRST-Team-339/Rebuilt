@@ -25,13 +25,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
-
 import org.ironmaple.simulation.IntakeSimulation;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.seasonspecific.rebuilt2026.RebuiltFuelOnFly;
 import org.littletonrobotics.junction.AutoLogOutput;
-
 import us.kilroyrobotics.Constants;
 import us.kilroyrobotics.Constants.FieldConstants;
 import us.kilroyrobotics.Constants.LauncherConstants;
@@ -141,7 +139,11 @@ public class Launcher extends SubsystemBase {
             - 1.0 / 2.0 * (11) * t * t;
 
     final Translation2d current2dPosition =
-        robotPoseSupplier.get().getTranslation().plus(FlywheelConstants.kTranslation.toTranslation2d()).rotateBy(robotPoseSupplier.get().getRotation())
+        robotPoseSupplier
+            .get()
+            .getTranslation()
+            .plus(FlywheelConstants.kTranslation.toTranslation2d())
+            .rotateBy(robotPoseSupplier.get().getRotation())
             .plus(calculateInitialProjectileVelocityMPS().times(t));
     return new Translation3d(current2dPosition.getX(), current2dPosition.getY(), height);
   }
@@ -166,7 +168,8 @@ public class Launcher extends SubsystemBase {
           && launchBallDebouncerSimulation.calculate(true)) {
 
         SimulatedArena.getInstance()
-            .addGamePieceProjectile(new RebuiltFuelOnFly(
+            .addGamePieceProjectile(
+                new RebuiltFuelOnFly(
                     driveSimulation.getSimulatedDriveTrainPose().getTranslation(),
                     FlywheelConstants.kTranslation.toTranslation2d(), // shooter offet from center
                     driveSimulation.getDriveTrainSimulatedChassisSpeedsFieldRelative(),
