@@ -28,7 +28,7 @@ public class Intake extends SubsystemBase {
   private final Roller roller;
   private final Actuator actuator;
 
-  private IntakeSimulation intakeSimulation = null;
+  private IntakeSimulation intakeSimulation;
 
   @AutoLogOutput(key = "Intake/CurrentState")
   private IntakeState currentState = IntakeState.RETRACTED;
@@ -139,6 +139,10 @@ public class Intake extends SubsystemBase {
 
     actuator.setPosition(actuatorAngle);
     roller.set(rollerOutput);
+  }
+
+  public IntakeSimulation getIntakeSimulation() {
+    return intakeSimulation;
   }
 
   /**
