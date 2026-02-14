@@ -25,11 +25,14 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import us.kilroyrobotics.Constants.IntakeConstants.ActuatorConstants;
 import us.kilroyrobotics.Constants.IntakeConstants.RollerConstants;
+import us.kilroyrobotics.Constants.LauncherConstants.FlywheelConstants;
+import us.kilroyrobotics.Constants.LauncherConstants.KickerConstants;
+import us.kilroyrobotics.Constants.LauncherConstants.SerializerConstants;
 import us.kilroyrobotics.Constants.VisionConstants;
-import us.kilroyrobotics.commands.DriveCommands;
 import us.kilroyrobotics.generated.TunerConstants;
 import us.kilroyrobotics.subsystems.drive.Drive;
 import us.kilroyrobotics.subsystems.drive.GyroIO;
@@ -47,6 +50,16 @@ import us.kilroyrobotics.subsystems.intake.actuator.ActuatorIOSparkMax;
 import us.kilroyrobotics.subsystems.intake.roller.RollerIO;
 import us.kilroyrobotics.subsystems.intake.roller.RollerIOSim;
 import us.kilroyrobotics.subsystems.intake.roller.RollerIOSparkMax;
+import us.kilroyrobotics.subsystems.launcher.Launcher;
+import us.kilroyrobotics.subsystems.launcher.flywheel.FlywheelIO;
+import us.kilroyrobotics.subsystems.launcher.flywheel.FlywheelIOSim;
+import us.kilroyrobotics.subsystems.launcher.flywheel.FlywheelIOSparkMax;
+import us.kilroyrobotics.subsystems.launcher.kicker.KickerIO;
+import us.kilroyrobotics.subsystems.launcher.kicker.KickerIOSim;
+import us.kilroyrobotics.subsystems.launcher.kicker.KickerIOSparkMax;
+import us.kilroyrobotics.subsystems.launcher.serializer.SerializerIO;
+import us.kilroyrobotics.subsystems.launcher.serializer.SerializerIOSim;
+import us.kilroyrobotics.subsystems.launcher.serializer.SerializerIOSparkMax;
 import us.kilroyrobotics.subsystems.vision.Vision;
 import us.kilroyrobotics.subsystems.vision.VisionIO;
 import us.kilroyrobotics.subsystems.vision.VisionIOLimelight;
@@ -62,6 +75,9 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   public final SwerveDriveSimulation driveSimulation;
+  private Command hubRotationUnlockedDrive;
+  private Command hubRotationLockedDrive;
+  private final Launcher launcher;
 
   @SuppressWarnings("unused")
   private final Vision vision;
@@ -73,6 +89,9 @@ public class RobotContainer {
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
+
+  @AutoLogOutput(key = "Drive/HubRotationLock")
+  private boolean hubRotationLock = false;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -96,6 +115,15 @@ public class RobotContainer {
             new Intake(
                 new ActuatorIOSparkMax(ActuatorConstants.kMotorCanId),
                 new RollerIOSparkMax(RollerConstants.kMotorCanId));
+
+        launcher =
+            new Launcher(
+                new SerializerIOSparkMax(SerializerConstants.kMotorCanId),
+                new KickerIOSparkMax(KickerConstants.kMotorCanId),
+                new FlywheelIOSparkMax(
+                    FlywheelConstants.kMotorCanId, FlywheelConstants.kFollowerMotorCanId),
+                drive::getChassisSpeeds,
+                drive::getPose);
         break;
 
       case SIM:
@@ -124,6 +152,16 @@ public class RobotContainer {
                     driveSimulation::getSimulatedDriveTrainPose));
 
         intake = new Intake(new ActuatorIOSim(), new RollerIOSim(), driveSimulation);
+
+        launcher =
+            new Launcher(
+                new SerializerIOSim(),
+                new KickerIOSim() {},
+                new FlywheelIOSim(),
+                drive::getChassisSpeeds,
+                drive::getPose,
+                driveSimulation,
+                intake.getIntakeSimulation());
         break;
 
       default:
@@ -140,6 +178,14 @@ public class RobotContainer {
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
 
         intake = new Intake(new ActuatorIO() {}, new RollerIO() {});
+
+        launcher =
+            new Launcher(
+                new SerializerIO() {},
+                new KickerIO() {},
+                new FlywheelIO() {},
+                drive::getChassisSpeeds,
+                drive::getPose);
         break;
     }
 
@@ -148,9 +194,8 @@ public class RobotContainer {
 
     // Set up SysId routines
     autoChooser.addOption(
-        "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-    autoChooser.addOption(
-        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+        "Drive Wheel Radius Characterization", drive.wheelRadiusCharacterization());
+    autoChooser.addOption("Drive Simple FF Characterization", drive.feedforwardCharacterization());
     autoChooser.addOption(
         "Drive SysId (Quasistatic Forward)",
         drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
@@ -163,6 +208,16 @@ public class RobotContainer {
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // Configure the button bindings
+    hubRotationUnlockedDrive =
+        drive.joystickDrive(
+            () -> -controller.getLeftY(),
+            () -> -controller.getLeftX(),
+            () -> -controller.getRightX());
+    hubRotationLockedDrive =
+        drive.joystickDriveAtAngle(
+            () -> -controller.getLeftY(),
+            () -> -controller.getLeftX(),
+            () -> new Rotation2d(launcher.getTargetRotation()));
     configureButtonBindings();
   }
 
@@ -174,19 +229,13 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // Default command, normal field-relative drive
-    drive.setDefaultCommand(
-        DriveCommands.joystickDrive(
-            drive,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> -controller.getRightX()));
+    drive.setDefaultCommand(hubRotationUnlockedDrive);
 
     // Lock to 0° when A button is held
     controller
         .a()
         .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
+            drive.joystickDriveAtAngle(
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX(),
                 () -> new Rotation2d()));
@@ -205,6 +254,25 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
+    controller
+        .rightStick()
+        .toggleOnTrue(
+            Commands.runOnce(
+                () -> {
+                  hubRotationLock = !hubRotationLock;
+                  drive.getDefaultCommand().cancel();
+                  drive.setDefaultCommand(
+                      hubRotationLock ? hubRotationLockedDrive : hubRotationUnlockedDrive);
+                }));
+
+    controller
+        .rightTrigger()
+        .onTrue(
+            Commands.parallel(
+                launcher.spinUpSerializerAndKicker, intake.triggerEvent(IntakeEvent.AGITATE)))
+        .onFalse(
+            Commands.parallel(
+                launcher.stopSerializerAndKicker, intake.triggerEvent(IntakeEvent.RETRACT)));
     controller.povDown().onTrue(intake.triggerEvent(IntakeEvent.EXTEND));
     controller.povUp().onTrue(intake.triggerEvent(IntakeEvent.RETRACT));
     controller

@@ -14,14 +14,24 @@
 package us.kilroyrobotics;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
+import com.pathplanner.lib.util.FlippingUtil;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotBase;
 import org.photonvision.simulation.SimCameraProperties;
 import us.kilroyrobotics.util.LoggedTunableNumber;
@@ -49,8 +59,31 @@ public final class Constants {
   /** Whether or not we are tuning the robot */
   public static final boolean kTuning = true;
 
+  public static final class FieldConstants {
+    public static final Pose2d blueHubPose =
+        new Pose2d(Inches.of(182.11), Inches.of(158.84), Rotation2d.kZero);
+    public static final Pose2d redHubPose = FlippingUtil.flipFieldPose(blueHubPose);
+
+    public static Pose2d getHubPose() {
+      return DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Blue
+          ? blueHubPose
+          : redHubPose;
+    }
+  }
+
   public static final class DriveConstants {
     public static final LinearVelocity kMaxDriveSpeed = MetersPerSecond.of(3);
+
+    public static final double kDeadband = 0.1;
+
+    public static final double kAngleKP = 5.0;
+    public static final double kAngleKD = 0.4;
+    public static final double kAngleMaxVelocity = 8.0;
+    public static final double kAngleMaxAcceleration = 20.0;
+    public static final double kFFStartDelay = 2.0; // Secs
+    public static final double kFFRampRate = 0.1; // Volts/Sec
+    public static final double kWheelRadiusMaxVelocity = 0.25; // Rad/Sec
+    public static final double kWheelRadiusRampRate = 0.05; // Rad/Sec^2
   }
 
   public static final class VisionConstants {
@@ -109,6 +142,9 @@ public final class Constants {
       public static final double kP = 0.05;
       public static final double kI = 0.0;
       public static final double kD = 0.0;
+
+      public static final Translation3d kIntakeWallsTranslation =
+          new Translation3d(-0.193, 0.0, 0.2);
     }
 
     public static final class RollerConstants {
@@ -126,6 +162,46 @@ public final class Constants {
       /** The set percent of the motor when outtaking fuel */
       public static final LoggedTunableNumber kOuttakePercent =
           new LoggedTunableNumber("Intake/Roller/OuttakePercent", -0.4);
+
+      public static final Translation3d kRollerTranslation = new Translation3d(-0.162, 0.0, 0.593);
     }
+  }
+
+  public static final class LauncherConstants {
+    public static final class SerializerConstants {
+      public static final int kMotorCanId = 43;
+
+      public static final LoggedTunableNumber kSerializerPercent =
+          new LoggedTunableNumber("Launcher/Serializer/Percent", 0.4);
+
+      public static final Translation3d kBottomTranslation = new Translation3d(0.0545, 0.0, 0.111);
+      public static final Translation3d kTopTranslation = new Translation3d(0.08, 0.0, 0.297);
+    }
+
+    public static final class KickerConstants {
+      public static final int kMotorCanId = 44;
+
+      public static final LoggedTunableNumber kKickerPercent =
+          new LoggedTunableNumber("Launcher/Kicker/Percent", 0.6);
+
+      public static final Translation3d kBottomTranslation = new Translation3d(0.1195, 0.0, 0.1295);
+      public static final Translation3d kMiddleTranslation = new Translation3d(0.207, 0.0, 0.181);
+      public static final Translation3d kTopTranslation = new Translation3d(0.2505, 0.0, 0.2735);
+    }
+
+    public static final class FlywheelConstants {
+      public static final int kMotorCanId = 45;
+      public static final int kFollowerMotorCanId = 46;
+
+      public static final double kP = 0.00035;
+      public static final double kI = 0.00000025;
+      public static final double kD = 0.005;
+
+      public static final Translation3d kTranslation = new Translation3d(0.2657602, 0.0, 0.3731006);
+    }
+
+    public static final Distance kInitialBallHeight =
+        Meters.of(FlywheelConstants.kTranslation.getZ() + 0.150);
+    public static final Angle kLaunchAngle = Degrees.of(75);
   }
 }

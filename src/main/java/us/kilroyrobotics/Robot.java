@@ -29,7 +29,6 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import us.kilroyrobotics.Constants.Mode;
-import us.kilroyrobotics.Constants.VisionConstants;
 import us.kilroyrobotics.generated.BuildConstants;
 import us.kilroyrobotics.generated.TunerConstants;
 
@@ -236,7 +235,5 @@ public class Robot extends LoggedRobot {
     Pose3d[] fuelPoses = SimulatedArena.getInstance().getGamePiecesArrayByType("Fuel");
     // Publish to telemetry using AdvantageKit
     Logger.recordOutput("FieldSimulation/FuelPositions", fuelPoses);
-
-    Logger.recordOutput("test", VisionConstants.robotToCamera0);
   }
 }
