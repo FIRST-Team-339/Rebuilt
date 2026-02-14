@@ -15,6 +15,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
@@ -45,6 +46,16 @@ import us.kilroyrobotics.subsystems.launcher.serializer.Serializer;
 import us.kilroyrobotics.subsystems.launcher.serializer.SerializerIO;
 
 public class Launcher extends SubsystemBase {
+  /** Feet to RPM */
+  private static final InterpolatingDoubleTreeMap distanceToRpm = new InterpolatingDoubleTreeMap();
+
+  //
+  static {
+    distanceToRpm.put(9.0, 2925.0);
+    distanceToRpm.put(10.0, 3100.0);
+    distanceToRpm.put(11.0, 3150.0);
+  }
+
   private final Serializer serializer;
   private final Kicker kicker;
   private final Flywheel flywheel;

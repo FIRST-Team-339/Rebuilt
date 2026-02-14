@@ -193,9 +193,9 @@ public final class Constants {
       public static final int kMotorCanId = 45;
       public static final int kFollowerMotorCanId = 46;
 
-      public static final double kP = 0.1;
-      public static final double kI = 0;
-      public static final double kD = 0;
+      public static final double kP = 0.00035;
+      public static final double kI = 0.00000025;
+      public static final double kD = 0.005;
 
       public static final Translation3d kTranslation = new Translation3d(0.2657602, 0.0, 0.3731006);
     }

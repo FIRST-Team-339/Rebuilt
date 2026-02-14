@@ -12,6 +12,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import us.kilroyrobotics.Constants.LauncherConstants.FlywheelConstants;
 
 public class FlywheelIOSparkMax implements FlywheelIO {
   private final SparkMax motor;
@@ -28,7 +29,7 @@ public class FlywheelIOSparkMax implements FlywheelIO {
     motorConfig
         .closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-        .pid(0.0005, 0.00000025, 0.005);
+        .pid(FlywheelConstants.kP, FlywheelConstants.kI, FlywheelConstants.kD);
     motorConfig.idleMode(IdleMode.kCoast);
     motorConfig.smartCurrentLimit(40);
 
