@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
+import us.kilroyrobotics.Constants;
 import us.kilroyrobotics.Constants.LauncherConstants.FlywheelConstants;
 import us.kilroyrobotics.subsystems.launcher.flywheel.FlywheelIO.FlywheelIOOutputs;
 import us.kilroyrobotics.util.LoggedTunableNumber;
@@ -21,8 +22,7 @@ import us.kilroyrobotics.util.LoggedTunableNumber;
 public class Flywheel extends SubsystemBase {
   public static final String name = "Launcher/Flywheel";
 
-  private final LoggedTunableNumber tuningRPM =
-      new LoggedTunableNumber("Launcher/Flywheel/RPM", 2000);
+  private final LoggedTunableNumber tuningRPM = new LoggedTunableNumber(name + "/RPM", 2000);
 
   private final Debouncer motorConnectedDebouncer =
       new Debouncer(0.5, Debouncer.DebounceType.kFalling);
@@ -34,6 +34,8 @@ public class Flywheel extends SubsystemBase {
   private final FlywheelIO io;
   private final FlywheelIOInputsAutoLogged inputs = new FlywheelIOInputsAutoLogged();
   private final FlywheelIOOutputs outputs = new FlywheelIOOutputs();
+
+  private int rpm = 0;
 
   /** Creates a new Flywheel. */
   public Flywheel(FlywheelIO io) {
@@ -52,11 +54,15 @@ public class Flywheel extends SubsystemBase {
     followerMotorDisconnected.set(
         !followerMotorConnectedDebouncer.calculate(inputs.followerConnected));
 
-    outputs.velocityRPM = tuningRPM.get();
+    outputs.velocityRPM = Constants.kTuning ? tuningRPM.get() : this.rpm;
     outputs.pose =
         new Pose3d(FlywheelConstants.kTranslation, new Rotation3d(0.0, inputs.positionRads, 0.0));
 
     io.applyOutputs(outputs);
+  }
+
+  public void setRPM(int rpm) {
+    this.rpm = rpm;
   }
 
   public double getTorqueCurrent() {
@@ -65,6 +71,6 @@ public class Flywheel extends SubsystemBase {
 
   @AutoLogOutput(key = name + "/Velocity")
   public LinearVelocity getVelocity() {
-    return MetersPerSecond.of(inputs.velocityRPM * 0.3173 / 60).times(2.0 / 3.0);
+    return MetersPerSecond.of(inputs.velocityRPM * 0.3173 / 60).times(0.5);
   }
 }

@@ -4,6 +4,7 @@
 
 package us.kilroyrobotics.subsystems.launcher;
 
+import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
@@ -51,9 +52,19 @@ public class Launcher extends SubsystemBase {
 
   //
   static {
+    distanceToRpm.put(5.0, 2200.0);
+    distanceToRpm.put(6.0, 2500.0);
+    distanceToRpm.put(7.0, 2650.0);
+    distanceToRpm.put(8.0, 2775.0);
     distanceToRpm.put(9.0, 2925.0);
     distanceToRpm.put(10.0, 3100.0);
     distanceToRpm.put(11.0, 3150.0);
+    distanceToRpm.put(12.0, 3400.0);
+    distanceToRpm.put(13.0, 3550.0);
+    distanceToRpm.put(14.0, 3650.0);
+    distanceToRpm.put(15.0, 3750.0);
+    distanceToRpm.put(16.0, 3825.0);
+    distanceToRpm.put(17.0, 4000.0);
   }
 
   private final Serializer serializer;
@@ -153,8 +164,10 @@ public class Launcher extends SubsystemBase {
         robotPoseSupplier
             .get()
             .getTranslation()
-            .plus(FlywheelConstants.kTranslation.toTranslation2d())
-            .rotateBy(robotPoseSupplier.get().getRotation())
+            .plus(
+                FlywheelConstants.kTranslation
+                    .toTranslation2d()
+                    .rotateBy(robotPoseSupplier.get().getRotation()))
             .plus(calculateInitialProjectileVelocityMPS().times(t));
     return new Translation3d(current2dPosition.getX(), current2dPosition.getY(), height);
   }
@@ -177,7 +190,7 @@ public class Launcher extends SubsystemBase {
       if (Constants.currentMode == Mode.SIM
           && intakeSimulation.obtainGamePieceFromIntake()
           && launchBallDebouncerSimulation.calculate(true)) {
-          launchBallDebouncerSimulation.calculate(false);
+        launchBallDebouncerSimulation.calculate(false);
         SimulatedArena.getInstance()
             .addGamePieceProjectile(
                 new RebuiltFuelOnFly(
@@ -192,6 +205,8 @@ public class Launcher extends SubsystemBase {
     } else {
       kicker.stop();
     }
+
+    flywheel.setRPM(distanceToRpm.get(getDistanceFromHub().in(Feet)).intValue());
   }
 
   @AutoLogOutput(key = "Launcher/TargetRotation")
