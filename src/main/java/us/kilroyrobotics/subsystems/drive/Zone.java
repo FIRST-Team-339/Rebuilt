@@ -54,6 +54,7 @@ public enum Zone {
       Zone.ZoneType.TRENCH);
 
   public static enum ZoneType {
+    UNKNOWN,
     NORMAL,
     TRENCH,
     BUMP
