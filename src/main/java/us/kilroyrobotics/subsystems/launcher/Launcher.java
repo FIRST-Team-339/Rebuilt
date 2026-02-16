@@ -82,7 +82,7 @@ public class Launcher extends SubsystemBase {
 
     this.driveSimulation = driveSimulation;
     this.intakeSimulation = intakeSimulation;
-    this.launchBallDebouncerSimulation = new Debouncer(0.1, Debouncer.DebounceType.kFalling);
+    this.launchBallDebouncerSimulation = new Debouncer(0.1, Debouncer.DebounceType.kRising);
   }
 
   /** Creates a new Launcher. */
@@ -177,7 +177,7 @@ public class Launcher extends SubsystemBase {
       if (Constants.currentMode == Mode.SIM
           && intakeSimulation.obtainGamePieceFromIntake()
           && launchBallDebouncerSimulation.calculate(true)) {
-
+          launchBallDebouncerSimulation.calculate(false);
         SimulatedArena.getInstance()
             .addGamePieceProjectile(
                 new RebuiltFuelOnFly(
