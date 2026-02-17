@@ -90,7 +90,8 @@ public class RobotContainer {
 
         vision =
             new Vision(
-                drive::addVisionMeasurement, new VisionIOLimelight("FL-LL2", drive::getRotation));
+                drive::addVisionMeasurement,
+                new VisionIOLimelight("limelight-fl", drive::getRotation));
 
         intake =
             new Intake(
