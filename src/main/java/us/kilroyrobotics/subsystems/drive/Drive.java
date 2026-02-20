@@ -29,8 +29,11 @@ import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -48,11 +51,16 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
+import org.ironmaple.simulation.drivesims.COTS;
+import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
+import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import us.kilroyrobotics.Constants;
 import us.kilroyrobotics.Constants.Mode;
 import us.kilroyrobotics.generated.TunerConstants;
+import us.kilroyrobotics.subsystems.drive.Zone.ZoneType;
 import us.kilroyrobotics.util.LocalADStarAK;
 
 public class Drive extends SubsystemBase {
@@ -86,6 +94,30 @@ public class Drive extends SubsystemBase {
               1),
           getModuleTranslations());
 
+  private static DriveTrainSimulationConfig mapleSimConfig = null;
+
+  public static DriveTrainSimulationConfig getMapleSimConfig() {
+    if (mapleSimConfig != null) return mapleSimConfig;
+
+    return mapleSimConfig =
+        DriveTrainSimulationConfig.Default()
+            .withRobotMass(Kilograms.of(ROBOT_MASS_KG))
+            .withBumperSize(Inches.of(33.5), Inches.of(33.5))
+            .withCustomModuleTranslations(getModuleTranslations())
+            .withGyro(COTS.ofPigeon2())
+            .withSwerveModule(
+                new SwerveModuleSimulationConfig(
+                    DCMotor.getKrakenX60(1),
+                    DCMotor.getFalcon500(1),
+                    TunerConstants.FrontLeft.DriveMotorGearRatio,
+                    TunerConstants.FrontLeft.SteerMotorGearRatio,
+                    Volts.of(TunerConstants.FrontLeft.DriveFrictionVoltage),
+                    Volts.of(TunerConstants.FrontLeft.SteerFrictionVoltage),
+                    Inches.of(2),
+                    KilogramSquareMeters.of(TunerConstants.FrontLeft.SteerInertia),
+                    WHEEL_COF));
+  }
+
   static final Lock odometryLock = new ReentrantLock();
   private final GyroIO gyroIO;
   private final GyroIOInputsAutoLogged gyroInputs = new GyroIOInputsAutoLogged();
@@ -103,8 +135,33 @@ public class Drive extends SubsystemBase {
         new SwerveModulePosition(),
         new SwerveModulePosition()
       };
+
   private SwerveDrivePoseEstimator poseEstimator =
-      new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
+      new SwerveDrivePoseEstimator(
+          kinematics, rawGyroRotation, lastModulePositions, new Pose2d(2.0, 2.0, Rotation2d.kZero));
+
+  @AutoLogOutput(key = "Components/SwerveWheelPoses")
+  private Pose3d[] swerveWheelPoses =
+      new Pose3d[] {
+        new Pose3d(
+            new Translation3d(
+                TunerConstants.FrontLeft.LocationX, TunerConstants.FrontLeft.LocationY, 0.09),
+            Rotation3d.kZero),
+        new Pose3d(
+            new Translation3d(
+                TunerConstants.FrontRight.LocationX, TunerConstants.FrontRight.LocationY, 0.09),
+            Rotation3d.kZero),
+        new Pose3d(
+            new Translation3d(
+                TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY, 0.09),
+            Rotation3d.kZero),
+        new Pose3d(
+            new Translation3d(
+                TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY, 0.09),
+            Rotation3d.kZero)
+      };
+
+  private final Consumer<Pose2d> resetSimulationPoseCallBack;
 
   public Drive(
       GyroIO gyroIO,
@@ -112,11 +169,23 @@ public class Drive extends SubsystemBase {
       ModuleIO frModuleIO,
       ModuleIO blModuleIO,
       ModuleIO brModuleIO) {
+    this(gyroIO, flModuleIO, frModuleIO, blModuleIO, brModuleIO, (pose) -> {});
+  }
+
+  public Drive(
+      GyroIO gyroIO,
+      ModuleIO flModuleIO,
+      ModuleIO frModuleIO,
+      ModuleIO blModuleIO,
+      ModuleIO brModuleIO,
+      Consumer<Pose2d> resetSimulationPoseCallBack) {
     this.gyroIO = gyroIO;
     modules[0] = new Module(flModuleIO, 0, TunerConstants.FrontLeft);
     modules[1] = new Module(frModuleIO, 1, TunerConstants.FrontRight);
     modules[2] = new Module(blModuleIO, 2, TunerConstants.BackLeft);
     modules[3] = new Module(brModuleIO, 3, TunerConstants.BackRight);
+
+    this.resetSimulationPoseCallBack = resetSimulationPoseCallBack;
 
     // Usage reporting for swerve template
     HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
@@ -163,8 +232,12 @@ public class Drive extends SubsystemBase {
     odometryLock.lock(); // Prevents odometry updates while reading data
     gyroIO.updateInputs(gyroInputs);
     Logger.processInputs("Drive/Gyro", gyroInputs);
-    for (var module : modules) {
-      module.periodic();
+    for (int i = 0; i < modules.length; i++) {
+      modules[i].periodic();
+      swerveWheelPoses[i] =
+          new Pose3d(
+              swerveWheelPoses[i].getTranslation(),
+              new Rotation3d(0, 0, modules[i].getPosition().angle.getRadians()));
     }
     odometryLock.unlock();
 
@@ -327,6 +400,24 @@ public class Drive extends SubsystemBase {
     return poseEstimator.getEstimatedPosition();
   }
 
+  /** Returns the current zone of the robot. */
+  @AutoLogOutput(key = "Odometry/Zone")
+  public Zone getZone() {
+    return Zone.getZoneFromPose(getPose());
+  }
+
+  /** Returns the current zone of the robot. */
+  @AutoLogOutput(key = "Odometry/ZoneType")
+  public Zone.ZoneType getZoneType() {
+    Zone zone = getZone();
+
+    if (zone == null) {
+      return ZoneType.UNKNOWN;
+    }
+
+    return zone.getType();
+  }
+
   /** Returns the current odometry rotation. */
   public Rotation2d getRotation() {
     return getPose().getRotation();
@@ -334,6 +425,7 @@ public class Drive extends SubsystemBase {
 
   /** Resets the current odometry pose. */
   public void setPose(Pose2d pose) {
+    resetSimulationPoseCallBack.accept(pose);
     poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
   }
 
@@ -348,7 +440,7 @@ public class Drive extends SubsystemBase {
 
   /** Returns the maximum linear speed in meters per sec. */
   public double getMaxLinearSpeedMetersPerSec() {
-    return TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
+    return Constants.DriveConstants.kMaxDriveSpeed.in(MetersPerSecond);
   }
 
   /** Returns the maximum angular speed in radians per sec. */

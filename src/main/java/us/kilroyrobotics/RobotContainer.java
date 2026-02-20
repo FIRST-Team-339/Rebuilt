@@ -19,18 +19,38 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import org.ironmaple.simulation.SimulatedArena;
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import us.kilroyrobotics.Constants.IntakeConstants.ActuatorConstants;
+import us.kilroyrobotics.Constants.IntakeConstants.RollerConstants;
+import us.kilroyrobotics.Constants.VisionConstants;
 import us.kilroyrobotics.commands.DriveCommands;
 import us.kilroyrobotics.generated.TunerConstants;
 import us.kilroyrobotics.subsystems.drive.Drive;
 import us.kilroyrobotics.subsystems.drive.GyroIO;
 import us.kilroyrobotics.subsystems.drive.GyroIOPigeon2;
+import us.kilroyrobotics.subsystems.drive.GyroIOSim;
 import us.kilroyrobotics.subsystems.drive.ModuleIO;
 import us.kilroyrobotics.subsystems.drive.ModuleIOSim;
 import us.kilroyrobotics.subsystems.drive.ModuleIOTalonFX;
+import us.kilroyrobotics.subsystems.intake.Intake;
+import us.kilroyrobotics.subsystems.intake.IntakeEvent;
+import us.kilroyrobotics.subsystems.intake.IntakeState;
+import us.kilroyrobotics.subsystems.intake.actuator.ActuatorIO;
+import us.kilroyrobotics.subsystems.intake.actuator.ActuatorIOSim;
+import us.kilroyrobotics.subsystems.intake.actuator.ActuatorIOSparkMax;
+import us.kilroyrobotics.subsystems.intake.roller.RollerIO;
+import us.kilroyrobotics.subsystems.intake.roller.RollerIOSim;
+import us.kilroyrobotics.subsystems.intake.roller.RollerIOSparkMax;
+import us.kilroyrobotics.subsystems.vision.Vision;
+import us.kilroyrobotics.subsystems.vision.VisionIO;
+import us.kilroyrobotics.subsystems.vision.VisionIOLimelight;
+import us.kilroyrobotics.subsystems.vision.VisionIOPhotonVisionSim;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -41,6 +61,12 @@ import us.kilroyrobotics.subsystems.drive.ModuleIOTalonFX;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
+  public final SwerveDriveSimulation driveSimulation;
+
+  @SuppressWarnings("unused")
+  private final Vision vision;
+
+  private final Intake intake;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -53,6 +79,7 @@ public class RobotContainer {
     switch (Constants.currentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
+        driveSimulation = null;
         drive =
             new Drive(
                 new GyroIOPigeon2(),
@@ -60,21 +87,49 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
+
+        vision =
+            new Vision(
+                drive::addVisionMeasurement,
+                new VisionIOLimelight("limelight-fl", drive::getRotation));
+
+        intake =
+            new Intake(
+                new ActuatorIOSparkMax(ActuatorConstants.kMotorCanId),
+                new RollerIOSparkMax(RollerConstants.kMotorCanId));
         break;
 
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
+        driveSimulation =
+            new SwerveDriveSimulation(
+                Drive.getMapleSimConfig(), new Pose2d(2.0, 2.0, Rotation2d.kZero));
+        SimulatedArena.getInstance().addDriveTrainSimulation(driveSimulation);
+
         drive =
             new Drive(
-                new GyroIO() {},
-                new ModuleIOSim(TunerConstants.FrontLeft),
-                new ModuleIOSim(TunerConstants.FrontRight),
-                new ModuleIOSim(TunerConstants.BackLeft),
-                new ModuleIOSim(TunerConstants.BackRight));
+                new GyroIOSim(driveSimulation.getGyroSimulation()),
+                new ModuleIOSim(driveSimulation.getModules()[0]),
+                new ModuleIOSim(driveSimulation.getModules()[1]),
+                new ModuleIOSim(driveSimulation.getModules()[2]),
+                new ModuleIOSim(driveSimulation.getModules()[3]),
+                driveSimulation::setSimulationWorldPose);
+
+        vision =
+            new Vision(
+                drive::addVisionMeasurement,
+                new VisionIOPhotonVisionSim(
+                    VisionConstants.camera0Name,
+                    VisionConstants.camera0SimProperties,
+                    VisionConstants.robotToCamera0,
+                    driveSimulation::getSimulatedDriveTrainPose));
+
+        intake = new Intake(new ActuatorIOSim(), new RollerIOSim(), driveSimulation);
         break;
 
       default:
         // Replayed robot, disable IO implementations
+        driveSimulation = null;
         drive =
             new Drive(
                 new GyroIO() {},
@@ -82,6 +137,10 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
+
+        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
+
+        intake = new Intake(new ActuatorIO() {}, new RollerIO() {});
         break;
     }
 
@@ -146,6 +205,23 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
                     drive)
                 .ignoringDisable(true));
+
+    controller.povDown().onTrue(intake.triggerEvent(IntakeEvent.EXTEND));
+    controller.povUp().onTrue(intake.triggerEvent(IntakeEvent.RETRACT));
+    controller
+        .povRight()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  if (intake.getCurrentState() == IntakeState.EXTENDED) {
+                    CommandScheduler.getInstance()
+                        .schedule(intake.triggerEvent(IntakeEvent.START_INTAKING));
+                  } else if (intake.getCurrentState() == IntakeState.INTAKING) {
+                    CommandScheduler.getInstance()
+                        .schedule(intake.triggerEvent(IntakeEvent.STOP_INTAKING));
+                  }
+                },
+                intake));
   }
 
   /**
