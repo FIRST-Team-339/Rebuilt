@@ -92,7 +92,7 @@ public final class Constants {
         AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
 
     // Camera names, must match names configured on coprocessor
-    public static final String camera0Name = "FL-LL2";
+    public static final String camera0Name = "limelight-fl";
 
     // Robot to camera transforms
     // (Not used by Limelight, configure in web UI instead)
