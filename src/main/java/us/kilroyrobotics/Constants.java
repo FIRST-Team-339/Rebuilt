@@ -72,7 +72,7 @@ public final class Constants {
   }
 
   public static final class DriveConstants {
-    public static final LinearVelocity kMaxDriveSpeed = MetersPerSecond.of(3);
+    public static final LinearVelocity kMaxDriveSpeed = MetersPerSecond.of(4);
 
     public static final double kDeadband = 0.1;
 
