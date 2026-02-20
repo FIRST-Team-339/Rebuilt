@@ -43,7 +43,6 @@ import us.kilroyrobotics.subsystems.shifts.AllianceShifts;
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
   private RobotContainer robotContainer;
-  private AllianceShifts allianceShifts;
 
   public Robot() {
     // Record metadata
@@ -108,7 +107,6 @@ public class Robot extends LoggedRobot {
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our autonomous chooser on the dashboard.
     robotContainer = new RobotContainer();
-    allianceShifts = new AllianceShifts();
   }
 
   /** This function is called periodically during all modes. */
@@ -163,7 +161,7 @@ public class Robot extends LoggedRobot {
       autonomousCommand.cancel();
     }
 
-    allianceShifts.checkFirstAllianceShift();
+    robotContainer.allianceShifts.checkFirstAllianceShift();
   }
 
   /** This function is called periodically during operator control. */
