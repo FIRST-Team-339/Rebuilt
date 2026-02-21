@@ -24,6 +24,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+
+import static edu.wpi.first.units.Units.Radians;
+
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -227,14 +230,12 @@ public class RobotContainer {
 
     streamdeck.button(1).onTrue(Commands.none()); // TODO: override blue alliance first shift
     streamdeck.button(2).onTrue(Commands.none()); // TODO: override red alliance first shift
-    streamdeck.button(3).onTrue(Commands.none()); // TODO: override actuator out
-    streamdeck.button(4).onTrue(Commands.none()); // TODO: override actuator in
-    streamdeck.button(5).onTrue(Commands.none()); // TODO: re-zero intake actuator
-    streamdeck.button(6).onTrue(Commands.none()); // TODO: override intake 
-    streamdeck.button(7).onTrue(Commands.none()); // TODO: override outtake
-    streamdeck.button(8).onTrue(Commands.none()); // TODO: serializer+kicker on
-    streamdeck.button(9).onTrue(Commands.none()); // TODO: serializer+kicker off
-    streamdeck.button(10).onTrue(Commands.none()); // TODO: serializer+kicker outtake
+    streamdeck.button(3).onTrue(Commands.runOnce(() -> intake.overrideActuator(Radians.of(ActuatorConstants.kExtendedRads.get()))));
+    streamdeck.button(4).onTrue(Commands.runOnce(() -> intake.overrideActuator(Radians.of(0.0))));
+    streamdeck.button(5).onTrue(Commands.runOnce(() -> intake.overrideRoller(RollerConstants.kIntakePercent.get()), intake)); 
+    streamdeck.button(6).onTrue(Commands.runOnce(() -> intake.overrideRoller(0.0), intake));
+    streamdeck.button(7).onTrue(Commands.runOnce(() -> intake.overrideRoller(RollerConstants.kOuttakePercent.get()), intake));
+    streamdeck.button(8).onTrue(Commands.none()); // TODO: serializer+kicker outtake
     //TODO: axis control for shooter speed
   }
 
