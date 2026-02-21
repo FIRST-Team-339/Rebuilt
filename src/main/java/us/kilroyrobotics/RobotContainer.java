@@ -242,7 +242,16 @@ public class RobotContainer {
                 () -> new Rotation2d()));
 
     // Switch to X pattern when X button is pressed
-    controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+    controller
+        .x()
+        .onTrue(
+            Commands.sequence(
+                Commands.runOnce(drive::stopWithX, drive),
+                Commands.runOnce(
+                    () -> {
+                      drive.setDefaultCommand(hubRotationUnlockedDrive);
+                      hubRotationLock = false;
+                    })));
 
     // Reset gyro to 0° when B button is pressed
     controller
@@ -261,7 +270,6 @@ public class RobotContainer {
             Commands.runOnce(
                 () -> {
                   hubRotationLock = !hubRotationLock;
-                  drive.getDefaultCommand().cancel();
                   drive.setDefaultCommand(
                       hubRotationLock ? hubRotationLockedDrive : hubRotationUnlockedDrive);
                 }));

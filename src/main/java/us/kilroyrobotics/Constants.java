@@ -76,7 +76,7 @@ public final class Constants {
 
     public static final double kDeadband = 0.1;
 
-    public static final double kAngleKP = 5.0;
+    public static final double kAngleKP = 10.0;
     public static final double kAngleKD = 0.4;
     public static final double kAngleMaxVelocity = 8.0;
     public static final double kAngleMaxAcceleration = 20.0;
