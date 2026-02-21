@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.ironmaple.simulation.SimulatedArena;
@@ -70,6 +71,7 @@ public class RobotContainer {
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
+  private final CommandGenericHID streamdeck = new CommandGenericHID(1);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -222,6 +224,18 @@ public class RobotContainer {
                   }
                 },
                 intake));
+
+    streamdeck.button(1).onTrue(Commands.none()); // TODO: override blue alliance first shift
+    streamdeck.button(2).onTrue(Commands.none()); // TODO: override red alliance first shift
+    streamdeck.button(3).onTrue(Commands.none()); // TODO: override actuator out
+    streamdeck.button(4).onTrue(Commands.none()); // TODO: override actuator in
+    streamdeck.button(5).onTrue(Commands.none()); // TODO: re-zero intake actuator
+    streamdeck.button(6).onTrue(Commands.none()); // TODO: override intake 
+    streamdeck.button(7).onTrue(Commands.none()); // TODO: override outtake
+    streamdeck.button(8).onTrue(Commands.none()); // TODO: serializer+kicker on
+    streamdeck.button(9).onTrue(Commands.none()); // TODO: serializer+kicker off
+    streamdeck.button(10).onTrue(Commands.none()); // TODO: serializer+kicker outtake
+    //TODO: axis control for shooter speed
   }
 
   /**
