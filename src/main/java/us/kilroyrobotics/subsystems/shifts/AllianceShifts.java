@@ -76,6 +76,10 @@ public class AllianceShifts extends SubsystemBase {
     }
   }
 
+  public Alliance getFirstAllianceShift() {
+    return firstAllianceShift;
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
