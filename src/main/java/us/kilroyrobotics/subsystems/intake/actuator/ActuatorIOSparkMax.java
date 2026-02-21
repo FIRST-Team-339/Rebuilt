@@ -39,8 +39,10 @@ public class ActuatorIOSparkMax implements ActuatorIO {
         .pid(ActuatorConstants.kP, ActuatorConstants.kI, ActuatorConstants.kD);
     motorConfig.closedLoop.positionWrappingEnabled(true);
     motorConfig.closedLoop.positionWrappingInputRange(0.0, 0.3);
-    motorConfig.idleMode(IdleMode.kCoast);
-    motorConfig.smartCurrentLimit(40);
+    motorConfig.encoder.positionConversionFactor(1.0 / 5.0);
+    motorConfig.absoluteEncoder.positionConversionFactor(1.0);
+    motorConfig.idleMode(IdleMode.kBrake);
+    motorConfig.smartCurrentLimit(30);
 
     motor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }

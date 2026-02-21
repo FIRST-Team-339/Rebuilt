@@ -139,8 +139,8 @@ public final class Constants {
       /** The gear ratio of the actuator motor */
       public static final int kGearing = 5;
 
-      public static final double kP = 0.05;
-      public static final double kI = 0.0;
+      public static final double kP = 0.25;
+      public static final double kI = 0.00025;
       public static final double kD = 0.0;
 
       public static final Translation3d kIntakeWallsTranslation =
