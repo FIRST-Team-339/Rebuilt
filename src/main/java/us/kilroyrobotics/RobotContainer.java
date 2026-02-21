@@ -90,7 +90,7 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
 
-        allianceShifts = new AllianceShifts();
+        allianceShifts = new AllianceShifts(controller);
 
         vision =
             new Vision(
@@ -119,7 +119,7 @@ public class RobotContainer {
                 new ModuleIOSim(driveSimulation.getModules()[3]),
                 driveSimulation::setSimulationWorldPose);
 
-        allianceShifts = new AllianceShifts();
+        allianceShifts = new AllianceShifts(controller);
 
         vision =
             new Vision(
@@ -144,7 +144,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {});
 
-        allianceShifts = new AllianceShifts();
+        allianceShifts = new AllianceShifts(controller);
 
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
 

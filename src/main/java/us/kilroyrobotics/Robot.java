@@ -32,7 +32,6 @@ import us.kilroyrobotics.Constants.Mode;
 import us.kilroyrobotics.Constants.VisionConstants;
 import us.kilroyrobotics.generated.BuildConstants;
 import us.kilroyrobotics.generated.TunerConstants;
-import us.kilroyrobotics.subsystems.shifts.AllianceShifts;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
