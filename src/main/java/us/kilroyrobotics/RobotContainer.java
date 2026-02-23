@@ -60,6 +60,7 @@ import us.kilroyrobotics.subsystems.launcher.kicker.KickerIOSparkMax;
 import us.kilroyrobotics.subsystems.launcher.serializer.SerializerIO;
 import us.kilroyrobotics.subsystems.launcher.serializer.SerializerIOSim;
 import us.kilroyrobotics.subsystems.launcher.serializer.SerializerIOSparkMax;
+import us.kilroyrobotics.subsystems.shifts.AllianceShifts;
 import us.kilroyrobotics.subsystems.vision.Vision;
 import us.kilroyrobotics.subsystems.vision.VisionIO;
 import us.kilroyrobotics.subsystems.vision.VisionIOLimelight;
@@ -78,6 +79,7 @@ public class RobotContainer {
   private Command hubRotationUnlockedDrive;
   private Command hubRotationLockedDrive;
   private final Launcher launcher;
+  public final AllianceShifts allianceShifts;
 
   @SuppressWarnings("unused")
   private final Vision vision;
@@ -106,6 +108,8 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
+
+        allianceShifts = new AllianceShifts(controller);
 
         vision =
             new Vision(
@@ -143,6 +147,8 @@ public class RobotContainer {
                 new ModuleIOSim(driveSimulation.getModules()[3]),
                 driveSimulation::setSimulationWorldPose);
 
+        allianceShifts = new AllianceShifts(controller);
+
         vision =
             new Vision(
                 drive::addVisionMeasurement,
@@ -175,6 +181,8 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
+
+        allianceShifts = new AllianceShifts(controller);
 
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
 
