@@ -257,6 +257,7 @@ public class RobotContainer {
                 Commands.runOnce(drive::stopWithX, drive),
                 Commands.runOnce(
                     () -> {
+                      drive.getDefaultCommand().cancel();
                       drive.setDefaultCommand(hubRotationUnlockedDrive);
                       hubRotationLock = false;
                     })));
@@ -278,6 +279,7 @@ public class RobotContainer {
             Commands.runOnce(
                 () -> {
                   hubRotationLock = !hubRotationLock;
+                  drive.getDefaultCommand().cancel();
                   drive.setDefaultCommand(
                       hubRotationLock ? hubRotationLockedDrive : hubRotationUnlockedDrive);
                 }));
