@@ -10,31 +10,42 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public enum Zone {
-  ALLIANCE_ZONE(
-      Translation2d.kZero, new Translation2d(Meters.of(4.0), Meters.of(8.0)), Zone.ZoneType.NORMAL),
+  UNKNOWN(),
+  ALLIANCE_ZONE_BACK(
+      new Translation2d(Meters.of(3.5), Meters.of(8.0)),
+      new Translation2d(Meters.of(5.5), Meters.of(8.0)),
+      Zone.ZoneType.NORMAL),
+  ALLIANCE_ZONE_FRONT(
+      new Translation2d(Meters.of(3.5), Meters.of(8.0)),
+      new Translation2d(Meters.of(5.5), Meters.of(8.0)),
+      Zone.ZoneType.NORMAL),
   ALLIANCE_LEFT_TRENCH(
-      new Translation2d(Meters.of(4.0), Meters.of(6.7)),
-      new Translation2d(Meters.of(5.15), Meters.of(8.0)),
+      new Translation2d(Meters.of(3.5), Meters.of(6.7)),
+      new Translation2d(Meters.of(5.5), Meters.of(8.0)),
       Zone.ZoneType.TRENCH),
   ALLIANCE_LEFT_BUMP(
-      new Translation2d(Meters.of(4.0), Meters.of(4.0)),
-      new Translation2d(Meters.of(5.15), Meters.of(6.7)),
+      new Translation2d(Meters.of(3.5), Meters.of(5.2)),
+      new Translation2d(Meters.of(5.5), Meters.of(6.7)),
       Zone.ZoneType.BUMP),
   ALLIANCE_RIGHT_BUMP(
-      new Translation2d(Meters.of(4.0), Meters.of(1.3)),
-      new Translation2d(Meters.of(5.15), Meters.of(4.0)),
+      new Translation2d(Meters.of(3.5), Meters.of(1.3)),
+      new Translation2d(Meters.of(5.5), Meters.of(2.8)),
       Zone.ZoneType.BUMP),
   ALLIANCE_RIGHT_TRENCH(
-      new Translation2d(Meters.of(4.0), Meters.of(0.0)),
-      new Translation2d(Meters.of(5.15), Meters.of(1.3)),
+      new Translation2d(Meters.of(3.5), Meters.of(0.0)),
+      new Translation2d(Meters.of(5.5), Meters.of(1.3)),
       Zone.ZoneType.TRENCH),
   NEUTRAL_ZONE(
       new Translation2d(Meters.of(5.15), Meters.of(0.0)),
       new Translation2d(Meters.of(12.4), Meters.of(8.0)),
       Zone.ZoneType.NORMAL),
-  OPPOSING_ALLIANCE_ZONE(
-      FlippingUtil.flipFieldPosition(Zone.ALLIANCE_ZONE.getCornerA()),
-      FlippingUtil.flipFieldPosition(Zone.ALLIANCE_ZONE.getCornerB()),
+  OPPOSING_ALLIANCE_ZONE_FRONT(
+      FlippingUtil.flipFieldPosition(Zone.ALLIANCE_ZONE_FRONT.getCornerA()),
+      FlippingUtil.flipFieldPosition(Zone.ALLIANCE_ZONE_FRONT.getCornerB()),
+      Zone.ZoneType.NORMAL),
+  OPPOSING_ALLIANCE_ZONE_BACK(
+      FlippingUtil.flipFieldPosition(Zone.ALLIANCE_ZONE_BACK.getCornerA()),
+      FlippingUtil.flipFieldPosition(Zone.ALLIANCE_ZONE_BACK.getCornerB()),
       Zone.ZoneType.NORMAL),
   OPPOSING_ALLIANCE_LEFT_TRENCH(
       FlippingUtil.flipFieldPosition(Zone.ALLIANCE_LEFT_TRENCH.getCornerA()),
@@ -66,6 +77,14 @@ public enum Zone {
   private final Rectangle2d zone;
   private final ZoneType type;
 
+  private Zone() {
+    this.cornerA = null;
+    this.cornerB = null;
+
+    this.zone = null;
+    this.type = ZoneType.UNKNOWN;
+  }
+
   private Zone(Translation2d cornerA, Translation2d cornerB, ZoneType type) {
     if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
       cornerA = FlippingUtil.flipFieldPosition(cornerA);
@@ -81,10 +100,11 @@ public enum Zone {
 
   public static Zone getZoneFromPose(Pose2d pose) {
     for (Zone zone : values()) {
+      if (zone.type == ZoneType.UNKNOWN) continue;
       if (zone.inZone(pose)) return zone;
     }
 
-    return null;
+    return Zone.UNKNOWN;
   }
 
   public Translation2d getCornerA() {

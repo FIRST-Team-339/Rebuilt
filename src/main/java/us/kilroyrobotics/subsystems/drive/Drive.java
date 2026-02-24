@@ -60,7 +60,6 @@ import org.littletonrobotics.junction.Logger;
 import us.kilroyrobotics.Constants;
 import us.kilroyrobotics.Constants.Mode;
 import us.kilroyrobotics.generated.TunerConstants;
-import us.kilroyrobotics.subsystems.drive.Zone.ZoneType;
 import us.kilroyrobotics.util.LocalADStarAK;
 
 public class Drive extends SubsystemBase {
@@ -409,13 +408,7 @@ public class Drive extends SubsystemBase {
   /** Returns the current zone of the robot. */
   @AutoLogOutput(key = "Odometry/ZoneType")
   public Zone.ZoneType getZoneType() {
-    Zone zone = getZone();
-
-    if (zone == null) {
-      return ZoneType.UNKNOWN;
-    }
-
-    return zone.getType();
+    return getZone().getType();
   }
 
   /** Returns the current odometry rotation. */
