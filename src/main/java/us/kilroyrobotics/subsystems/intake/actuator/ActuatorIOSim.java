@@ -32,6 +32,7 @@ public class ActuatorIOSim implements ActuatorIO {
 
     inputs.connected = true;
     inputs.positionRads = simMotor.getAngularPositionRad() / ActuatorConstants.kGearing;
+    inputs.positionRotations = simMotor.getAngularPositionRotations() / ActuatorConstants.kGearing;
     inputs.atSetpoint = controller.atSetpoint();
     inputs.velocityRadsPerSec = simMotor.getAngularVelocityRadPerSec();
     inputs.appliedVoltage = appliedVoltage;

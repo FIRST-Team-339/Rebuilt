@@ -38,7 +38,7 @@ public class ActuatorIOSparkMax implements ActuatorIO {
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
         .pid(ActuatorConstants.kP, ActuatorConstants.kI, ActuatorConstants.kD);
     motorConfig.closedLoop.positionWrappingEnabled(true);
-    motorConfig.closedLoop.positionWrappingInputRange(0.0, 0.3);
+    motorConfig.closedLoop.positionWrappingInputRange(0.0, 1.0);
     motorConfig.encoder.positionConversionFactor(1.0 / 5.0);
     motorConfig.absoluteEncoder.positionConversionFactor(1.0);
     motorConfig.idleMode(IdleMode.kBrake);
@@ -51,7 +51,8 @@ public class ActuatorIOSparkMax implements ActuatorIO {
   public void updateInputs(ActuatorIOInputs inputs) {
     inputs.connected = motor.hasStickyFault();
     inputs.positionRads = Units.rotationsToRadians(motor.getAbsoluteEncoder().getPosition());
-    inputs.atSetpoint = Radians.of(inputs.positionRads).isNear(desiredAngle, 0.05);
+    inputs.positionRotations = motor.getAbsoluteEncoder().getPosition();
+    inputs.atSetpoint = Radians.of(inputs.positionRads).isNear(desiredAngle, 0.15);
     inputs.appliedVoltage = motor.getAppliedOutput();
     inputs.supplyCurrentAmps = 0.0;
     inputs.torqueCurrentAmps = motor.getOutputCurrent();

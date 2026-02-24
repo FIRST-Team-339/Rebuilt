@@ -11,6 +11,7 @@ public interface ActuatorIO {
   public static class ActuatorIOInputs {
     public boolean connected;
     public double positionRads;
+    public double positionRotations;
     public boolean atSetpoint;
     public double velocityRadsPerSec;
     public double appliedVoltage;
@@ -20,6 +21,7 @@ public interface ActuatorIO {
   }
 
   public static class ActuatorIOOutputs {
+    @AutoLogOutput(key = "Intake/DesiredPositionRads")
     public double positionRads;
 
     @AutoLogOutput(key = "Components/Intake/Hopper")
