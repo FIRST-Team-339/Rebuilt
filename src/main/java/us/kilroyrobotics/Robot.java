@@ -242,7 +242,5 @@ public class Robot extends LoggedRobot {
     Pose3d[] fuelPoses = SimulatedArena.getInstance().getGamePiecesArrayByType("Fuel");
     // Publish to telemetry using AdvantageKit
     Logger.recordOutput("FieldSimulation/FuelPositions", fuelPoses);
-
-    Logger.recordOutput("test", VisionConstants.robotToCamera0);
   }
 }
