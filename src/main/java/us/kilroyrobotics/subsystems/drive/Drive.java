@@ -287,6 +287,13 @@ public class Drive extends SubsystemBase {
 
     // Update gyro alert
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
+
+    Zone newZone = Zone.getZoneFromPose(getPose());
+
+    if (newZone != zone) {
+      previousZone = zone;
+      zone = newZone;
+    }
   }
 
   /**
@@ -399,10 +406,20 @@ public class Drive extends SubsystemBase {
     return poseEstimator.getEstimatedPosition();
   }
 
+  private Zone previousZone = Zone.UNKNOWN;
+
+  /** Returns the previous zone of the robot. */
+  @AutoLogOutput(key = "Odometry/PreviousZone")
+  public Zone getPreviousZone() {
+    return previousZone;
+  }
+
+  private Zone zone = Zone.getZoneFromPose(getPose());
+
   /** Returns the current zone of the robot. */
   @AutoLogOutput(key = "Odometry/Zone")
   public Zone getZone() {
-    return Zone.getZoneFromPose(getPose());
+    return zone;
   }
 
   /** Returns the current zone of the robot. */
