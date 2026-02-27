@@ -2,9 +2,7 @@ package us.kilroyrobotics.subsystems.drive;
 
 import static edu.wpi.first.units.Units.Meters;
 
-import com.pathplanner.lib.events.TriggerEvent;
 import com.pathplanner.lib.util.FlippingUtil;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -37,10 +35,12 @@ public enum Zone {
       Zone.ZoneType.TRENCH),
   NEUTRAL_ZONE(
       new Translation2d(Meters.of(5.5), Meters.of(0.0)),
-      new Translation2d(Meters.of(12.05), Meters.of(8.0)),
+      new Translation2d(Meters.of(11.04), Meters.of(8.0)),
       Zone.ZoneType.NORMAL),
   OPPOSING_ALLIANCE_ZONE_BACK(
-      new Translation2d(Meters.of(16.54), Meters.of(0.0)), new Translation2d(Meters.of(13.04), Meters.of(8.0)), Zone.ZoneType.NORMAL),
+      new Translation2d(Meters.of(16.54), Meters.of(0.0)),
+      new Translation2d(Meters.of(13.04), Meters.of(8.0)),
+      Zone.ZoneType.NORMAL),
   OPPOSING_ALLIANCE_ZONE_FRONT(
       new Translation2d(Meters.of(13.04), Meters.of(3.0)),
       new Translation2d(Meters.of(11.04), Meters.of(5.0)),
@@ -88,7 +88,7 @@ public enum Zone {
       cornerA = FlippingUtil.flipFieldPosition(cornerA);
       cornerB = FlippingUtil.flipFieldPosition(cornerB);
     }
-    
+
     this.cornerA = cornerA;
     this.cornerB = cornerB;
 
