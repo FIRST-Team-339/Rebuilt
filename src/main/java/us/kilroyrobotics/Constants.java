@@ -50,9 +50,9 @@ public final class Constants {
   public static final boolean kTuning = true;
 
   public static final class DriveConstants {
-    public static final LinearVelocity kMaxDriveSpeed = MetersPerSecond.of(3);
+    public static final LinearVelocity kMaxDriveSpeed = MetersPerSecond.of(2.0);
 
-    public static final double trenchSpeedMultiplier = 0.5;
+    public static final double trenchSpeedMultiplier = 0.75;
   }
 
   public static final class VisionConstants {
