@@ -19,6 +19,8 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.FlippingUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -31,6 +33,7 @@ import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import us.kilroyrobotics.Constants.DriveConstants;
 import us.kilroyrobotics.Constants.IntakeConstants.ActuatorConstants;
 import us.kilroyrobotics.Constants.IntakeConstants.RollerConstants;
 import us.kilroyrobotics.Constants.VisionConstants;
@@ -276,11 +279,10 @@ public class RobotContainer {
                   drive.setDefaultCommand(
                       DriveCommands.joystickDriveAtAngle(
                           drive,
-                          () -> -controller.getLeftY(),
-                          () -> -controller.getLeftX(),
+                          () -> -controller.getLeftY() * DriveConstants.trenchSpeedMultiplier,
+                          () -> -controller.getLeftX() * DriveConstants.trenchSpeedMultiplier,
                           () -> rotation));
-                }))
-        .onFalse(returnToDefaultDrive);
+                }));
 
     inAutomaticDrive
         .and(() -> drive.getZoneType() == ZoneType.BUMP)
@@ -290,12 +292,20 @@ public class RobotContainer {
                 () -> {
                   drive.getDefaultCommand().cancel();
 
-                  Rotation2d rotation = new Rotation2d(Degrees.of(135));
+                  Rotation2d rotation;
 
                   boolean wasInNeutralZone = drive.getPreviousZone() == Zone.NEUTRAL_ZONE;
                   boolean inAllianceHalf = drive.getPose().getX() < (FlippingUtil.fieldSizeX / 2.0);
+
+                  if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red)
+                    inAllianceHalf = !inAllianceHalf;
+
                   if ((wasInNeutralZone && inAllianceHalf)
-                      || (!wasInNeutralZone && !inAllianceHalf)) new Rotation2d(Degrees.of(-45));
+                      || (!wasInNeutralZone && !inAllianceHalf)) {
+                    rotation = new Rotation2d(Degrees.of(45));
+                  } else {
+                    rotation = new Rotation2d(Degrees.of(135));
+                  }
 
                   drive.setDefaultCommand(
                       DriveCommands.joystickDriveAtAngle(
@@ -303,8 +313,9 @@ public class RobotContainer {
                           () -> -controller.getLeftY(),
                           () -> -controller.getLeftX(),
                           () -> rotation));
-                }))
-        .onFalse(returnToDefaultDrive);
+                }));
+
+    inAutomaticDrive.and(() -> drive.getZoneType() == ZoneType.NORMAL).onTrue(returnToDefaultDrive);
   }
 
   /**
