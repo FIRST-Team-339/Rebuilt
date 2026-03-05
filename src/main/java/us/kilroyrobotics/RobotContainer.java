@@ -21,9 +21,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.XboxController.Axis;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.XboxController.Axis;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -88,7 +88,7 @@ public class RobotContainer {
   private final LoggedDashboardChooser<Command> autoChooser;
 
   // Drive Mode
-  @AutoLogOutput(key = "AutoRotate")
+  @AutoLogOutput(key = "Odometry/AutoRotateEnabled")
   private boolean autoRotate = true;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -248,7 +248,12 @@ public class RobotContainer {
     controller.rightStick().onTrue(Commands.runOnce(() -> autoRotate = !autoRotate));
     Command cancelAutoRotate = Commands.runOnce(() -> autoRotate = false);
     controller.button(8).onTrue(cancelAutoRotate);
-    controller.axisMagnitudeGreaterThan(Axis.kRightX.value, DriveConstants.autoRotateCancelThreshold).or(controller.axisMagnitudeGreaterThan(Axis.kRightY.value, DriveConstants.autoRotateCancelThreshold)).onTrue(cancelAutoRotate);
+    controller
+        .axisMagnitudeGreaterThan(Axis.kRightX.value, DriveConstants.autoRotateCancelThreshold)
+        .or(
+            controller.axisMagnitudeGreaterThan(
+                Axis.kRightY.value, DriveConstants.autoRotateCancelThreshold))
+        .onTrue(cancelAutoRotate);
 
     Trigger inAutoRotate = new Trigger(() -> autoRotate);
 
