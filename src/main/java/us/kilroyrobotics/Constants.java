@@ -53,6 +53,8 @@ public final class Constants {
     public static final LinearVelocity kMaxDriveSpeed = MetersPerSecond.of(2.0);
 
     public static final double trenchSpeedMultiplier = 0.75;
+
+    public static final double autoRotateCancelThreshold = 0.5;
   }
 
   public static final class VisionConstants {

@@ -21,6 +21,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.XboxController.Axis;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -87,8 +88,8 @@ public class RobotContainer {
   private final LoggedDashboardChooser<Command> autoChooser;
 
   // Drive Mode
-  @AutoLogOutput(key = "AutomaticDrive")
-  private boolean automaticDrive = true;
+  @AutoLogOutput(key = "AutoRotate")
+  private boolean autoRotate = true;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -244,9 +245,12 @@ public class RobotContainer {
                   }
                 }));
 
-    controller.leftStick().onTrue(Commands.runOnce(() -> automaticDrive = !automaticDrive));
+    controller.rightStick().onTrue(Commands.runOnce(() -> autoRotate = !autoRotate));
+    Command cancelAutoRotate = Commands.runOnce(() -> autoRotate = false);
+    controller.button(8).onTrue(cancelAutoRotate);
+    controller.axisMagnitudeGreaterThan(Axis.kRightX.value, DriveConstants.autoRotateCancelThreshold).or(controller.axisMagnitudeGreaterThan(Axis.kRightY.value, DriveConstants.autoRotateCancelThreshold)).onTrue(cancelAutoRotate);
 
-    Trigger inAutomaticDrive = new Trigger(() -> automaticDrive);
+    Trigger inAutoRotate = new Trigger(() -> autoRotate);
 
     Command returnToDefaultDrive =
         Commands.runOnce(
@@ -261,9 +265,8 @@ public class RobotContainer {
                       () -> -controller.getRightX()));
             });
 
-    inAutomaticDrive
+    inAutoRotate
         .and(() -> drive.getZoneType() == ZoneType.TRENCH)
-        .or(controller.button(7))
         .onTrue(
             drive.runOnce(
                 () -> {
@@ -284,9 +287,8 @@ public class RobotContainer {
                           () -> rotation));
                 }));
 
-    inAutomaticDrive
+    inAutoRotate
         .and(() -> drive.getZoneType() == ZoneType.BUMP)
-        .or(controller.button(8))
         .onTrue(
             drive.runOnce(
                 () -> {
@@ -315,7 +317,7 @@ public class RobotContainer {
                           () -> rotation));
                 }));
 
-    inAutomaticDrive.and(() -> drive.getZoneType() == ZoneType.NORMAL).onTrue(returnToDefaultDrive);
+    inAutoRotate.and(() -> drive.getZoneType() == ZoneType.NORMAL).onTrue(returnToDefaultDrive);
   }
 
   /**
