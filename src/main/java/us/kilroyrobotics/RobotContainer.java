@@ -275,28 +275,32 @@ public class RobotContainer {
 
     inAutoRotate
         .and(() -> drive.getZoneType() == ZoneType.TRENCH)
-        .onTrue(Commands.parallel(drive.runOnce(
-                () -> {
-                  drive.getDefaultCommand().cancel();
+        .onTrue(
+            Commands.parallel(
+                drive.runOnce(
+                    () -> {
+                      drive.getDefaultCommand().cancel();
 
-                  double currentRotationDeg = drive.getRotation().getDegrees();
-                  Rotation2d rotation =
-                      (currentRotationDeg <= 0 && currentRotationDeg >= -90)
-                              || (currentRotationDeg >= 0 && currentRotationDeg <= 90)
-                          ? Rotation2d.kZero
-                          : Rotation2d.k180deg;
+                      double currentRotationDeg = drive.getRotation().getDegrees();
+                      Rotation2d rotation =
+                          (currentRotationDeg <= 0 && currentRotationDeg >= -90)
+                                  || (currentRotationDeg >= 0 && currentRotationDeg <= 90)
+                              ? Rotation2d.kZero
+                              : Rotation2d.k180deg;
 
-                  drive.setDefaultCommand(
-                      DriveCommands.joystickDriveAtAngle(
-                          drive,
-                          () -> -controller.getLeftY() * DriveConstants.trenchSpeedMultiplier,
-                          () -> -controller.getLeftX() * DriveConstants.trenchSpeedMultiplier,
-                          () -> rotation));
-                }), Commands.runOnce(() -> {
-                    if (intake.getCurrentState().ordinal() < IntakeState.EXTENDED.ordinal()) {
+                      drive.setDefaultCommand(
+                          DriveCommands.joystickDriveAtAngle(
+                              drive,
+                              () -> -controller.getLeftY() * DriveConstants.trenchSpeedMultiplier,
+                              () -> -controller.getLeftX() * DriveConstants.trenchSpeedMultiplier,
+                              () -> rotation));
+                    }),
+                Commands.runOnce(
+                    () -> {
+                      if (intake.getCurrentState().ordinal() < IntakeState.EXTENDED.ordinal()) {
                         intake.triggerEvent(IntakeEvent.EXTEND);
-                    }
-                })));
+                      }
+                    })));
 
     inAutoRotate
         .and(() -> drive.getZoneType() == ZoneType.BUMP)
@@ -329,8 +333,6 @@ public class RobotContainer {
                 }));
 
     inAutoRotate.and(() -> drive.getZoneType() == ZoneType.NORMAL).onTrue(returnToDefaultDrive);
-                },
-                intake));
 
     streamdeck
         .button(1)
