@@ -72,7 +72,7 @@ public final class Constants {
   }
 
   public static final class DriveConstants {
-    public static final LinearVelocity kMaxDriveSpeed = MetersPerSecond.of(4);
+    public static final LinearVelocity kMaxDriveSpeed = MetersPerSecond.of(4.0);
 
     public static final double kDeadband = 0.1;
 
@@ -84,6 +84,10 @@ public final class Constants {
     public static final double kFFRampRate = 0.1; // Volts/Sec
     public static final double kWheelRadiusMaxVelocity = 0.25; // Rad/Sec
     public static final double kWheelRadiusRampRate = 0.05; // Rad/Sec^2
+
+    public static final double trenchSpeedMultiplier = 0.75;
+
+    public static final double autoRotateCancelThreshold = 0.5;
   }
 
   public static final class VisionConstants {

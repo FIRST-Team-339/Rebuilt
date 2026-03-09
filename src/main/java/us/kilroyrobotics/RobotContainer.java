@@ -13,24 +13,30 @@
 
 package us.kilroyrobotics;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.util.FlippingUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.XboxController.Axis;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import us.kilroyrobotics.Constants.DriveConstants;
 import us.kilroyrobotics.Constants.IntakeConstants.ActuatorConstants;
 import us.kilroyrobotics.Constants.IntakeConstants.RollerConstants;
 import us.kilroyrobotics.Constants.LauncherConstants.FlywheelConstants;
@@ -45,6 +51,8 @@ import us.kilroyrobotics.subsystems.drive.GyroIOSim;
 import us.kilroyrobotics.subsystems.drive.ModuleIO;
 import us.kilroyrobotics.subsystems.drive.ModuleIOSim;
 import us.kilroyrobotics.subsystems.drive.ModuleIOTalonFX;
+import us.kilroyrobotics.subsystems.drive.Zone;
+import us.kilroyrobotics.subsystems.drive.Zone.ZoneType;
 import us.kilroyrobotics.subsystems.intake.Intake;
 import us.kilroyrobotics.subsystems.intake.IntakeEvent;
 import us.kilroyrobotics.subsystems.intake.IntakeState;
@@ -97,8 +105,9 @@ public class RobotContainer {
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
-  @AutoLogOutput(key = "Drive/HubRotationLock")
-  private boolean hubRotationLock = false;
+  // Drive Mode
+  @AutoLogOutput(key = "Odometry/AutoRotateEnabled")
+  private boolean autoRotate = true;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -220,18 +229,7 @@ public class RobotContainer {
         "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-    // Configure the button bindings
-    hubRotationUnlockedDrive =
-        drive.joystickDrive(
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> -controller.getRightX());
-    hubRotationLockedDrive =
-        drive.joystickDriveAtAngle(
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> new Rotation2d(launcher.getTargetRotation()));
+    
     configureButtonBindings();
   }
 
@@ -243,7 +241,14 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // Default command, normal field-relative drive
-    drive.setDefaultCommand(hubRotationUnlockedDrive);
+    drive.setDefaultCommand(
+                  DriveCommands.joystickDrive(
+                      drive,
+                      () -> -controller.getLeftY(),
+                      () -> -controller.getLeftX(),
+                      () -> -controller.getRightX()));
+    
+    Command cancelAutoRotate = Commands.runOnce(() -> autoRotate = false);
 
     // Lock to 0° when A button is held
     controller
@@ -260,22 +265,17 @@ public class RobotContainer {
         .onTrue(
             Commands.sequence(
                 Commands.runOnce(drive::stopWithX, drive),
-                Commands.runOnce(
-                    () -> {
-                      drive.getDefaultCommand().cancel();
-                      drive.setDefaultCommand(hubRotationUnlockedDrive);
-                      hubRotationLock = false;
-                    })));
+                Commands.runOnce(cancelAutoRotate)
 
     // Reset gyro to 0° when B button is pressed
     controller
         .b()
         .onTrue(
-            Commands.runOnce(
+            drive
+                .runOnce(
                     () ->
                         drive.setPose(
-                            new Pose2d(drive.getPose().getTranslation(), new Rotation2d())),
-                    drive)
+                            new Pose2d(drive.getPose().getTranslation(), new Rotation2d())))
                 .ignoringDisable(true));
 
     controller
@@ -302,7 +302,7 @@ public class RobotContainer {
     controller
         .povRight()
         .onTrue(
-            Commands.runOnce(
+            intake.runOnce(
                 () -> {
                   if (intake.getCurrentState() == IntakeState.EXTENDED) {
                     CommandScheduler.getInstance()
@@ -311,8 +311,92 @@ public class RobotContainer {
                     CommandScheduler.getInstance()
                         .schedule(intake.triggerEvent(IntakeEvent.STOP_INTAKING));
                   }
-                },
-                intake));
+                }));
+
+    controller.rightStick().onTrue(Commands.runOnce(() -> autoRotate = !autoRotate));
+    controller.button(8).onTrue(cancelAutoRotate);
+    controller
+        .axisMagnitudeGreaterThan(Axis.kRightX.value, DriveConstants.autoRotateCancelThreshold)
+        .or(
+            controller.axisMagnitudeGreaterThan(
+                Axis.kRightY.value, DriveConstants.autoRotateCancelThreshold))
+        .onTrue(cancelAutoRotate);
+
+    Trigger inAutoRotate = new Trigger(() -> autoRotate);
+
+    Command returnToDefaultDrive =
+        Commands.runOnce(
+            () -> {
+              drive.getDefaultCommand().cancel();
+
+              drive.setDefaultCommand(
+                  DriveCommands.joystickDrive(
+                      drive,
+                      () -> -controller.getLeftY(),
+                      () -> -controller.getLeftX(),
+                      () -> -controller.getRightX()));
+            });
+
+    inAutoRotate
+        .and(() -> drive.getZoneType() == ZoneType.TRENCH)
+        .onTrue(
+            Commands.parallel(
+                drive.runOnce(
+                    () -> {
+                      drive.getDefaultCommand().cancel();
+
+                      double currentRotationDeg = drive.getRotation().getDegrees();
+                      Rotation2d rotation =
+                          (currentRotationDeg <= 0 && currentRotationDeg >= -90)
+                                  || (currentRotationDeg >= 0 && currentRotationDeg <= 90)
+                              ? Rotation2d.kZero
+                              : Rotation2d.k180deg;
+
+                      drive.setDefaultCommand(
+                          DriveCommands.joystickDriveAtAngle(
+                              drive,
+                              () -> -controller.getLeftY() * DriveConstants.trenchSpeedMultiplier,
+                              () -> -controller.getLeftX() * DriveConstants.trenchSpeedMultiplier,
+                              () -> rotation));
+                    }),
+                Commands.runOnce(
+                    () -> {
+                      if (intake.getCurrentState().ordinal() < IntakeState.EXTENDED.ordinal()) {
+                        intake.triggerEvent(IntakeEvent.EXTEND);
+                      }
+                    })));
+
+    inAutoRotate
+        .and(() -> drive.getZoneType() == ZoneType.BUMP)
+        .onTrue(
+            drive.runOnce(
+                () -> {
+                  drive.getDefaultCommand().cancel();
+
+                  Rotation2d rotation;
+
+                  boolean wasInNeutralZone = drive.getPreviousZone() == Zone.NEUTRAL_ZONE;
+                  boolean inAllianceHalf = drive.getPose().getX() < (FlippingUtil.fieldSizeX / 2.0);
+
+                  if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red)
+                    inAllianceHalf = !inAllianceHalf;
+
+                  if ((wasInNeutralZone && inAllianceHalf)
+                      || (!wasInNeutralZone && !inAllianceHalf)) {
+                    rotation = new Rotation2d(Degrees.of(45));
+                  } else {
+                    rotation = new Rotation2d(Degrees.of(135));
+                  }
+
+                  drive.setDefaultCommand(
+                      DriveCommands.joystickDriveAtAngle(
+                          drive,
+                          () -> -controller.getLeftY(),
+                          () -> -controller.getLeftX(),
+                          () -> rotation));
+                }));
+
+    inAutoRotate.and(() -> drive.getZoneType() == ZoneType.NORMAL).onTrue(returnToDefaultDrive);
 
     streamdeck
         .button(1)
