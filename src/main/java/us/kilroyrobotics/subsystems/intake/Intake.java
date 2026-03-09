@@ -57,6 +57,12 @@ public class Intake extends SubsystemBase {
   private Timer timer = new Timer();
   private boolean agitateBackwards = false;
 
+  private boolean rollerOverride = false;
+  private double rollerOutputOverride = 0.0;
+
+  private boolean actuatorOverride = false;
+  private Angle actuatorAngleOverride = Radians.of(0);
+
   @Override
   public void periodic() {
     actuator.periodic();
@@ -137,6 +143,9 @@ public class Intake extends SubsystemBase {
       }
     }
 
+    if (rollerOverride) rollerOutput = rollerOutputOverride;
+    if (actuatorOverride) actuatorAngle = actuatorAngleOverride;
+
     actuator.setPosition(actuatorAngle);
     roller.set(rollerOutput);
   }
@@ -167,7 +176,11 @@ public class Intake extends SubsystemBase {
    * @returna a {@link Command}
    */
   public Command triggerEvent(IntakeEvent event) {
-    return runOnce(() -> pendingEvent = event);
+    return runOnce(
+        () -> {
+          rollerOverride = false;
+          pendingEvent = event;
+        });
   }
 
   /**
@@ -195,5 +208,23 @@ public class Intake extends SubsystemBase {
    */
   public void setState(IntakeState state) {
     currentState = state;
+  }
+
+  /**
+   * Set the desired speed of the roller motor as a percent output
+   *
+   * @param output percent output (-1.0 to 1.0)
+   */
+  public void overrideRoller(double output) {
+    rollerOutputOverride = output;
+  }
+
+  /**
+   * Set the desired position of the actuator
+   *
+   * @param position the desired position as an {@link Angle}
+   */
+  public void overrideActuator(Angle position) {
+    actuatorAngleOverride = position;
   }
 }
