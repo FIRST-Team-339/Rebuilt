@@ -51,6 +51,7 @@ import us.kilroyrobotics.subsystems.intake.actuator.ActuatorIOSparkMax;
 import us.kilroyrobotics.subsystems.intake.roller.RollerIO;
 import us.kilroyrobotics.subsystems.intake.roller.RollerIOSim;
 import us.kilroyrobotics.subsystems.intake.roller.RollerIOSparkMax;
+import us.kilroyrobotics.subsystems.shifts.AllianceShifts;
 import us.kilroyrobotics.subsystems.vision.Vision;
 import us.kilroyrobotics.subsystems.vision.VisionIO;
 import us.kilroyrobotics.subsystems.vision.VisionIOLimelight;
@@ -66,6 +67,7 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   public final SwerveDriveSimulation driveSimulation;
+  public final AllianceShifts allianceShifts;
 
   @SuppressWarnings("unused")
   private final Vision vision;
@@ -92,6 +94,8 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
+
+        allianceShifts = new AllianceShifts(controller);
 
         vision =
             new Vision(
@@ -120,6 +124,8 @@ public class RobotContainer {
                 new ModuleIOSim(driveSimulation.getModules()[3]),
                 driveSimulation::setSimulationWorldPose);
 
+        allianceShifts = new AllianceShifts(controller);
+
         vision =
             new Vision(
                 drive::addVisionMeasurement,
@@ -142,6 +148,8 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
+
+        allianceShifts = new AllianceShifts(controller);
 
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
 
