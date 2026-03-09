@@ -60,7 +60,6 @@ import org.littletonrobotics.junction.Logger;
 import us.kilroyrobotics.Constants;
 import us.kilroyrobotics.Constants.Mode;
 import us.kilroyrobotics.generated.TunerConstants;
-import us.kilroyrobotics.subsystems.drive.Zone.ZoneType;
 import us.kilroyrobotics.util.LocalADStarAK;
 
 public class Drive extends SubsystemBase {
@@ -288,6 +287,13 @@ public class Drive extends SubsystemBase {
 
     // Update gyro alert
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
+
+    Zone newZone = Zone.getZoneFromPose(getPose());
+
+    if (newZone != zone) {
+      previousZone = zone;
+      zone = newZone;
+    }
   }
 
   /**
@@ -400,22 +406,26 @@ public class Drive extends SubsystemBase {
     return poseEstimator.getEstimatedPosition();
   }
 
+  private Zone previousZone = Zone.UNKNOWN;
+
+  /** Returns the previous zone of the robot. */
+  @AutoLogOutput(key = "Odometry/PreviousZone")
+  public Zone getPreviousZone() {
+    return previousZone;
+  }
+
+  private Zone zone = Zone.getZoneFromPose(getPose());
+
   /** Returns the current zone of the robot. */
   @AutoLogOutput(key = "Odometry/Zone")
   public Zone getZone() {
-    return Zone.getZoneFromPose(getPose());
+    return zone;
   }
 
   /** Returns the current zone of the robot. */
   @AutoLogOutput(key = "Odometry/ZoneType")
   public Zone.ZoneType getZoneType() {
-    Zone zone = getZone();
-
-    if (zone == null) {
-      return ZoneType.UNKNOWN;
-    }
-
-    return zone.getType();
+    return getZone().getType();
   }
 
   /** Returns the current odometry rotation. */
