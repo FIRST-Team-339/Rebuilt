@@ -81,7 +81,7 @@ public class AllianceShifts extends SubsystemBase {
   }
 
   public void setFirstAllianceShift(Alliance newFirstAllianceShift) {
-    firstAllianceShift = newFirstAllianceShift
+    firstAllianceShift = newFirstAllianceShift;
   }
 
   @Override

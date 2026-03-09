@@ -172,10 +172,11 @@ public class Intake extends SubsystemBase {
    * @returna a {@link Command}
    */
   public Command triggerEvent(IntakeEvent event) {
-    return runOnce(() -> {
-      rollerOverride = false;
-      pendingEvent = event;
-    });
+    return runOnce(
+        () -> {
+          rollerOverride = false;
+          pendingEvent = event;
+        });
   }
 
   /**

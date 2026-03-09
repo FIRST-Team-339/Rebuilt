@@ -13,21 +13,20 @@
 
 package us.kilroyrobotics;
 
+import static edu.wpi.first.units.Units.Radians;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-
-import static edu.wpi.first.units.Units.Radians;
-
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -237,15 +236,31 @@ public class RobotContainer {
                 },
                 intake));
 
-    streamdeck.button(1).onTrue(Commands.runOnce(() -> allianceShifts.setFirstAllianceShift(Alliance.Blue)));
-    streamdeck.button(2).onTrue(Commands.runOnce(() -> allianceShifts.setFirstAllianceShift(Alliance.Red)));
-    streamdeck.button(3).onTrue(Commands.runOnce(() -> intake.overrideActuator(Radians.of(ActuatorConstants.kExtendedRads.get()))));
+    streamdeck
+        .button(1)
+        .onTrue(Commands.runOnce(() -> allianceShifts.setFirstAllianceShift(Alliance.Blue)));
+    streamdeck
+        .button(2)
+        .onTrue(Commands.runOnce(() -> allianceShifts.setFirstAllianceShift(Alliance.Red)));
+    streamdeck
+        .button(3)
+        .onTrue(
+            Commands.runOnce(
+                () -> intake.overrideActuator(Radians.of(ActuatorConstants.kExtendedRads.get()))));
     streamdeck.button(4).onTrue(Commands.runOnce(() -> intake.overrideActuator(Radians.of(0.0))));
-    streamdeck.button(5).onTrue(Commands.runOnce(() -> intake.overrideRoller(RollerConstants.kIntakePercent.get()), intake)); 
+    streamdeck
+        .button(5)
+        .onTrue(
+            Commands.runOnce(
+                () -> intake.overrideRoller(RollerConstants.kIntakePercent.get()), intake));
     streamdeck.button(6).onTrue(Commands.runOnce(() -> intake.overrideRoller(0.0), intake));
-    streamdeck.button(7).onTrue(Commands.runOnce(() -> intake.overrideRoller(RollerConstants.kOuttakePercent.get()), intake));
+    streamdeck
+        .button(7)
+        .onTrue(
+            Commands.runOnce(
+                () -> intake.overrideRoller(RollerConstants.kOuttakePercent.get()), intake));
     streamdeck.button(8).onTrue(Commands.none()); // TODO: serializer+kicker outtake
-    //TODO: axis control for shooter speed
+    // TODO: axis control for shooter speed
   }
 
   /**
