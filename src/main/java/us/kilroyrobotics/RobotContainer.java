@@ -272,8 +272,7 @@ public class RobotContainer {
 
     inAutoRotate
         .and(() -> drive.getZoneType() == ZoneType.TRENCH)
-        .onTrue(
-            drive.runOnce(
+        .onTrue(Commands.parallel(drive.runOnce(
                 () -> {
                   drive.getDefaultCommand().cancel();
 
@@ -290,7 +289,11 @@ public class RobotContainer {
                           () -> -controller.getLeftY() * DriveConstants.trenchSpeedMultiplier,
                           () -> -controller.getLeftX() * DriveConstants.trenchSpeedMultiplier,
                           () -> rotation));
-                }));
+                }), Commands.runOnce(() -> {
+                    if (intake.getCurrentState().ordinal() < IntakeState.EXTENDED.ordinal()) {
+                        intake.triggerEvent(IntakeEvent.EXTEND);
+                    }
+                })));
 
     inAutoRotate
         .and(() -> drive.getZoneType() == ZoneType.BUMP)
