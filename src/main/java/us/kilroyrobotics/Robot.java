@@ -16,8 +16,10 @@ package us.kilroyrobotics;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -42,6 +44,13 @@ import us.kilroyrobotics.generated.TunerConstants;
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
   private RobotContainer robotContainer;
+
+  private final Debouncer controllerConnectedDebouncer =
+      new Debouncer(0.5, Debouncer.DebounceType.kFalling);
+  private final Debouncer streamdeckConnectedDebouncer =
+      new Debouncer(0.5, Debouncer.DebounceType.kFalling);
+  private final Alert controllerDisconnected;
+  private final Alert streamdeckDisconnected;
 
   public Robot() {
     // Record metadata
@@ -106,6 +115,9 @@ public class Robot extends LoggedRobot {
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our autonomous chooser on the dashboard.
     robotContainer = new RobotContainer();
+
+    controllerDisconnected = new Alert("Controller disconnected!", Alert.AlertType.kWarning);
+    streamdeckDisconnected = new Alert("Streamdeck disconnected!", Alert.AlertType.kWarning);
   }
 
   /** This function is called periodically during all modes. */
@@ -124,6 +136,10 @@ public class Robot extends LoggedRobot {
 
     // Return to non-RT thread priority (do not modify the first argument)
     // Threads.setCurrentThreadPriority(false, 10);
+    controllerDisconnected.set(
+        !controllerConnectedDebouncer.calculate(robotContainer.controller.isConnected()));
+    streamdeckDisconnected.set(
+        !streamdeckConnectedDebouncer.calculate(robotContainer.streamdeck.isConnected()));
   }
 
   /** This function is called once when the robot is disabled. */
