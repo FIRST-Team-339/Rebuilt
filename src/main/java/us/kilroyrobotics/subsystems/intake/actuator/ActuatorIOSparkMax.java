@@ -49,7 +49,7 @@ public class ActuatorIOSparkMax implements ActuatorIO {
 
   @Override
   public void updateInputs(ActuatorIOInputs inputs) {
-    inputs.connected = motor.hasStickyFault();
+    inputs.connected = !Double.isNaN(motor.getAppliedOutput());
     inputs.positionRads = Units.rotationsToRadians(motor.getAbsoluteEncoder().getPosition());
     inputs.positionRotations = motor.getAbsoluteEncoder().getPosition();
     inputs.atSetpoint = Radians.of(inputs.positionRads).isNear(desiredAngle, 0.15);

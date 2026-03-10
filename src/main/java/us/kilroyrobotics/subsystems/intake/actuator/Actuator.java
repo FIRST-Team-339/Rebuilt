@@ -40,7 +40,7 @@ public class Actuator extends SubsystemBase {
   public Actuator(ActuatorIO io) {
     this.io = io;
 
-    motorDisconnected = new Alert(name + "motor disconnected!", Alert.AlertType.kWarning);
+    motorDisconnected = new Alert(name + " motor disconnected!", Alert.AlertType.kWarning);
   }
 
   @Override

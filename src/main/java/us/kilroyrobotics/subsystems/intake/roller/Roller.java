@@ -43,7 +43,7 @@ public class Roller extends SubsystemBase {
     this.io = io;
     this.actuatorRadsSupplier = actuatorRadsSupplier;
 
-    motorDisconnected = new Alert(name + "motor disconnected!", Alert.AlertType.kWarning);
+    motorDisconnected = new Alert(name + " motor disconnected!", Alert.AlertType.kWarning);
   }
 
   @Override
