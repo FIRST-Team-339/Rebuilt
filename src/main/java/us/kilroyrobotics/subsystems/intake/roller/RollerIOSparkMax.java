@@ -25,13 +25,14 @@ public class RollerIOSparkMax implements RollerIO {
     SparkMaxConfig motorConfig = new SparkMaxConfig();
     motorConfig.idleMode(IdleMode.kCoast);
     motorConfig.smartCurrentLimit(40);
+    motorConfig.inverted(true);
 
     motor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   @Override
   public void updateInputs(RollerIOInputs inputs) {
-    inputs.connected = motor.hasStickyFault();
+    inputs.connected = !Double.isNaN(motor.getAppliedOutput());
     inputs.positionRads = Rotations.of(motor.getEncoder().getPosition()).in(Radians);
     inputs.velocityRadsPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(motor.getEncoder().getVelocity());
