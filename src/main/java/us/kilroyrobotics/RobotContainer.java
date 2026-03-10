@@ -88,8 +88,6 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   public final SwerveDriveSimulation driveSimulation;
-  private Command hubRotationUnlockedDrive;
-  private Command hubRotationLockedDrive;
   private final Launcher launcher;
   public final AllianceShifts allianceShifts;
 
@@ -99,8 +97,8 @@ public class RobotContainer {
   private final Intake intake;
 
   // Controller
-  private final CommandXboxController controller = new CommandXboxController(0);
-  private final CommandGenericHID streamdeck = new CommandGenericHID(1);
+  public final CommandXboxController controller = new CommandXboxController(0);
+  public final CommandGenericHID streamdeck = new CommandGenericHID(1);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -229,8 +227,12 @@ public class RobotContainer {
         "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    
+
     configureButtonBindings();
+  }
+
+  private Command cancelAutoRotate() {
+    return Commands.runOnce(() -> autoRotate = false);
   }
 
   /**
@@ -242,13 +244,10 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // Default command, normal field-relative drive
     drive.setDefaultCommand(
-                  DriveCommands.joystickDrive(
-                      drive,
-                      () -> -controller.getLeftY(),
-                      () -> -controller.getLeftX(),
-                      () -> -controller.getRightX()));
-    
-    Command cancelAutoRotate = Commands.runOnce(() -> autoRotate = false);
+        drive.joystickDrive(
+            () -> -controller.getLeftY(),
+            () -> -controller.getLeftX(),
+            () -> -controller.getRightX()));
 
     // Lock to 0° when A button is held
     controller
@@ -262,10 +261,7 @@ public class RobotContainer {
     // Switch to X pattern when X button is pressed
     controller
         .x()
-        .onTrue(
-            Commands.sequence(
-                Commands.runOnce(drive::stopWithX, drive),
-                Commands.runOnce(cancelAutoRotate)
+        .onTrue(Commands.sequence(Commands.runOnce(drive::stopWithX, drive), cancelAutoRotate()));
 
     // Reset gyro to 0° when B button is pressed
     controller
@@ -277,17 +273,6 @@ public class RobotContainer {
                         drive.setPose(
                             new Pose2d(drive.getPose().getTranslation(), new Rotation2d())))
                 .ignoringDisable(true));
-
-    controller
-        .rightStick()
-        .toggleOnTrue(
-            Commands.runOnce(
-                () -> {
-                  hubRotationLock = !hubRotationLock;
-                  drive.getDefaultCommand().cancel();
-                  drive.setDefaultCommand(
-                      hubRotationLock ? hubRotationLockedDrive : hubRotationUnlockedDrive);
-                }));
 
     controller
         .rightTrigger()
@@ -314,13 +299,13 @@ public class RobotContainer {
                 }));
 
     controller.rightStick().onTrue(Commands.runOnce(() -> autoRotate = !autoRotate));
-    controller.button(8).onTrue(cancelAutoRotate);
+    controller.button(8).onTrue(cancelAutoRotate());
     controller
         .axisMagnitudeGreaterThan(Axis.kRightX.value, DriveConstants.autoRotateCancelThreshold)
         .or(
             controller.axisMagnitudeGreaterThan(
                 Axis.kRightY.value, DriveConstants.autoRotateCancelThreshold))
-        .onTrue(cancelAutoRotate);
+        .onTrue(cancelAutoRotate());
 
     Trigger inAutoRotate = new Trigger(() -> autoRotate);
 
@@ -330,8 +315,7 @@ public class RobotContainer {
               drive.getDefaultCommand().cancel();
 
               drive.setDefaultCommand(
-                  DriveCommands.joystickDrive(
-                      drive,
+                  drive.joystickDrive(
                       () -> -controller.getLeftY(),
                       () -> -controller.getLeftX(),
                       () -> -controller.getRightX()));
@@ -353,8 +337,7 @@ public class RobotContainer {
                               : Rotation2d.k180deg;
 
                       drive.setDefaultCommand(
-                          DriveCommands.joystickDriveAtAngle(
-                              drive,
+                          drive.joystickDriveAtAngle(
                               () -> -controller.getLeftY() * DriveConstants.trenchSpeedMultiplier,
                               () -> -controller.getLeftX() * DriveConstants.trenchSpeedMultiplier,
                               () -> rotation));
@@ -389,14 +372,29 @@ public class RobotContainer {
                   }
 
                   drive.setDefaultCommand(
-                      DriveCommands.joystickDriveAtAngle(
-                          drive,
+                      drive.joystickDriveAtAngle(
                           () -> -controller.getLeftY(),
                           () -> -controller.getLeftX(),
                           () -> rotation));
                 }));
 
-    inAutoRotate.and(() -> drive.getZoneType() == ZoneType.NORMAL).onTrue(returnToDefaultDrive);
+    inAutoRotate
+        .and(() -> drive.getZoneType() == ZoneType.NORMAL_ALLIANCE)
+        .onTrue(
+            launcher.runOnce(
+                () -> {
+                  drive.getDefaultCommand().cancel();
+
+                  drive.setDefaultCommand(
+                      drive.joystickDriveAtAngle(
+                          () -> -controller.getLeftY(),
+                          () -> -controller.getLeftX(),
+                          () -> new Rotation2d(launcher.getTargetRotation())));
+                }));
+
+    inAutoRotate
+        .and(() -> drive.getZoneType() == ZoneType.NORMAL_OTHER)
+        .onTrue(returnToDefaultDrive);
 
     streamdeck
         .button(1)
