@@ -57,7 +57,7 @@ public final class Constants {
   }
 
   /** Whether or not we are tuning the robot */
-  public static final boolean kTuning = false;
+  public static final boolean kTuning = true;
 
   public static final class FieldConstants {
     public static final Pose2d blueHubPose =
@@ -198,10 +198,12 @@ public final class Constants {
       public static final int kFollowerMotorCanId = 46;
 
       public static final double kP = 0.00035;
-      public static final double kI = 0.00000025;
+      public static final double kI = 0.000000275;
       public static final double kD = 0.005;
 
       public static final Translation3d kTranslation = new Translation3d(0.2657602, 0.0, 0.3731006);
+
+      public static final double overrideMultiplier = 0.75;
     }
 
     public static final Distance kInitialBallHeight =

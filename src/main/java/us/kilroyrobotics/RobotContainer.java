@@ -426,7 +426,17 @@ public class RobotContainer {
         .button(8)
         .onTrue(launcher.reverseSerializerAndKicker())
         .onFalse(launcher.stopSerializerAndKicker());
-    // TODO: axis control for shooter speed
+    streamdeck
+        .button(9)
+        .onTrue(
+            launcher.run(
+                () -> {
+                  launcher.overrideFlywheelRPM(
+                      (int)
+                          (((streamdeck.getRawAxis(0) + 1.0) / 2.0)
+                              * 6784
+                              * FlywheelConstants.overrideMultiplier));
+                }));
   }
 
   /**
