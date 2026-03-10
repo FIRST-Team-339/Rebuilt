@@ -179,6 +179,7 @@ public class Intake extends SubsystemBase {
     return runOnce(
         () -> {
           rollerOverride = false;
+          actuatorOverride = false;
           pendingEvent = event;
         });
   }
@@ -216,6 +217,7 @@ public class Intake extends SubsystemBase {
    * @param output percent output (-1.0 to 1.0)
    */
   public void overrideRoller(double output) {
+    rollerOverride = true;
     rollerOutputOverride = output;
   }
 
@@ -225,6 +227,7 @@ public class Intake extends SubsystemBase {
    * @param position the desired position as an {@link Angle}
    */
   public void overrideActuator(Angle position) {
+    actuatorOverride = true;
     actuatorAngleOverride = position;
   }
 }
