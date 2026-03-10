@@ -278,10 +278,10 @@ public class RobotContainer {
         .rightTrigger()
         .onTrue(
             Commands.parallel(
-                launcher.spinUpSerializerAndKicker, intake.triggerEvent(IntakeEvent.AGITATE)))
+                launcher.spinUpSerializerAndKicker(), intake.triggerEvent(IntakeEvent.AGITATE)))
         .onFalse(
             Commands.parallel(
-                launcher.stopSerializerAndKicker, intake.triggerEvent(IntakeEvent.RETRACT)));
+                launcher.stopSerializerAndKicker(), intake.triggerEvent(IntakeEvent.RETRACT)));
     controller.povDown().onTrue(intake.triggerEvent(IntakeEvent.EXTEND));
     controller.povUp().onTrue(intake.triggerEvent(IntakeEvent.RETRACT));
     controller
@@ -381,7 +381,7 @@ public class RobotContainer {
     inAutoRotate
         .and(() -> drive.getZoneType() == ZoneType.NORMAL_ALLIANCE)
         .onTrue(
-            launcher.runOnce(
+            Commands.runOnce(
                 () -> {
                   drive.getDefaultCommand().cancel();
 
@@ -390,11 +390,14 @@ public class RobotContainer {
                           () -> -controller.getLeftY(),
                           () -> -controller.getLeftX(),
                           () -> new Rotation2d(launcher.getTargetRotation())));
-                }));
+                },
+                launcher));
 
     inAutoRotate
         .and(() -> drive.getZoneType() == ZoneType.NORMAL_OTHER)
         .onTrue(returnToDefaultDrive);
+
+    inAutoRotate.onFalse(returnToDefaultDrive);
 
     streamdeck
         .button(1)
@@ -419,7 +422,10 @@ public class RobotContainer {
         .onTrue(
             Commands.runOnce(
                 () -> intake.overrideRoller(RollerConstants.kOuttakePercent.get()), intake));
-    streamdeck.button(8).onTrue(Commands.none()); // TODO: serializer+kicker outtake
+    streamdeck
+        .button(8)
+        .onTrue(launcher.reverseSerializerAndKicker())
+        .onFalse(launcher.stopSerializerAndKicker());
     // TODO: axis control for shooter speed
   }
 
