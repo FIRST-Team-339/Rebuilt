@@ -2,6 +2,8 @@ package us.kilroyrobotics.subsystems.drive;
 
 import static edu.wpi.first.units.Units.Meters;
 
+import com.pathplanner.lib.util.FlippingUtil;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -13,11 +15,11 @@ public enum Zone {
   ALLIANCE_ZONE_BACK(
       Translation2d.kZero,
       new Translation2d(Meters.of(3.25), Meters.of(8.0)),
-      Zone.ZoneType.NORMAL),
+      Zone.ZoneType.NORMAL_ALLIANCE),
   ALLIANCE_ZONE_FRONT(
       new Translation2d(Meters.of(3.25), Meters.of(3.0)),
       new Translation2d(Meters.of(4.0), Meters.of(5.0)),
-      Zone.ZoneType.NORMAL),
+      Zone.ZoneType.NORMAL_ALLIANCE),
   ALLIANCE_LEFT_TRENCH(
       new Translation2d(Meters.of(3.25), Meters.of(6.7)),
       new Translation2d(Meters.of(5.75), Meters.of(8.0)),
@@ -37,15 +39,15 @@ public enum Zone {
   NEUTRAL_ZONE(
       new Translation2d(Meters.of(5.75), Meters.of(0.0)),
       new Translation2d(Meters.of(10.29), Meters.of(8.0)),
-      Zone.ZoneType.NORMAL),
+      Zone.ZoneType.NORMAL_OTHER),
   OPPOSING_ALLIANCE_ZONE_BACK(
       new Translation2d(Meters.of(16.54), Meters.of(0.0)),
       new Translation2d(Meters.of(13.29), Meters.of(8.0)),
-      Zone.ZoneType.NORMAL),
+      Zone.ZoneType.NORMAL_OTHER),
   OPPOSING_ALLIANCE_ZONE_FRONT(
       new Translation2d(Meters.of(13.29), Meters.of(3.0)),
       new Translation2d(Meters.of(10.29), Meters.of(5.0)),
-      Zone.ZoneType.NORMAL),
+      Zone.ZoneType.NORMAL_OTHER),
   OPPOSING_ALLIANCE_LEFT_TRENCH(
       new Translation2d(Meters.of(13.29), Meters.of(6.7)),
       new Translation2d(Meters.of(10.29), Meters.of(8.0)),
@@ -65,18 +67,19 @@ public enum Zone {
 
   public static enum ZoneType {
     UNKNOWN,
-    NORMAL,
+    NORMAL_ALLIANCE,
+    NORMAL_OTHER,
     TRENCH,
     BUMP
   }
 
-  private final Translation2d cornerA;
-  private final Translation2d cornerB;
+  private Translation2d cornerA;
+  private Translation2d cornerB;
 
-  private final Rectangle2d zone;
+  private Rectangle2d zone;
   private final ZoneType type;
 
-  private Alliance allianceOrientation;
+  private static Alliance allianceOrientation = DriverStation.getAlliance().orElse(Alliance.Blue);
 
   private Zone() {
     this.cornerA = null;
@@ -92,8 +95,17 @@ public enum Zone {
 
     this.zone = new Rectangle2d(cornerA, cornerB);
     this.type = type;
+  }
 
-    this.allianceOrientation = DriverStation.getAlliance().orElse(Alliance.Blue);
+  public static void setAllianceOrientation(Alliance allianceOrientation) {
+    if (Zone.allianceOrientation != allianceOrientation)
+      for (Zone zone : values()) {
+        if (zone.type == ZoneType.UNKNOWN) continue;
+
+        zone.flip();
+      }
+
+    Zone.allianceOrientation = allianceOrientation;
   }
 
   public static Zone getZoneFromPose(Pose2d pose) {
@@ -119,5 +131,12 @@ public enum Zone {
 
   public Zone.ZoneType getType() {
     return type;
+  }
+
+  public void flip() {
+    cornerA = FlippingUtil.flipFieldPosition(cornerA);
+    cornerB = FlippingUtil.flipFieldPosition(cornerB);
+
+    zone = new Rectangle2d(cornerA, cornerB);
   }
 }
