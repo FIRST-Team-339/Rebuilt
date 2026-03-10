@@ -23,6 +23,7 @@ public interface FlywheelIO {
   }
 
   public static class FlywheelIOOutputs {
+    @AutoLogOutput(key = "Launcher/Flywheel/DesiredVelocityRPM")
     public double velocityRPM = 0.0;
 
     @AutoLogOutput(key = "Components/Launcher/Flywheel")

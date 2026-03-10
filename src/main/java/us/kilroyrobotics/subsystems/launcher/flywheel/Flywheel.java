@@ -69,7 +69,7 @@ public class Flywheel extends SubsystemBase {
     return inputs.torqueCurrentAmps;
   }
 
-  @AutoLogOutput(key = name + "/Velocity")
+  @AutoLogOutput(key = name + "/DesiredVelocity")
   public LinearVelocity getVelocity() {
     return MetersPerSecond.of(inputs.velocityRPM * 0.3173 / 60).times(0.5);
   }
