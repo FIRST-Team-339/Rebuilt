@@ -3,7 +3,6 @@ package us.kilroyrobotics.subsystems.drive;
 import static edu.wpi.first.units.Units.Meters;
 
 import com.pathplanner.lib.util.FlippingUtil;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -79,7 +78,11 @@ public enum Zone {
   private Rectangle2d zone;
   private final ZoneType type;
 
-  private static Alliance allianceOrientation = DriverStation.getAlliance().orElse(Alliance.Blue);
+  private static Alliance allianceOrientation = Alliance.Blue;
+
+  static {
+    Zone.setAllianceOrientation(DriverStation.getAlliance().orElse(Alliance.Blue));
+  }
 
   private Zone() {
     this.cornerA = null;
@@ -98,6 +101,7 @@ public enum Zone {
   }
 
   public static void setAllianceOrientation(Alliance allianceOrientation) {
+    System.out.println(Zone.allianceOrientation != allianceOrientation);
     if (Zone.allianceOrientation != allianceOrientation)
       for (Zone zone : values()) {
         if (zone.type == ZoneType.UNKNOWN) continue;
