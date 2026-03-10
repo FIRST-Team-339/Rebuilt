@@ -28,7 +28,6 @@ public class KickerIOSparkMax implements KickerIO {
   @Override
   public void updateInputs(KickerIOInputs inputs) {
     inputs.connected = !Double.isNaN(motor.getAppliedOutput());
-    ;
     inputs.positionRads = Rotations.of(motor.getEncoder().getPosition()).in(Radians);
     inputs.velocityRadsPerSec =
         RotationsPerSecond.of(motor.getEncoder().getVelocity() * 60.0).in(RadiansPerSecond);

@@ -73,4 +73,9 @@ public class Flywheel extends SubsystemBase {
   public LinearVelocity getVelocity() {
     return MetersPerSecond.of(inputs.velocityRPM * 0.3173 / 60).times(0.5);
   }
+
+  @AutoLogOutput(key = name + "/RPMAcceptable")
+  public boolean rpmAcceptable() {
+    return Math.abs(outputs.velocityRPM - inputs.velocityRPM) < 50;
+  }
 }

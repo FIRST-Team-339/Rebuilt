@@ -4,6 +4,7 @@
 
 package us.kilroyrobotics.subsystems.launcher;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
@@ -52,11 +53,14 @@ public class Launcher extends SubsystemBase {
 
   //
   static {
-    distanceToRpm.put(5.0, 2200.0);
-    distanceToRpm.put(6.0, 2500.0);
-    distanceToRpm.put(7.0, 2650.0);
+    distanceToRpm.put(0.0, 2000.0);
+    distanceToRpm.put(4.0, 2000.0);
+    distanceToRpm.put(5.0, 2500.0);
+    distanceToRpm.put(7.0, 2700.0);
     distanceToRpm.put(8.0, 2775.0);
+    
     distanceToRpm.put(9.0, 2925.0);
+    
     distanceToRpm.put(10.0, 3100.0);
     distanceToRpm.put(11.0, 3150.0);
     distanceToRpm.put(12.0, 3400.0);
@@ -86,6 +90,9 @@ public class Launcher extends SubsystemBase {
 
   private SerializerKickerDirection serializerDirection = SerializerKickerDirection.kOff;
   private SerializerKickerDirection kickerDirection = SerializerKickerDirection.kOff;
+
+  private boolean flywheelRPMOverriden = false;
+  private int flywheelRPMOverrideValue = 0;
 
   public Launcher(
       SerializerIO serializerIO,
@@ -216,7 +223,11 @@ public class Launcher extends SubsystemBase {
       kicker.stop();
     }
 
-    flywheel.setRPM(distanceToRpm.get(getDistanceFromHub().in(Feet)).intValue());
+    if (flywheelRPMOverriden) {
+      flywheel.setRPM(flywheelRPMOverrideValue);
+    } else {
+      flywheel.setRPM(distanceToRpm.get(getDistanceFromHub().in(Feet)).intValue());
+    }
   }
 
   @AutoLogOutput(key = "Launcher/TargetRotation")
@@ -227,12 +238,28 @@ public class Launcher extends SubsystemBase {
             FieldConstants.getHubPose().getX() - robotPoseSupplier.get().getX()));
   }
 
+  @AutoLogOutput(key = "Launcher/RotationAcceptable")
+  public boolean rotationAcceptable() {
+    return robotPoseSupplier
+            .get()
+            .getRotation()
+            .getMeasure()
+            .minus(getTargetRotation())
+            .abs(Degrees)
+        < 2.5;
+  }
+
   @AutoLogOutput(key = "Launcher/DistanceFromHub")
   public Distance getDistanceFromHub() {
     return Meters.of(
         FieldConstants.getHubPose()
             .getTranslation()
             .getDistance(robotPoseSupplier.get().getTranslation()));
+  }
+
+  @AutoLogOutput(key = "Launcher/DistanceAcceptable")
+  public boolean distanceAcceptable() {
+    return getDistanceFromHub().gt(Feet.of(6.0));
   }
 
   @AutoLogOutput(key = "Launcher/Trajectory")
@@ -261,6 +288,15 @@ public class Launcher extends SubsystemBase {
     return trajectoryPoints.toArray(Pose3d[]::new);
   }
 
+  public void overrideFlywheelRPM(int flywheelRPMOverrideValue) {
+    flywheelRPMOverriden = true;
+    this.flywheelRPMOverrideValue = flywheelRPMOverrideValue;
+  }
+
+  public Command cancelFlywheelRPMOverride() {
+    return runOnce(() -> flywheelRPMOverriden = false);
+  }
+
   public Command spinUpSerializerAndKicker() {
     return runOnce(() -> kickerDirection = SerializerKickerDirection.kForward)
         .andThen(Commands.waitSeconds(0.2))
@@ -269,7 +305,7 @@ public class Launcher extends SubsystemBase {
 
   public Command stopSerializerAndKicker() {
     return runOnce(() -> serializerDirection = SerializerKickerDirection.kOff)
-        .andThen(Commands.waitSeconds(0.2))
+        .andThen(Commands.waitSeconds(0.5))
         .andThen(runOnce(() -> kickerDirection = SerializerKickerDirection.kOff));
   }
 
