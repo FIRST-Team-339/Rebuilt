@@ -35,6 +35,7 @@ public class ActuatorIOSparkMax implements ActuatorIO {
             ActuatorConstants.kI,
             ActuatorConstants.kD,
             new Constraints(ActuatorConstants.kMaxVelocity, ActuatorConstants.kMaxAcceleration));
+    controller.enableContinuousInput(0.0, 1.0);
 
     SparkMaxConfig motorConfig = new SparkMaxConfig();
     motorConfig.closedLoop.positionWrappingEnabled(true);
