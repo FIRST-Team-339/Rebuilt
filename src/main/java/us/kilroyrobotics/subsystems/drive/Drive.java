@@ -21,7 +21,9 @@ import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.pathfinding.Pathfinding;
+import com.pathplanner.lib.util.FlippingUtil;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
@@ -52,6 +54,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -59,6 +62,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
@@ -222,10 +226,12 @@ public class Drive extends SubsystemBase {
         (activePath) -> {
           Logger.recordOutput(
               "Odometry/Trajectory", activePath.toArray(new Pose2d[activePath.size()]));
+              field.getObject("path").setPoses(activePath);
         });
     PathPlannerLogging.setLogTargetPoseCallback(
         (targetPose) -> {
           Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
+          field.getObject("targetPose").setPose(targetPose);
         });
 
     // Configure SysId
@@ -302,6 +308,8 @@ public class Drive extends SubsystemBase {
     // Update gyro alert
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
 
+    field.setRobotPose(getPose());
+
     Zone newZone = Zone.getZoneFromPose(getPose());
 
     if (newZone != zone) {
@@ -309,6 +317,27 @@ public class Drive extends SubsystemBase {
       zone = newZone;
     }
   }
+
+  public void displayFullAutoPath(List<PathPlannerPath> autoPaths) {
+        if (autoPaths == null) {
+            field.getObject("path").setPoses();
+            return;
+        }
+
+        ArrayList<Pose2d> poses = new ArrayList<>();
+
+        for (PathPlannerPath path : autoPaths) {
+            poses.addAll(path.getPathPoses());
+        }
+
+        if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+            for (int i = 0; i < poses.size(); i++) {
+                poses.set(i, FlippingUtil.flipFieldPose(poses.get(i)));
+            }
+        }
+
+        field.getObject("path").setPoses(poses);
+    }
 
   /**
    * Runs the drive at the desired velocity.
@@ -439,6 +468,9 @@ public class Drive extends SubsystemBase {
   public Pose2d getPose() {
     return poseEstimator.getEstimatedPosition();
   }
+
+  @AutoLogOutput(key = "Odometry/Field")
+  private Field2d field = new Field2d();
 
   private Zone previousZone = Zone.UNKNOWN;
 
