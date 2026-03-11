@@ -18,6 +18,7 @@ public class AllianceShifts extends SubsystemBase {
   @AutoLogOutput private boolean hubActive = true;
   @AutoLogOutput private Alliance firstAllianceShift;
   @AutoLogOutput private Shifts currentShift = Shifts.AUTONOMOUS;
+  @AutoLogOutput private double shiftTime = 0.0;
 
   private Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Blue);
 
@@ -91,39 +92,46 @@ public class AllianceShifts extends SubsystemBase {
     {
       hubActive = true;
       currentShift = Shifts.AUTONOMOUS;
+      shiftTime = DriverStation.getMatchTime();
     } else if (DriverStation.isTeleopEnabled()) {
       if (DriverStation.getMatchTime() >= 130.0) // Transition shift
       {
         hubActive = true;
         currentShift = Shifts.TRANSITION;
+        shiftTime = DriverStation.getMatchTime() - 130;
       } else if (DriverStation.getMatchTime() >= 105.0) // First shift
       {
         hubActive =
             (firstAllianceShift == Alliance.Blue && alliance == Alliance.Blue)
                 || (firstAllianceShift == Alliance.Red && alliance == Alliance.Red);
         currentShift = Shifts.FIRST;
+        shiftTime = DriverStation.getMatchTime() - 105;
       } else if (DriverStation.getMatchTime() >= 80.0) // Second shift
       {
         hubActive =
             (firstAllianceShift == Alliance.Blue && alliance == Alliance.Red)
                 || (firstAllianceShift == Alliance.Red && alliance == Alliance.Blue);
         currentShift = Shifts.SECOND;
+        shiftTime = DriverStation.getMatchTime() - 80;
       } else if (DriverStation.getMatchTime() >= 55.0) // Third shift
       {
         hubActive =
             (firstAllianceShift == Alliance.Blue && alliance == Alliance.Blue)
                 || (firstAllianceShift == Alliance.Red && alliance == Alliance.Red);
         currentShift = Shifts.THIRD;
+        shiftTime = DriverStation.getMatchTime() - 55;
       } else if (DriverStation.getMatchTime() >= 30.0) // Fourth shift
       {
         hubActive =
             (firstAllianceShift == Alliance.Blue && alliance == Alliance.Red)
                 || (firstAllianceShift == Alliance.Red && alliance == Alliance.Blue);
         currentShift = Shifts.FOURTH;
+        shiftTime = DriverStation.getMatchTime() - 30;
       } else if (DriverStation.getMatchTime() < 30.0) // End game
       {
         hubActive = true;
         currentShift = Shifts.ENDGAME;
+        shiftTime = DriverStation.getMatchTime();
       }
     }
   }
