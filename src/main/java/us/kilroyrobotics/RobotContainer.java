@@ -16,19 +16,17 @@ package us.kilroyrobotics;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 
-import java.io.IOException;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.util.FlippingUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.XboxController.Axis;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -37,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import java.io.IOException;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.json.simple.parser.ParseException;
@@ -108,7 +107,8 @@ public class RobotContainer {
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
-  private final Alert autoPathInfo = new Alert("Selected Autonomous is NOT a PathPlanner auto", AlertType.kInfo);
+  private final Alert autoPathInfo =
+      new Alert("Selected Autonomous is NOT a PathPlanner auto", AlertType.kInfo);
 
   // Drive Mode
   @AutoLogOutput(key = "Odometry/AutoRotateEnabled")
@@ -236,23 +236,23 @@ public class RobotContainer {
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     autoChooser.onChange(
-                (Command command) -> {
-                    if (command != null) {
-                        if (command.getName().equals("InstantCommand")) {
-                            drive.displayFullAutoPath(null);
-                            autoPathInfo.set(true);
-                        }
+        (Command command) -> {
+          if (command != null) {
+            if (command.getName().equals("InstantCommand")) {
+              drive.displayFullAutoPath(null);
+              autoPathInfo.set(true);
+            }
 
-                        try {
-                            drive.displayFullAutoPath(
-                                    PathPlannerAuto.getPathGroupFromAutoFile(command.getName()));
-                            autoPathInfo.set(false);
-                        } catch (IOException | ParseException e) {
-                            drive.displayFullAutoPath(null);
-                            autoPathInfo.set(true);
-                        }
-                    }
-                });
+            try {
+              drive.displayFullAutoPath(
+                  PathPlannerAuto.getPathGroupFromAutoFile(command.getName()));
+              autoPathInfo.set(false);
+            } catch (IOException | ParseException e) {
+              drive.displayFullAutoPath(null);
+              autoPathInfo.set(true);
+            }
+          }
+        });
 
     configureButtonBindings();
   }
@@ -462,7 +462,8 @@ public class RobotContainer {
                           (((streamdeck.getRawAxis(0) + 1.0) / 2.0)
                               * 6784
                               * FlywheelConstants.overrideMultiplier));
-                }));
+                }))
+        .onFalse(launcher.cancelFlywheelRPMOverride());
   }
 
   /**
