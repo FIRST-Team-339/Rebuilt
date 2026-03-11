@@ -57,7 +57,7 @@ public final class Constants {
   }
 
   /** Whether or not we are tuning the robot */
-  public static final boolean kTuning = true;
+  public static final boolean kTuning = false;
 
   public static final class FieldConstants {
     public static final Pose2d blueHubPose =
