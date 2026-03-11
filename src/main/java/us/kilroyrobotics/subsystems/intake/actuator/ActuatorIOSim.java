@@ -16,7 +16,11 @@ public class ActuatorIOSim implements ActuatorIO {
           LinearSystemId.createDCMotorSystem(gearbox, 0.025, ActuatorConstants.kGearing), gearbox);
 
   private ProfiledPIDController controller =
-      new ProfiledPIDController(ActuatorConstants.kP, ActuatorConstants.kI, ActuatorConstants.kD, new Constraints(ActuatorConstants.kMaxVelocity, ActuatorConstants.kMaxAcceleration));
+      new ProfiledPIDController(
+          ActuatorConstants.kP,
+          ActuatorConstants.kI,
+          ActuatorConstants.kD,
+          new Constraints(ActuatorConstants.kMaxVelocity, ActuatorConstants.kMaxAcceleration));
   private double appliedVoltage = 0.0;
   private double currentOutput = 0.0;
   private double prevOutput = 0.0;

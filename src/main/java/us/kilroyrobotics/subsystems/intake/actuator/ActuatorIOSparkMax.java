@@ -9,7 +9,6 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
@@ -30,7 +29,12 @@ public class ActuatorIOSparkMax implements ActuatorIO {
    */
   public ActuatorIOSparkMax(int motorId) {
     this.motor = new SparkMax(motorId, MotorType.kBrushless);
-    this.controller = new ProfiledPIDController(ActuatorConstants.kP, ActuatorConstants.kI, ActuatorConstants.kD, new Constraints(ActuatorConstants.kMaxVelocity, ActuatorConstants.kMaxAcceleration));
+    this.controller =
+        new ProfiledPIDController(
+            ActuatorConstants.kP,
+            ActuatorConstants.kI,
+            ActuatorConstants.kD,
+            new Constraints(ActuatorConstants.kMaxVelocity, ActuatorConstants.kMaxAcceleration));
 
     SparkMaxConfig motorConfig = new SparkMaxConfig();
     motorConfig.closedLoop.positionWrappingEnabled(true);
@@ -54,13 +58,13 @@ public class ActuatorIOSparkMax implements ActuatorIO {
     inputs.torqueCurrentAmps = motor.getOutputCurrent();
     inputs.tempCelsius = motor.getMotorTemperature();
 
-    
+    motor.set(controller.calculate(inputs.positionRotations));
   }
 
   @Override
   public void applyOutputs(ActuatorIOOutputs outputs) {
     desiredAngle = Radians.of(outputs.positionRads);
 
-    motor.set(controller.calculate(0, desiredAngle.in(Rotations)));
+    controller.setGoal(desiredAngle.in(Rotations));
   }
 }
