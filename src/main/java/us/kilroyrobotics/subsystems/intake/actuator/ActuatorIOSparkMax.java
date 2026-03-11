@@ -5,13 +5,13 @@ import static edu.wpi.first.units.Units.Rotations;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
-import com.revrobotics.spark.FeedbackSensor;
-import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
+
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import us.kilroyrobotics.Constants.IntakeConstants.ActuatorConstants;
@@ -19,7 +19,7 @@ import us.kilroyrobotics.Constants.IntakeConstants.ActuatorConstants;
 public class ActuatorIOSparkMax implements ActuatorIO {
   private final SparkMax motor;
 
-  private final SparkClosedLoopController controller;
+  private final ProfiledPIDController controller;
 
   private Angle desiredAngle = Radians.of(0.0);
 
@@ -30,13 +30,9 @@ public class ActuatorIOSparkMax implements ActuatorIO {
    */
   public ActuatorIOSparkMax(int motorId) {
     this.motor = new SparkMax(motorId, MotorType.kBrushless);
-    this.controller = motor.getClosedLoopController();
+    this.controller = new ProfiledPIDController(ActuatorConstants.kP, ActuatorConstants.kI, ActuatorConstants.kD, new Constraints(ActuatorConstants.kMaxVelocity, ActuatorConstants.kMaxAcceleration));
 
     SparkMaxConfig motorConfig = new SparkMaxConfig();
-    motorConfig
-        .closedLoop
-        .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
-        .pid(ActuatorConstants.kP, ActuatorConstants.kI, ActuatorConstants.kD);
     motorConfig.closedLoop.positionWrappingEnabled(true);
     motorConfig.closedLoop.positionWrappingInputRange(0.0, 1.0);
     motorConfig.encoder.positionConversionFactor(1.0 / 5.0);
@@ -57,12 +53,14 @@ public class ActuatorIOSparkMax implements ActuatorIO {
     inputs.supplyCurrentAmps = 0.0;
     inputs.torqueCurrentAmps = motor.getOutputCurrent();
     inputs.tempCelsius = motor.getMotorTemperature();
+
+    
   }
 
   @Override
   public void applyOutputs(ActuatorIOOutputs outputs) {
     desiredAngle = Radians.of(outputs.positionRads);
 
-    controller.setSetpoint(desiredAngle.in(Rotations), ControlType.kPosition);
+    motor.set(controller.calculate(0, desiredAngle.in(Rotations)));
   }
 }

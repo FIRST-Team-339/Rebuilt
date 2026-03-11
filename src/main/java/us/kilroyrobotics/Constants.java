@@ -147,6 +147,9 @@ public final class Constants {
       public static final double kI = 0.00025;
       public static final double kD = 0.0;
 
+      public static final double kMaxVelocity = 0.2;
+      public static final double kMaxAcceleration = 0.05;
+
       public static final Translation3d kIntakeWallsTranslation =
           new Translation3d(-0.193, 0.0, 0.2);
     }

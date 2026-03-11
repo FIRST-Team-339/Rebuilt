@@ -1,9 +1,10 @@
 package us.kilroyrobotics.subsystems.intake.actuator;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import us.kilroyrobotics.Constants.IntakeConstants.ActuatorConstants;
@@ -14,8 +15,8 @@ public class ActuatorIOSim implements ActuatorIO {
       new DCMotorSim(
           LinearSystemId.createDCMotorSystem(gearbox, 0.025, ActuatorConstants.kGearing), gearbox);
 
-  private PIDController controller =
-      new PIDController(ActuatorConstants.kP, ActuatorConstants.kI, ActuatorConstants.kD, 0.02);
+  private ProfiledPIDController controller =
+      new ProfiledPIDController(ActuatorConstants.kP, ActuatorConstants.kI, ActuatorConstants.kD, new Constraints(ActuatorConstants.kMaxVelocity, ActuatorConstants.kMaxAcceleration));
   private double appliedVoltage = 0.0;
   private double currentOutput = 0.0;
   private double prevOutput = 0.0;

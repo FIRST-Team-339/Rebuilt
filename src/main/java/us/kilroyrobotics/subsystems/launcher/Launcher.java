@@ -58,9 +58,9 @@ public class Launcher extends SubsystemBase {
     distanceToRpm.put(5.0, 2500.0);
     distanceToRpm.put(7.0, 2700.0);
     distanceToRpm.put(8.0, 2775.0);
-    
+
     distanceToRpm.put(9.0, 2925.0);
-    
+
     distanceToRpm.put(10.0, 3100.0);
     distanceToRpm.put(11.0, 3150.0);
     distanceToRpm.put(12.0, 3400.0);
