@@ -143,11 +143,11 @@ public final class Constants {
       /** The gear ratio of the actuator motor */
       public static final int kGearing = 5;
 
-      public static final double kP = 0.5;
-      public static final double kI = 0.00025;
+      public static final double kP = 6;
+      public static final double kI = 0.003;
       public static final double kD = 0.0;
 
-      public static final double kMaxVelocity = 0.5;
+      public static final double kMaxVelocity = .75;
       public static final double kMaxAcceleration = 0.5;
 
       public static final Translation3d kIntakeWallsTranslation =
@@ -160,7 +160,7 @@ public final class Constants {
 
       /** The set percent of the motor when intaking fuel */
       public static final LoggedTunableNumber kIntakePercent =
-          new LoggedTunableNumber("Intake/Roller/IntakePercent", 0.6);
+          new LoggedTunableNumber("Intake/Roller/IntakePercent", 0.8);
 
       /** The set percent of the motor when agitating/launching fuel */
       public static final LoggedTunableNumber kAgitatePercent =
@@ -179,7 +179,7 @@ public final class Constants {
       public static final int kMotorCanId = 43;
 
       public static final LoggedTunableNumber kSerializerPercent =
-          new LoggedTunableNumber("Launcher/Serializer/Percent", 0.4);
+          new LoggedTunableNumber("Launcher/Serializer/Percent", 0.6);
 
       public static final Translation3d kBottomTranslation = new Translation3d(0.0545, 0.0, 0.111);
       public static final Translation3d kTopTranslation = new Translation3d(0.08, 0.0, 0.297);
