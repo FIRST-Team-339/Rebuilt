@@ -108,11 +108,17 @@ public class RobotContainer {
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
   private final Alert autoPathInfo =
-      new Alert("Selected Autonomous is NOT a PathPlanner auto", AlertType.kInfo);
+      new Alert("Selected Autonomous is NOT a PathPlanner autonomous", AlertType.kInfo);
 
   // Drive Mode
-  @AutoLogOutput(key = "Odometry/AutoRotateEnabled")
-  private boolean autoRotate = true;
+  public static enum AutoRotateType {
+    kOff,
+    kTrenchAndBump,
+    kHub
+  }
+
+  @AutoLogOutput(key = "Odometry/AutoRotate")
+  private AutoRotateType autoRotate = AutoRotateType.kOff;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -258,7 +264,7 @@ public class RobotContainer {
   }
 
   private Command cancelAutoRotate() {
-    return Commands.runOnce(() -> autoRotate = false);
+    return Commands.runOnce(() -> autoRotate = AutoRotateType.kOff);
   }
 
   /**
@@ -324,7 +330,24 @@ public class RobotContainer {
                   }
                 }));
 
-    controller.rightStick().onTrue(Commands.runOnce(() -> autoRotate = !autoRotate));
+    controller
+        .leftBumper()
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    autoRotate =
+                        autoRotate != AutoRotateType.kTrenchAndBump
+                            ? AutoRotateType.kTrenchAndBump
+                            : AutoRotateType.kOff));
+    controller
+        .rightBumper()
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    autoRotate =
+                        autoRotate != AutoRotateType.kHub
+                            ? AutoRotateType.kHub
+                            : AutoRotateType.kOff));
     controller.button(8).onTrue(cancelAutoRotate());
     controller
         .axisMagnitudeGreaterThan(Axis.kRightX.value, DriveConstants.kAutoRotateCancelThreshold)
@@ -333,7 +356,9 @@ public class RobotContainer {
                 Axis.kRightY.value, DriveConstants.kAutoRotateCancelThreshold))
         .onTrue(cancelAutoRotate());
 
-    Trigger inAutoRotate = new Trigger(() -> autoRotate);
+    Trigger inTrenchAndBumpAutoRotate =
+        new Trigger(() -> autoRotate == AutoRotateType.kTrenchAndBump);
+    Trigger inHubAutoRotate = new Trigger(() -> autoRotate == AutoRotateType.kHub);
 
     Command returnToDefaultDrive =
         Commands.runOnce(
@@ -347,7 +372,7 @@ public class RobotContainer {
                       () -> -controller.getRightX()));
             });
 
-    inAutoRotate
+    inTrenchAndBumpAutoRotate
         .and(() -> drive.getZoneType() == ZoneType.TRENCH)
         .onTrue(
             Commands.parallel(
@@ -375,7 +400,7 @@ public class RobotContainer {
                       }
                     })));
 
-    inAutoRotate
+    inTrenchAndBumpAutoRotate
         .and(() -> drive.getZoneType() == ZoneType.BUMP)
         .onTrue(
             drive.runOnce(
@@ -404,7 +429,7 @@ public class RobotContainer {
                           () -> rotation));
                 }));
 
-    inAutoRotate
+    inHubAutoRotate
         .and(() -> drive.getZoneType() == ZoneType.NORMAL_ALLIANCE)
         .onTrue(
             Commands.runOnce(
@@ -419,11 +444,12 @@ public class RobotContainer {
                 },
                 launcher));
 
-    inAutoRotate
+    inTrenchAndBumpAutoRotate
+        .or(inHubAutoRotate)
         .and(() -> drive.getZoneType() == ZoneType.NORMAL_OTHER)
         .onTrue(returnToDefaultDrive);
 
-    inAutoRotate.onFalse(returnToDefaultDrive);
+    new Trigger(() -> autoRotate == AutoRotateType.kOff).onTrue(returnToDefaultDrive);
 
     streamdeck
         .button(1)
@@ -450,6 +476,7 @@ public class RobotContainer {
                 () -> intake.overrideRoller(RollerConstants.kOuttakePercent.get()), intake));
     streamdeck
         .button(8)
+        .or(controller.leftTrigger())
         .onTrue(launcher.reverseSerializerAndKicker())
         .onFalse(launcher.stopSerializerAndKicker());
     streamdeck

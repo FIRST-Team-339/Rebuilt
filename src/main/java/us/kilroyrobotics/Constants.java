@@ -56,7 +56,7 @@ public final class Constants {
   }
 
   /** Whether or not we are tuning the robot */
-  public static final boolean kTuning = true;
+  public static final boolean kTuning = false;
 
   public static final class FieldConstants {
     public static final Pose2d blueHubPose =
@@ -137,16 +137,16 @@ public final class Constants {
 
       /** The setpoint for the actuator when fully extended */
       public static final LoggedTunableNumber kExtendedDegs =
-          new LoggedTunableNumber("Intake/Actuator/ExtendedDegs", 94.0);
+          new LoggedTunableNumber("Intake/Actuator/ExtendedDegs", 100.0);
 
       /** The gear ratio of the actuator motor */
       public static final int kGearing = 100;
 
-      public static final double kP = 10;
+      public static final double kP = 11;
       public static final double kI = 0.003;
       public static final double kD = 0.0;
 
-      public static final double kMaxVelocity = 1.25;
+      public static final double kMaxVelocity = 0.75;
       public static final double kMaxAcceleration = 0.5;
 
       public static final Translation3d kIntakeWallsTranslation =
@@ -159,7 +159,7 @@ public final class Constants {
 
       /** The set percent of the motor when intaking fuel */
       public static final LoggedTunableNumber kIntakePercent =
-          new LoggedTunableNumber("Intake/Roller/IntakePercent", 0.8);
+          new LoggedTunableNumber("Intake/Roller/IntakePercent", 0.6);
 
       /** The set percent of the motor when agitating/launching fuel */
       public static final LoggedTunableNumber kAgitatePercent =

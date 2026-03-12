@@ -182,6 +182,32 @@
               "trajectory_color": 4294967295,
               "show_robot_outside_widget": true
             }
+          },
+          {
+            "title": "Current State",
+            "x": 768.0,
+            "y": 128.0,
+            "width": 192.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Intake/CurrentState",
+              "period": 0.06,
+              "data_type": "string"
+            }
+          },
+          {
+            "title": "Pending Event",
+            "x": 960.0,
+            "y": 128.0,
+            "width": 192.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Intake/PendingEvent",
+              "period": 0.06,
+              "data_type": "string"
+            }
           }
         ]
       }
@@ -374,6 +400,45 @@
               "robot_color": 4293221132,
               "trajectory_color": 4294967295,
               "show_robot_outside_widget": true
+            }
+          },
+          {
+            "title": "Current State",
+            "x": 576.0,
+            "y": 128.0,
+            "width": 192.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Intake/CurrentState",
+              "period": 0.06,
+              "data_type": "string"
+            }
+          },
+          {
+            "title": "Pending Event",
+            "x": 768.0,
+            "y": 128.0,
+            "width": 192.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Intake/PendingEvent",
+              "period": 0.06,
+              "data_type": "string"
+            }
+          },
+          {
+            "title": "Auto Rotate",
+            "x": 960.0,
+            "y": 128.0,
+            "width": 192.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Odometry/AutoRotate",
+              "period": 0.06,
+              "data_type": "string"
             }
           }
         ]
