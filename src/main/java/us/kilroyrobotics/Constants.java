@@ -140,7 +140,7 @@ public final class Constants {
           new LoggedTunableNumber("Intake/Actuator/ExtendedDegs", 94.0);
 
       /** The gear ratio of the actuator motor */
-      public static final int kGearing = 5;
+      public static final int kGearing = 100;
 
       public static final double kP = 10;
       public static final double kI = 0.003;
