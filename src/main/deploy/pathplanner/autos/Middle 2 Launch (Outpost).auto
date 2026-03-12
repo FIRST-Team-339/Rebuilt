@@ -1,0 +1,61 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Middle Start to Launch Position"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Spin Up Serializer and Kicker"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 3.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stop Serializer and Kicker"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Right Side Launch Position to Outpost"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 3.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Outpost to Right Side Launch Position"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Spin Up Serializer and Kicker"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

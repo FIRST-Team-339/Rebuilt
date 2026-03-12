@@ -17,6 +17,7 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.util.FlippingUtil;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -491,6 +492,9 @@ public class RobotContainer {
                               * FlywheelConstants.overrideMultiplier));
                 }))
         .onFalse(launcher.cancelFlywheelRPMOverride());
+
+    NamedCommands.registerCommand("Spin Up Serializer and Kicker", launcher.spinUpSerializerAndKicker());
+    NamedCommands.registerCommand("Stop Serializer and Kicker", launcher.stopSerializerAndKicker());
   }
 
   /**
