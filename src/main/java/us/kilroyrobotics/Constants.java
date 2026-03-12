@@ -179,7 +179,7 @@ public final class Constants {
       public static final int kMotorCanId = 43;
 
       public static final LoggedTunableNumber kSerializerPercent =
-          new LoggedTunableNumber("Launcher/Serializer/Percent", 0.6);
+          new LoggedTunableNumber("Launcher/Serializer/Percent", 0.4);
 
       public static final Translation3d kBottomTranslation = new Translation3d(0.0545, 0.0, 0.111);
       public static final Translation3d kTopTranslation = new Translation3d(0.08, 0.0, 0.297);
