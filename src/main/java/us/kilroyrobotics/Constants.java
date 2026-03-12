@@ -143,11 +143,11 @@ public final class Constants {
       /** The gear ratio of the actuator motor */
       public static final int kGearing = 5;
 
-      public static final double kP = 6;
+      public static final double kP = 10;
       public static final double kI = 0.003;
       public static final double kD = 0.0;
 
-      public static final double kMaxVelocity = .75;
+      public static final double kMaxVelocity = 1.25;
       public static final double kMaxAcceleration = 0.5;
 
       public static final Translation3d kIntakeWallsTranslation =
@@ -189,7 +189,7 @@ public final class Constants {
       public static final int kMotorCanId = 44;
 
       public static final LoggedTunableNumber kKickerPercent =
-          new LoggedTunableNumber("Launcher/Kicker/Percent", 0.6);
+          new LoggedTunableNumber("Launcher/Kicker/Percent", 0.8);
 
       public static final Translation3d kBottomTranslation = new Translation3d(0.1195, 0.0, 0.1295);
       public static final Translation3d kMiddleTranslation = new Translation3d(0.207, 0.0, 0.181);
