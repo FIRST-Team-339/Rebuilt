@@ -26,7 +26,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
@@ -57,7 +56,7 @@ public final class Constants {
   }
 
   /** Whether or not we are tuning the robot */
-  public static final boolean kTuning = false;
+  public static final boolean kTuning = true;
 
   public static final class FieldConstants {
     public static final Pose2d blueHubPose =
@@ -85,9 +84,9 @@ public final class Constants {
     public static final double kWheelRadiusMaxVelocity = 0.25; // Rad/Sec
     public static final double kWheelRadiusRampRate = 0.05; // Rad/Sec^2
 
-    public static final double trenchSpeedMultiplier = 0.75;
+    public static final double kTrenchSpeedMultiplier = 0.75;
 
-    public static final double autoRotateCancelThreshold = 0.5;
+    public static final double kAutoRotateCancelThreshold = 0.5;
   }
 
   public static final class VisionConstants {
@@ -137,8 +136,8 @@ public final class Constants {
       public static final int kMotorCanId = 41;
 
       /** The setpoint for the actuator when fully extended */
-      public static final LoggedTunableNumber kExtendedRads =
-          new LoggedTunableNumber("Intake/Actuator/ExtendedRads", Units.degreesToRadians(94));
+      public static final LoggedTunableNumber kExtendedDegs =
+          new LoggedTunableNumber("Intake/Actuator/ExtendedDegs", 94.0);
 
       /** The gear ratio of the actuator motor */
       public static final int kGearing = 5;

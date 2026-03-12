@@ -80,7 +80,7 @@ public class Intake extends SubsystemBase {
       }
 
       case EXTENDING -> {
-        actuatorAngle = Radians.of(ActuatorConstants.kExtendedRads.get());
+        actuatorAngle = Degrees.of(ActuatorConstants.kExtendedDegs.get());
         if (actuator.atSetpoint()) {
           setState(IntakeState.EXTENDED);
         }

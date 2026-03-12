@@ -327,10 +327,10 @@ public class RobotContainer {
     controller.rightStick().onTrue(Commands.runOnce(() -> autoRotate = !autoRotate));
     controller.button(8).onTrue(cancelAutoRotate());
     controller
-        .axisMagnitudeGreaterThan(Axis.kRightX.value, DriveConstants.autoRotateCancelThreshold)
+        .axisMagnitudeGreaterThan(Axis.kRightX.value, DriveConstants.kAutoRotateCancelThreshold)
         .or(
             controller.axisMagnitudeGreaterThan(
-                Axis.kRightY.value, DriveConstants.autoRotateCancelThreshold))
+                Axis.kRightY.value, DriveConstants.kAutoRotateCancelThreshold))
         .onTrue(cancelAutoRotate());
 
     Trigger inAutoRotate = new Trigger(() -> autoRotate);
@@ -364,8 +364,8 @@ public class RobotContainer {
 
                       drive.setDefaultCommand(
                           drive.joystickDriveAtAngle(
-                              () -> -controller.getLeftY() * DriveConstants.trenchSpeedMultiplier,
-                              () -> -controller.getLeftX() * DriveConstants.trenchSpeedMultiplier,
+                              () -> -controller.getLeftY() * DriveConstants.kTrenchSpeedMultiplier,
+                              () -> -controller.getLeftX() * DriveConstants.kTrenchSpeedMultiplier,
                               () -> rotation));
                     }),
                 Commands.runOnce(
@@ -435,7 +435,7 @@ public class RobotContainer {
         .button(3)
         .onTrue(
             Commands.runOnce(
-                () -> intake.overrideActuator(Radians.of(ActuatorConstants.kExtendedRads.get()))));
+                () -> intake.overrideActuator(Degrees.of(ActuatorConstants.kExtendedDegs.get()))));
     streamdeck.button(4).onTrue(Commands.runOnce(() -> intake.overrideActuator(Radians.of(0.0))));
     streamdeck
         .button(5)

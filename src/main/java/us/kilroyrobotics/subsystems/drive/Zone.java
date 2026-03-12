@@ -101,7 +101,6 @@ public enum Zone {
   }
 
   public static void setAllianceOrientation(Alliance allianceOrientation) {
-    System.out.println(Zone.allianceOrientation != allianceOrientation);
     if (Zone.allianceOrientation != allianceOrientation)
       for (Zone zone : values()) {
         if (zone.type == ZoneType.UNKNOWN) continue;
