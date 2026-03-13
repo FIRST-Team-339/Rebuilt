@@ -1,5 +1,6 @@
 {
   "name": "Kilroy 26",
+  "isFTC": false,
   "disableSimplification": true,
   "position": [
     0.0,

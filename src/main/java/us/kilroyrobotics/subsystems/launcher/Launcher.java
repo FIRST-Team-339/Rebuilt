@@ -201,8 +201,8 @@ public class Launcher extends SubsystemBase {
       kicker.set(KickerConstants.kKickerPercent.get());
 
       if (Constants.currentMode == Mode.SIM
-          && intakeSimulation.obtainGamePieceFromIntake()
-          && launchBallDebouncerSimulation.calculate(true)) {
+          && launchBallDebouncerSimulation.calculate(true)
+          && intakeSimulation.obtainGamePieceFromIntake()) {
         launchBallDebouncerSimulation.calculate(false);
         SimulatedArena.getInstance()
             .addGamePieceProjectile(

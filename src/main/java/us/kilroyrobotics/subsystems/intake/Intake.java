@@ -46,6 +46,7 @@ public class Intake extends SubsystemBase {
             Inches.of(11),
             IntakeSimulation.IntakeSide.BACK,
             45);
+    intakeSimulation.addGamePiecesToIntake(45);
   }
 
   /** Creates a new Intake. */
