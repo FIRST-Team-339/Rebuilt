@@ -224,6 +224,12 @@ public class RobotContainer {
         break;
     }
 
+    NamedCommands.registerCommand(
+        "SpinUpSerializerAndKicker", launcher.spinUpSerializerAndKicker());
+    NamedCommands.registerCommand(
+        "ReverseSerializerAndKicker", launcher.reverseSerializerAndKicker());
+    NamedCommands.registerCommand("StopSerializerAndKicker", launcher.stopSerializerAndKicker());
+
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
@@ -492,9 +498,6 @@ public class RobotContainer {
                               * FlywheelConstants.overrideMultiplier));
                 }))
         .onFalse(launcher.cancelFlywheelRPMOverride());
-
-    NamedCommands.registerCommand("Spin Up Serializer and Kicker", launcher.spinUpSerializerAndKicker());
-    NamedCommands.registerCommand("Stop Serializer and Kicker", launcher.stopSerializerAndKicker());
   }
 
   /**
