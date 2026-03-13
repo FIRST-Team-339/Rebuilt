@@ -2,15 +2,16 @@ package us.kilroyrobotics.subsystems.intake.actuator;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation3d;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.AutoLogOutput;
+import us.kilroyrobotics.Constants.IntakeConstants.ActuatorConstants;
 
 public interface ActuatorIO {
   @AutoLog
   public static class ActuatorIOInputs {
     public boolean connected;
     public double positionRads;
+    public double positionRotations;
     public boolean atSetpoint;
     public double velocityRadsPerSec;
     public double appliedVoltage;
@@ -20,6 +21,7 @@ public interface ActuatorIO {
   }
 
   public static class ActuatorIOOutputs {
+    @AutoLogOutput(key = "Intake/DesiredPositionRads")
     public double positionRads;
 
     @AutoLogOutput(key = "Components/Intake/Hopper")
@@ -27,7 +29,7 @@ public interface ActuatorIO {
 
     @AutoLogOutput(key = "Components/Intake/IntakeWalls")
     public Pose3d intakeWallsPose3d =
-        new Pose3d(new Translation3d(-0.193, 0.0, 0.2), Rotation3d.kZero);
+        new Pose3d(ActuatorConstants.kIntakeWallsTranslation, Rotation3d.kZero);
   }
 
   default void updateInputs(ActuatorIOInputs inputs) {}

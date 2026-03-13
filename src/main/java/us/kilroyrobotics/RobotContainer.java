@@ -17,9 +17,13 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.util.FlippingUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -32,15 +36,19 @@ import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import java.io.IOException;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import us.kilroyrobotics.Constants.DriveConstants;
 import us.kilroyrobotics.Constants.IntakeConstants.ActuatorConstants;
 import us.kilroyrobotics.Constants.IntakeConstants.RollerConstants;
+import us.kilroyrobotics.Constants.LauncherConstants.FlywheelConstants;
+import us.kilroyrobotics.Constants.LauncherConstants.KickerConstants;
+import us.kilroyrobotics.Constants.LauncherConstants.SerializerConstants;
 import us.kilroyrobotics.Constants.VisionConstants;
-import us.kilroyrobotics.commands.DriveCommands;
 import us.kilroyrobotics.generated.TunerConstants;
 import us.kilroyrobotics.subsystems.drive.Drive;
 import us.kilroyrobotics.subsystems.drive.GyroIO;
@@ -60,6 +68,16 @@ import us.kilroyrobotics.subsystems.intake.actuator.ActuatorIOSparkMax;
 import us.kilroyrobotics.subsystems.intake.roller.RollerIO;
 import us.kilroyrobotics.subsystems.intake.roller.RollerIOSim;
 import us.kilroyrobotics.subsystems.intake.roller.RollerIOSparkMax;
+import us.kilroyrobotics.subsystems.launcher.Launcher;
+import us.kilroyrobotics.subsystems.launcher.flywheel.FlywheelIO;
+import us.kilroyrobotics.subsystems.launcher.flywheel.FlywheelIOSim;
+import us.kilroyrobotics.subsystems.launcher.flywheel.FlywheelIOSparkMax;
+import us.kilroyrobotics.subsystems.launcher.kicker.KickerIO;
+import us.kilroyrobotics.subsystems.launcher.kicker.KickerIOSim;
+import us.kilroyrobotics.subsystems.launcher.kicker.KickerIOSparkMax;
+import us.kilroyrobotics.subsystems.launcher.serializer.SerializerIO;
+import us.kilroyrobotics.subsystems.launcher.serializer.SerializerIOSim;
+import us.kilroyrobotics.subsystems.launcher.serializer.SerializerIOSparkMax;
 import us.kilroyrobotics.subsystems.shifts.AllianceShifts;
 import us.kilroyrobotics.subsystems.vision.Vision;
 import us.kilroyrobotics.subsystems.vision.VisionIO;
@@ -76,6 +94,7 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   public final SwerveDriveSimulation driveSimulation;
+  private final Launcher launcher;
   public final AllianceShifts allianceShifts;
 
   @SuppressWarnings("unused")
@@ -84,15 +103,23 @@ public class RobotContainer {
   private final Intake intake;
 
   // Controller
-  private final CommandXboxController controller = new CommandXboxController(0);
-  private final CommandGenericHID streamdeck = new CommandGenericHID(1);
+  public final CommandXboxController controller = new CommandXboxController(0);
+  public final CommandGenericHID streamdeck = new CommandGenericHID(1);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
+  private final Alert autoPathInfo =
+      new Alert("Selected Autonomous is NOT a PathPlanner autonomous", AlertType.kInfo);
 
   // Drive Mode
-  @AutoLogOutput(key = "Odometry/AutoRotateEnabled")
-  private boolean autoRotate = true;
+  public static enum AutoRotateType {
+    kOff,
+    kTrenchAndBump,
+    kHub
+  }
+
+  @AutoLogOutput(key = "Odometry/AutoRotate")
+  private AutoRotateType autoRotate = AutoRotateType.kOff;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -119,6 +146,15 @@ public class RobotContainer {
             new Intake(
                 new ActuatorIOSparkMax(ActuatorConstants.kMotorCanId),
                 new RollerIOSparkMax(RollerConstants.kMotorCanId));
+
+        launcher =
+            new Launcher(
+                new SerializerIOSparkMax(SerializerConstants.kMotorCanId),
+                new KickerIOSparkMax(KickerConstants.kMotorCanId),
+                new FlywheelIOSparkMax(
+                    FlywheelConstants.kMotorCanId, FlywheelConstants.kFollowerMotorCanId),
+                drive::getChassisSpeeds,
+                drive::getPose);
         break;
 
       case SIM:
@@ -149,6 +185,16 @@ public class RobotContainer {
                     driveSimulation::getSimulatedDriveTrainPose));
 
         intake = new Intake(new ActuatorIOSim(), new RollerIOSim(), driveSimulation);
+
+        launcher =
+            new Launcher(
+                new SerializerIOSim(),
+                new KickerIOSim() {},
+                new FlywheelIOSim(),
+                drive::getChassisSpeeds,
+                drive::getPose,
+                driveSimulation,
+                intake.getIntakeSimulation());
         break;
 
       default:
@@ -167,17 +213,30 @@ public class RobotContainer {
         vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
 
         intake = new Intake(new ActuatorIO() {}, new RollerIO() {});
+
+        launcher =
+            new Launcher(
+                new SerializerIO() {},
+                new KickerIO() {},
+                new FlywheelIO() {},
+                drive::getChassisSpeeds,
+                drive::getPose);
         break;
     }
+
+    NamedCommands.registerCommand(
+        "SpinUpSerializerAndKicker", launcher.spinUpSerializerAndKicker());
+    NamedCommands.registerCommand(
+        "ReverseSerializerAndKicker", launcher.reverseSerializerAndKicker());
+    NamedCommands.registerCommand("StopSerializerAndKicker", launcher.stopSerializerAndKicker());
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
     // Set up SysId routines
     autoChooser.addOption(
-        "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-    autoChooser.addOption(
-        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+        "Drive Wheel Radius Characterization", drive.wheelRadiusCharacterization());
+    autoChooser.addOption("Drive Simple FF Characterization", drive.feedforwardCharacterization());
     autoChooser.addOption(
         "Drive SysId (Quasistatic Forward)",
         drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
@@ -189,8 +248,30 @@ public class RobotContainer {
     autoChooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-    // Configure the button bindings
+    autoChooser.onChange(
+        (Command command) -> {
+          if (command != null) {
+            if (command.getName().equals("InstantCommand")) {
+              drive.displayFullAutoPath(null);
+              autoPathInfo.set(true);
+            }
+
+            try {
+              drive.displayFullAutoPath(
+                  PathPlannerAuto.getPathGroupFromAutoFile(command.getName()));
+              autoPathInfo.set(false);
+            } catch (IOException | ParseException e) {
+              drive.displayFullAutoPath(null);
+              autoPathInfo.set(true);
+            }
+          }
+        });
+
     configureButtonBindings();
+  }
+
+  private Command cancelAutoRotate() {
+    return Commands.runOnce(() -> autoRotate = AutoRotateType.kOff);
   }
 
   /**
@@ -202,8 +283,7 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // Default command, normal field-relative drive
     drive.setDefaultCommand(
-        DriveCommands.joystickDrive(
-            drive,
+        drive.joystickDrive(
             () -> -controller.getLeftY(),
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
@@ -212,14 +292,15 @@ public class RobotContainer {
     controller
         .a()
         .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
+            drive.joystickDriveAtAngle(
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX(),
                 () -> new Rotation2d()));
 
     // Switch to X pattern when X button is pressed
-    controller.x().onTrue(drive.runOnce(drive::stopWithX));
+    controller
+        .x()
+        .onTrue(Commands.sequence(Commands.runOnce(drive::stopWithX, drive), cancelAutoRotate()));
 
     // Reset gyro to 0° when B button is pressed
     controller
@@ -232,6 +313,14 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), new Rotation2d())))
                 .ignoringDisable(true));
 
+    controller
+        .rightTrigger()
+        .onTrue(
+            Commands.parallel(
+                launcher.spinUpSerializerAndKicker(), intake.triggerEvent(IntakeEvent.AGITATE)))
+        .onFalse(
+            Commands.parallel(
+                launcher.stopSerializerAndKicker(), intake.triggerEvent(IntakeEvent.RETRACT)));
     controller.povDown().onTrue(intake.triggerEvent(IntakeEvent.EXTEND));
     controller.povUp().onTrue(intake.triggerEvent(IntakeEvent.RETRACT));
     controller
@@ -248,17 +337,35 @@ public class RobotContainer {
                   }
                 }));
 
-    controller.rightStick().onTrue(Commands.runOnce(() -> autoRotate = !autoRotate));
-    Command cancelAutoRotate = Commands.runOnce(() -> autoRotate = false);
-    controller.button(8).onTrue(cancelAutoRotate);
     controller
-        .axisMagnitudeGreaterThan(Axis.kRightX.value, DriveConstants.autoRotateCancelThreshold)
+        .leftBumper()
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    autoRotate =
+                        autoRotate != AutoRotateType.kTrenchAndBump
+                            ? AutoRotateType.kTrenchAndBump
+                            : AutoRotateType.kOff));
+    controller
+        .rightBumper()
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    autoRotate =
+                        autoRotate != AutoRotateType.kHub
+                            ? AutoRotateType.kHub
+                            : AutoRotateType.kOff));
+    controller.button(8).onTrue(cancelAutoRotate());
+    controller
+        .axisMagnitudeGreaterThan(Axis.kRightX.value, DriveConstants.kAutoRotateCancelThreshold)
         .or(
             controller.axisMagnitudeGreaterThan(
-                Axis.kRightY.value, DriveConstants.autoRotateCancelThreshold))
-        .onTrue(cancelAutoRotate);
+                Axis.kRightY.value, DriveConstants.kAutoRotateCancelThreshold))
+        .onTrue(cancelAutoRotate());
 
-    Trigger inAutoRotate = new Trigger(() -> autoRotate);
+    Trigger inTrenchAndBumpAutoRotate =
+        new Trigger(() -> autoRotate == AutoRotateType.kTrenchAndBump);
+    Trigger inHubAutoRotate = new Trigger(() -> autoRotate == AutoRotateType.kHub);
 
     Command returnToDefaultDrive =
         Commands.runOnce(
@@ -266,14 +373,13 @@ public class RobotContainer {
               drive.getDefaultCommand().cancel();
 
               drive.setDefaultCommand(
-                  DriveCommands.joystickDrive(
-                      drive,
+                  drive.joystickDrive(
                       () -> -controller.getLeftY(),
                       () -> -controller.getLeftX(),
                       () -> -controller.getRightX()));
             });
 
-    inAutoRotate
+    inTrenchAndBumpAutoRotate
         .and(() -> drive.getZoneType() == ZoneType.TRENCH)
         .onTrue(
             Commands.parallel(
@@ -289,10 +395,9 @@ public class RobotContainer {
                               : Rotation2d.k180deg;
 
                       drive.setDefaultCommand(
-                          DriveCommands.joystickDriveAtAngle(
-                              drive,
-                              () -> -controller.getLeftY() * DriveConstants.trenchSpeedMultiplier,
-                              () -> -controller.getLeftX() * DriveConstants.trenchSpeedMultiplier,
+                          drive.joystickDriveAtAngle(
+                              () -> -controller.getLeftY() * DriveConstants.kTrenchSpeedMultiplier,
+                              () -> -controller.getLeftX() * DriveConstants.kTrenchSpeedMultiplier,
                               () -> rotation));
                     }),
                 Commands.runOnce(
@@ -302,7 +407,7 @@ public class RobotContainer {
                       }
                     })));
 
-    inAutoRotate
+    inTrenchAndBumpAutoRotate
         .and(() -> drive.getZoneType() == ZoneType.BUMP)
         .onTrue(
             drive.runOnce(
@@ -325,14 +430,33 @@ public class RobotContainer {
                   }
 
                   drive.setDefaultCommand(
-                      DriveCommands.joystickDriveAtAngle(
-                          drive,
+                      drive.joystickDriveAtAngle(
                           () -> -controller.getLeftY(),
                           () -> -controller.getLeftX(),
                           () -> rotation));
                 }));
 
-    inAutoRotate.and(() -> drive.getZoneType() == ZoneType.NORMAL).onTrue(returnToDefaultDrive);
+    inHubAutoRotate
+        .and(() -> drive.getZoneType() == ZoneType.NORMAL_ALLIANCE)
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  drive.getDefaultCommand().cancel();
+
+                  drive.setDefaultCommand(
+                      drive.joystickDriveAtAngle(
+                          () -> -controller.getLeftY(),
+                          () -> -controller.getLeftX(),
+                          () -> new Rotation2d(launcher.getTargetRotation())));
+                },
+                launcher));
+
+    inTrenchAndBumpAutoRotate
+        .or(inHubAutoRotate)
+        .and(() -> drive.getZoneType() == ZoneType.NORMAL_OTHER)
+        .onTrue(returnToDefaultDrive);
+
+    new Trigger(() -> autoRotate == AutoRotateType.kOff).onTrue(returnToDefaultDrive);
 
     streamdeck
         .button(1)
@@ -344,7 +468,7 @@ public class RobotContainer {
         .button(3)
         .onTrue(
             Commands.runOnce(
-                () -> intake.overrideActuator(Radians.of(ActuatorConstants.kExtendedRads.get()))));
+                () -> intake.overrideActuator(Degrees.of(ActuatorConstants.kExtendedDegs.get()))));
     streamdeck.button(4).onTrue(Commands.runOnce(() -> intake.overrideActuator(Radians.of(0.0))));
     streamdeck
         .button(5)
@@ -357,8 +481,23 @@ public class RobotContainer {
         .onTrue(
             Commands.runOnce(
                 () -> intake.overrideRoller(RollerConstants.kOuttakePercent.get()), intake));
-    streamdeck.button(8).onTrue(Commands.none()); // TODO: serializer+kicker outtake
-    // TODO: axis control for shooter speed
+    streamdeck
+        .button(8)
+        .or(controller.leftTrigger())
+        .onTrue(launcher.reverseSerializerAndKicker())
+        .onFalse(launcher.stopSerializerAndKicker());
+    streamdeck
+        .button(9)
+        .onTrue(
+            launcher.run(
+                () -> {
+                  launcher.overrideFlywheelRPM(
+                      (int)
+                          (((streamdeck.getRawAxis(0) + 1.0) / 2.0)
+                              * 6784
+                              * FlywheelConstants.overrideMultiplier));
+                }))
+        .onFalse(launcher.cancelFlywheelRPMOverride());
   }
 
   /**

@@ -1,0 +1,70 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 2.0,
+        "y": 5.5
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.8068338987117993,
+        "y": 5.658703677692474
+      },
+      "isLocked": true,
+      "linkedName": "Left Side Launch"
+    },
+    {
+      "anchor": {
+        "x": 1.75,
+        "y": 3.25
+      },
+      "prevControl": {
+        "x": 2.141218918620037,
+        "y": 5.020893888812635
+      },
+      "nextControl": {
+        "x": 1.658806611146919,
+        "y": 2.8372034624765106
+      },
+      "isLocked": true,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 0.5,
+        "y": 0.65
+      },
+      "prevControl": {
+        "x": 0.6259101926060485,
+        "y": 0.8659782938119194
+      },
+      "nextControl": null,
+      "isLocked": true,
+      "linkedName": "Outpost"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -30.4
+  },
+  "useDefaultConstraints": true
+}

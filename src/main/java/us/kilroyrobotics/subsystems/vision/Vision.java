@@ -46,6 +46,8 @@ public class Vision extends SubsystemBase {
           new Alert(
               "Vision camera " + Integer.toString(i) + " is disconnected.", AlertType.kWarning);
     }
+
+    VisionConstants.aprilTagLayout.getTagPose(0);
   }
 
   /**

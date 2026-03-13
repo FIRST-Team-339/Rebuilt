@@ -16,11 +16,19 @@ package us.kilroyrobotics;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.DriveMotorArrangement;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.SteerMotorArrangement;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.net.WebServer;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.seasonspecific.rebuilt2026.RebuiltFuelOnField;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -32,6 +40,8 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import us.kilroyrobotics.Constants.Mode;
 import us.kilroyrobotics.generated.BuildConstants;
 import us.kilroyrobotics.generated.TunerConstants;
+import us.kilroyrobotics.subsystems.drive.Zone;
+import us.kilroyrobotics.util.Elastic;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -42,6 +52,13 @@ import us.kilroyrobotics.generated.TunerConstants;
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
   private RobotContainer robotContainer;
+
+  private final Debouncer controllerConnectedDebouncer =
+      new Debouncer(0.5, Debouncer.DebounceType.kFalling);
+  private final Debouncer streamdeckConnectedDebouncer =
+      new Debouncer(0.5, Debouncer.DebounceType.kFalling);
+  private final Alert controllerDisconnected;
+  private final Alert streamdeckDisconnected;
 
   public Robot() {
     // Record metadata
@@ -61,6 +78,8 @@ public class Robot extends LoggedRobot {
         Logger.recordMetadata("GitDirty", "Unknown");
         break;
     }
+
+    WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
 
     // Set up data receivers & replay source
     switch (Constants.currentMode) {
@@ -106,6 +125,11 @@ public class Robot extends LoggedRobot {
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our autonomous chooser on the dashboard.
     robotContainer = new RobotContainer();
+
+    controllerDisconnected = new Alert("Controller disconnected!", Alert.AlertType.kWarning);
+    streamdeckDisconnected = new Alert("Streamdeck disconnected!", Alert.AlertType.kWarning);
+
+    SmartDashboard.putNumber("AutonomousModeDelay", 0.0);
   }
 
   /** This function is called periodically during all modes. */
@@ -124,6 +148,10 @@ public class Robot extends LoggedRobot {
 
     // Return to non-RT thread priority (do not modify the first argument)
     // Threads.setCurrentThreadPriority(false, 10);
+    controllerDisconnected.set(
+        !controllerConnectedDebouncer.calculate(robotContainer.controller.isConnected()));
+    streamdeckDisconnected.set(
+        !streamdeckConnectedDebouncer.calculate(robotContainer.streamdeck.isConnected()));
   }
 
   /** This function is called once when the robot is disabled. */
@@ -137,7 +165,14 @@ public class Robot extends LoggedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    autonomousCommand = robotContainer.getAutonomousCommand();
+    Elastic.selectTab("Autonomous");
+    Zone.setAllianceOrientation(DriverStation.getAlliance().orElse(Alliance.Blue));
+
+    Command autonomousDelayCommand =
+        new WaitCommand(SmartDashboard.getNumber("AutonomousModeDelay", 0.0));
+
+    autonomousCommand =
+        Commands.sequence(autonomousDelayCommand, robotContainer.getAutonomousCommand());
 
     // schedule the autonomous command (example)
     if (autonomousCommand != null) {
@@ -152,6 +187,9 @@ public class Robot extends LoggedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
+    Elastic.selectTab("Teleoperated");
+    Zone.setAllianceOrientation(DriverStation.getAlliance().orElse(Alliance.Blue));
+
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
@@ -173,6 +211,7 @@ public class Robot extends LoggedRobot {
   /** This function is called once when test mode is enabled. */
   @Override
   public void testInit() {
+    Elastic.selectTab("Tuning / Testing");
     // Cancels all running commands at the start of test mode.
     CommandScheduler.getInstance().cancelAll();
   }

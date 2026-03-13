@@ -28,7 +28,7 @@ public class Intake extends SubsystemBase {
   private final Roller roller;
   private final Actuator actuator;
 
-  private IntakeSimulation intakeSimulation = null;
+  private IntakeSimulation intakeSimulation;
 
   @AutoLogOutput(key = "Intake/CurrentState")
   private IntakeState currentState = IntakeState.RETRACTED;
@@ -46,6 +46,7 @@ public class Intake extends SubsystemBase {
             Inches.of(11),
             IntakeSimulation.IntakeSide.BACK,
             45);
+    intakeSimulation.addGamePiecesToIntake(45);
   }
 
   /** Creates a new Intake. */
@@ -80,7 +81,7 @@ public class Intake extends SubsystemBase {
       }
 
       case EXTENDING -> {
-        actuatorAngle = Radians.of(ActuatorConstants.kExtendedRads.get());
+        actuatorAngle = Degrees.of(ActuatorConstants.kExtendedDegs.get());
         if (actuator.atSetpoint()) {
           setState(IntakeState.EXTENDED);
         }
@@ -150,6 +151,10 @@ public class Intake extends SubsystemBase {
     roller.set(rollerOutput);
   }
 
+  public IntakeSimulation getIntakeSimulation() {
+    return intakeSimulation;
+  }
+
   /**
    * Check if an event is pending and should be triggered
    *
@@ -175,6 +180,7 @@ public class Intake extends SubsystemBase {
     return runOnce(
         () -> {
           rollerOverride = false;
+          actuatorOverride = false;
           pendingEvent = event;
         });
   }
@@ -212,6 +218,7 @@ public class Intake extends SubsystemBase {
    * @param output percent output (-1.0 to 1.0)
    */
   public void overrideRoller(double output) {
+    rollerOverride = true;
     rollerOutputOverride = output;
   }
 
@@ -221,6 +228,7 @@ public class Intake extends SubsystemBase {
    * @param position the desired position as an {@link Angle}
    */
   public void overrideActuator(Angle position) {
+    actuatorOverride = true;
     actuatorAngleOverride = position;
   }
 }
