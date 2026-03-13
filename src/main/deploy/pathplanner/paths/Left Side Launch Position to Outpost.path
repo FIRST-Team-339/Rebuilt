@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.7725176268060907,
-        "y": 5.654085010104944
+        "x": 1.8068338987117993,
+        "y": 5.658703677692474
       },
       "isLocked": true,
       "linkedName": "Left Side Launch"
@@ -20,12 +20,12 @@
         "y": 3.25
       },
       "prevControl": {
-        "x": 2.224222759017538,
-        "y": 4.912166036735708
+        "x": 2.141218918620037,
+        "y": 5.020893888812635
       },
       "nextControl": {
-        "x": 1.4455803206700006,
-        "y": 2.182999223941535
+        "x": 1.658806611146919,
+        "y": 2.8372034624765106
       },
       "isLocked": true,
       "linkedName": null
@@ -36,8 +36,8 @@
         "y": 0.65
       },
       "prevControl": {
-        "x": 0.7282506705192663,
-        "y": 0.5480116114084287
+        "x": 0.6259101926060485,
+        "y": 0.8659782938119194
       },
       "nextControl": null,
       "isLocked": true,
@@ -46,18 +46,7 @@
   ],
   "rotationTargets": [],
   "constraintZones": [],
-  "pointTowardsZones": [
-    {
-      "fieldPosition": {
-        "x": 4.625594,
-        "y": 4.034536
-      },
-      "rotationOffset": 0.0,
-      "minWaypointRelativePos": 1.0,
-      "maxWaypointRelativePos": 2.0,
-      "name": "Point Towards Zone"
-    }
-  ],
+  "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.0,
