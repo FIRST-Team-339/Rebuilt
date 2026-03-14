@@ -225,10 +225,19 @@ public class RobotContainer {
     }
 
     NamedCommands.registerCommand(
-        "SpinUpSerializerAndKicker", launcher.spinUpSerializerAndKicker());
+        "SpinUpSerializerAndKicker", launcher.spinUpSerializerAndKicker(false));
     NamedCommands.registerCommand(
         "ReverseSerializerAndKicker", launcher.reverseSerializerAndKicker());
-    NamedCommands.registerCommand("StopSerializerAndKicker", launcher.stopSerializerAndKicker());
+    NamedCommands.registerCommand(
+        "StopSerializerAndKicker", launcher.stopSerializerAndKicker(false));
+
+    NamedCommands.registerCommand(
+        "LauncherSequence",
+        Commands.sequence(
+            launcher.spinUpSerializerAndKicker(false),
+            Commands.waitSeconds(1.0),
+            launcher.reverseSerializerAndKicker(),
+            Commands.waitSeconds(0.25)));
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -317,10 +326,10 @@ public class RobotContainer {
         .rightTrigger()
         .onTrue(
             Commands.parallel(
-                launcher.spinUpSerializerAndKicker(), intake.triggerEvent(IntakeEvent.AGITATE)))
+                launcher.spinUpSerializerAndKicker(true), intake.triggerEvent(IntakeEvent.AGITATE)))
         .onFalse(
             Commands.parallel(
-                launcher.stopSerializerAndKicker(), intake.triggerEvent(IntakeEvent.RETRACT)));
+                launcher.stopSerializerAndKicker(true), intake.triggerEvent(IntakeEvent.RETRACT)));
     controller.povDown().onTrue(intake.triggerEvent(IntakeEvent.EXTEND));
     controller.povUp().onTrue(intake.triggerEvent(IntakeEvent.RETRACT));
     controller
@@ -485,7 +494,7 @@ public class RobotContainer {
         .button(8)
         .or(controller.leftTrigger())
         .onTrue(launcher.reverseSerializerAndKicker())
-        .onFalse(launcher.stopSerializerAndKicker());
+        .onFalse(launcher.stopSerializerAndKicker(true));
     streamdeck
         .button(9)
         .onTrue(

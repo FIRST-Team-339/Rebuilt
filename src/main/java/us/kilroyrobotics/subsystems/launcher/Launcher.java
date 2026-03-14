@@ -295,16 +295,26 @@ public class Launcher extends SubsystemBase {
     return runOnce(() -> flywheelRPMOverriden = false);
   }
 
-  public Command spinUpSerializerAndKicker() {
-    return runOnce(() -> kickerDirection = SerializerKickerDirection.kForward)
-        .andThen(Commands.waitSeconds(0.2))
-        .andThen(runOnce(() -> serializerDirection = SerializerKickerDirection.kForward));
+  public Command spinUpSerializerAndKicker(boolean withDelay) {
+    if (withDelay) {
+      return runOnce(() -> kickerDirection = SerializerKickerDirection.kForward)
+          .andThen(Commands.waitSeconds(0.2))
+          .andThen(runOnce(() -> serializerDirection = SerializerKickerDirection.kForward));
+    } else {
+      return runOnce(() -> kickerDirection = SerializerKickerDirection.kForward)
+          .andThen(runOnce(() -> serializerDirection = SerializerKickerDirection.kForward));
+    }
   }
 
-  public Command stopSerializerAndKicker() {
-    return runOnce(() -> serializerDirection = SerializerKickerDirection.kOff)
-        .andThen(Commands.waitSeconds(0.5))
-        .andThen(runOnce(() -> kickerDirection = SerializerKickerDirection.kOff));
+  public Command stopSerializerAndKicker(boolean withDelay) {
+    if (withDelay) {
+      return runOnce(() -> serializerDirection = SerializerKickerDirection.kOff)
+          .andThen(Commands.waitSeconds(0.5))
+          .andThen(runOnce(() -> kickerDirection = SerializerKickerDirection.kOff));
+    } else {
+      return runOnce(() -> serializerDirection = SerializerKickerDirection.kOff)
+          .andThen(runOnce(() -> kickerDirection = SerializerKickerDirection.kOff));
+    }
   }
 
   public Command reverseSerializerAndKicker() {

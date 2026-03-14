@@ -20,7 +20,7 @@ public class AllianceShifts extends SubsystemBase {
   @AutoLogOutput private Shifts currentShift = Shifts.AUTONOMOUS;
   @AutoLogOutput private double shiftTime = 0.0;
 
-  private Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Blue);
+  private Alliance alliance = DriverStation.getAlliance().orElse(null);
 
   private final Trigger hubActiveTrigger = new Trigger(() -> hubActive);
 
@@ -60,6 +60,7 @@ public class AllianceShifts extends SubsystemBase {
   }
 
   public void checkFirstAllianceShift() {
+    alliance = DriverStation.getAlliance().orElse(null);
     String gameData;
     gameData = DriverStation.getGameSpecificMessage();
 
