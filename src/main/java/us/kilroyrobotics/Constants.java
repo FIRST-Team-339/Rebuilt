@@ -137,17 +137,17 @@ public final class Constants {
 
       /** The setpoint for the actuator when fully extended */
       public static final LoggedTunableNumber kExtendedDegs =
-          new LoggedTunableNumber("Intake/Actuator/ExtendedDegs", 100.0);
+          new LoggedTunableNumber("Intake/Actuator/ExtendedDegs", 110.0);
 
       /** The gear ratio of the actuator motor */
       public static final int kGearing = 100;
 
-      public static final double kP = 11;
+      public static final double kP = 2;
       public static final double kI = 0.003;
       public static final double kD = 0.0;
 
-      public static final double kMaxVelocity = 0.75;
-      public static final double kMaxAcceleration = 0.5;
+      public static final double kMaxVelocity = 0.12;
+      public static final double kMaxAcceleration = 0.2;
 
       public static final Translation3d kIntakeWallsTranslation =
           new Translation3d(-0.193, 0.0, 0.2);
@@ -159,7 +159,7 @@ public final class Constants {
 
       /** The set percent of the motor when intaking fuel */
       public static final LoggedTunableNumber kIntakePercent =
-          new LoggedTunableNumber("Intake/Roller/IntakePercent", 0.6);
+          new LoggedTunableNumber("Intake/Roller/IntakePercent", 0.8);
 
       /** The set percent of the motor when agitating/launching fuel */
       public static final LoggedTunableNumber kAgitatePercent =
