@@ -75,10 +75,10 @@ public final class Constants {
 
     public static final double kDeadband = 0.1;
 
-    public static final double kAngleKP = 3.0;
+    public static final double kAngleKP = 2.5;
     public static final double kAngleKD = 0.2;
     public static final double kAngleMaxVelocity = 5.0;
-    public static final double kAngleMaxAcceleration = 4.0;
+    public static final double kAngleMaxAcceleration = 2.0;
     public static final double kFFStartDelay = 2.0; // Secs
     public static final double kFFRampRate = 0.1; // Volts/Sec
     public static final double kWheelRadiusMaxVelocity = 0.25; // Rad/Sec
@@ -137,7 +137,7 @@ public final class Constants {
 
       /** The setpoint for the actuator when fully extended */
       public static final LoggedTunableNumber kExtendedDegs =
-          new LoggedTunableNumber("Intake/Actuator/ExtendedDegs", 110.0);
+          new LoggedTunableNumber("Intake/Actuator/ExtendedDegs", 115.0);
 
       /** The gear ratio of the actuator motor */
       public static final int kGearing = 100;
@@ -159,7 +159,7 @@ public final class Constants {
 
       /** The set percent of the motor when intaking fuel */
       public static final LoggedTunableNumber kIntakePercent =
-          new LoggedTunableNumber("Intake/Roller/IntakePercent", 0.8);
+          new LoggedTunableNumber("Intake/Roller/IntakePercent", 0.6);
 
       /** The set percent of the motor when agitating/launching fuel */
       public static final LoggedTunableNumber kAgitatePercent =
@@ -178,7 +178,7 @@ public final class Constants {
       public static final int kMotorCanId = 43;
 
       public static final LoggedTunableNumber kSerializerPercent =
-          new LoggedTunableNumber("Launcher/Serializer/Percent", 0.4);
+          new LoggedTunableNumber("Launcher/Serializer/Percent", 0.9);
 
       public static final Translation3d kBottomTranslation = new Translation3d(0.0545, 0.0, 0.111);
       public static final Translation3d kTopTranslation = new Translation3d(0.08, 0.0, 0.297);

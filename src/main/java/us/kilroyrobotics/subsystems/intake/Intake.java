@@ -74,6 +74,7 @@ public class Intake extends SubsystemBase {
 
     switch (currentState) {
       case RETRACTED -> {
+        System.out.println(actuatorAngle);
         // Do nothing, unless an extend event is being triggered
         if (eventIsTriggered(IntakeEvent.EXTEND)) {
           setState(IntakeState.EXTENDING);
@@ -112,7 +113,7 @@ public class Intake extends SubsystemBase {
       }
 
       case RETRACTING -> {
-        actuatorAngle = Radians.of(0.0);
+        actuatorAngle = Degrees.of(0);
         if (actuator.atSetpoint()) {
           setState(IntakeState.RETRACTED);
         }
