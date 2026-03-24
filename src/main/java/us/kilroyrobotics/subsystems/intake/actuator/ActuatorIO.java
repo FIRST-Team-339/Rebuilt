@@ -35,4 +35,6 @@ public interface ActuatorIO {
   default void updateInputs(ActuatorIOInputs inputs) {}
 
   default void applyOutputs(ActuatorIOOutputs outputs) {}
+
+  default void resetEncoder() {}
 }

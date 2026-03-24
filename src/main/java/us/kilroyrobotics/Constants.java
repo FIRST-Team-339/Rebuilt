@@ -142,9 +142,9 @@ public final class Constants {
       /** The gear ratio of the actuator motor */
       public static final int kGearing = 100;
 
-      public static final double kP = 2;
-      public static final double kI = 0.003;
-      public static final double kD = 0.0;
+      public static final double kP = 2.0;
+      public static final double kI = 0.00;
+      public static final double kD = 0.00;
 
       public static final double kMaxVelocity = 0.12;
       public static final double kMaxAcceleration = 0.2;

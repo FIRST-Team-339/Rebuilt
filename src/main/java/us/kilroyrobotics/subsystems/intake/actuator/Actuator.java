@@ -41,6 +41,8 @@ public class Actuator extends SubsystemBase {
     this.io = io;
 
     motorDisconnected = new Alert(name + " motor disconnected!", Alert.AlertType.kWarning);
+
+    resetEncoder();
   }
 
   @Override
@@ -111,5 +113,9 @@ public class Actuator extends SubsystemBase {
    */
   public boolean atSetpoint() {
     return isAtSetpoint;
+  }
+
+  public void resetEncoder() {
+    io.resetEncoder();
   }
 }

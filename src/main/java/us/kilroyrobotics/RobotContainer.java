@@ -100,7 +100,7 @@ public class RobotContainer {
   @SuppressWarnings("unused")
   private final Vision vision;
 
-  private final Intake intake;
+  public final Intake intake;
 
   // Controller
   public final CommandXboxController controller = new CommandXboxController(0);
