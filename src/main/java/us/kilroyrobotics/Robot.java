@@ -41,6 +41,7 @@ import us.kilroyrobotics.Constants.Mode;
 import us.kilroyrobotics.generated.BuildConstants;
 import us.kilroyrobotics.generated.TunerConstants;
 import us.kilroyrobotics.subsystems.drive.Zone;
+import us.kilroyrobotics.subsystems.intake.IntakeEvent;
 import us.kilroyrobotics.util.Elastic;
 
 /**
@@ -174,12 +175,13 @@ public class Robot extends LoggedRobot {
     autonomousCommand =
         Commands.sequence(autonomousDelayCommand, robotContainer.getAutonomousCommand());
 
+    robotContainer.intake.resetActuatorEncoder();
+    CommandScheduler.getInstance().schedule(robotContainer.intake.triggerEvent(IntakeEvent.EXTEND));
+
     // schedule the autonomous command (example)
     if (autonomousCommand != null) {
       CommandScheduler.getInstance().schedule(autonomousCommand);
     }
-
-    robotContainer.intake.resetActuatorEncoder();
   }
 
   /** This function is called periodically during autonomous. */

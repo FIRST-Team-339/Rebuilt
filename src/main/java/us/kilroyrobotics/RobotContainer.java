@@ -14,7 +14,6 @@
 package us.kilroyrobotics;
 
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Radians;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -235,9 +234,9 @@ public class RobotContainer {
         "LauncherSequence",
         Commands.sequence(
             launcher.spinUpSerializerAndKicker(false),
-            Commands.waitSeconds(1.0),
+            Commands.waitSeconds(1.5),
             launcher.reverseSerializerAndKicker(),
-            Commands.waitSeconds(0.25)));
+            Commands.waitSeconds(0.1)));
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -329,7 +328,8 @@ public class RobotContainer {
                 launcher.spinUpSerializerAndKicker(true), intake.triggerEvent(IntakeEvent.AGITATE)))
         .onFalse(
             Commands.parallel(
-                launcher.stopSerializerAndKicker(true), intake.triggerEvent(IntakeEvent.RETRACT)));
+                launcher.stopSerializerAndKicker(
+                    true) /*, intake.triggerEvent(IntakeEvent.RETRACT)*/));
     controller.povDown().onTrue(intake.triggerEvent(IntakeEvent.EXTEND));
     controller.povUp().onTrue(intake.triggerEvent(IntakeEvent.RETRACT));
     controller
@@ -473,12 +473,8 @@ public class RobotContainer {
     streamdeck
         .button(2)
         .onTrue(Commands.runOnce(() -> allianceShifts.setFirstAllianceShift(Alliance.Red)));
-    streamdeck
-        .button(3)
-        .onTrue(
-            Commands.runOnce(
-                () -> intake.overrideActuator(Degrees.of(ActuatorConstants.kExtendedDegs.get()))));
-    streamdeck.button(4).onTrue(Commands.runOnce(() -> intake.overrideActuator(Radians.of(0.0))));
+    streamdeck.button(3).onTrue(intake.triggerEvent(IntakeEvent.EXTEND));
+    streamdeck.button(4).onTrue(intake.triggerEvent(IntakeEvent.RETRACT));
     streamdeck
         .button(5)
         .onTrue(

@@ -89,11 +89,11 @@ public class Intake extends SubsystemBase {
 
       case EXTENDED -> {
         // Wait for one of the events to be triggered
-        if (eventIsTriggered(IntakeEvent.AGITATE)) {
-          setState(IntakeState.AGITATING);
-          actuatorAngle = actuatorAngle.minus(Degrees.of(40));
-          timer.start();
-        } else if (eventIsTriggered(IntakeEvent.RETRACT)) {
+        // if (eventIsTriggered(IntakeEvent.AGITATE)) {
+        // setState(IntakeState.AGITATING);
+        // actuatorAngle = actuatorAngle.minus(Degrees.of(40));
+        // timer.start();
+        /* } else */ if (eventIsTriggered(IntakeEvent.RETRACT)) {
           setState(IntakeState.RETRACTING);
         } else if (eventIsTriggered(IntakeEvent.START_INTAKING)) {
           setState(IntakeState.INTAKING);
