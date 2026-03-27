@@ -77,8 +77,8 @@ public final class Constants {
 
     public static final double kAngleKP = 2.5;
     public static final double kAngleKD = 0.2;
-    public static final double kAngleMaxVelocity = 5.0;
-    public static final double kAngleMaxAcceleration = 2.0;
+    public static final double kAngleMaxVelocity = 4.0;
+    public static final double kAngleMaxAcceleration = 1.5;
     public static final double kFFStartDelay = 2.0; // Secs
     public static final double kFFRampRate = 0.1; // Volts/Sec
     public static final double kWheelRadiusMaxVelocity = 0.25; // Rad/Sec

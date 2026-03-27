@@ -14,6 +14,7 @@
 package us.kilroyrobotics;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Radians;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -223,6 +224,8 @@ public class RobotContainer {
         break;
     }
 
+    NamedCommands.registerCommand("StartIntaking", intake.triggerEvent(IntakeEvent.START_INTAKING));
+
     NamedCommands.registerCommand(
         "SpinUpSerializerAndKicker", launcher.spinUpSerializerAndKicker(false));
     NamedCommands.registerCommand(
@@ -325,7 +328,8 @@ public class RobotContainer {
         .rightTrigger()
         .onTrue(
             Commands.parallel(
-                launcher.spinUpSerializerAndKicker(true), intake.triggerEvent(IntakeEvent.AGITATE)))
+                launcher.spinUpSerializerAndKicker(
+                    true) /*, intake.triggerEvent(IntakeEvent.AGITATE)*/))
         .onFalse(
             Commands.parallel(
                 launcher.stopSerializerAndKicker(
@@ -473,8 +477,12 @@ public class RobotContainer {
     streamdeck
         .button(2)
         .onTrue(Commands.runOnce(() -> allianceShifts.setFirstAllianceShift(Alliance.Red)));
-    streamdeck.button(3).onTrue(intake.triggerEvent(IntakeEvent.EXTEND));
-    streamdeck.button(4).onTrue(intake.triggerEvent(IntakeEvent.RETRACT));
+    streamdeck
+        .button(3)
+        .onTrue(
+            Commands.runOnce(
+                () -> intake.overrideActuator(Degrees.of(ActuatorConstants.kExtendedDegs.get()))));
+    streamdeck.button(4).onTrue(Commands.runOnce(() -> intake.overrideActuator(Radians.of(0.0))));
     streamdeck
         .button(5)
         .onTrue(

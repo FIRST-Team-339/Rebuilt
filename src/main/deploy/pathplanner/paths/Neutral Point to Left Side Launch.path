@@ -12,20 +12,20 @@
         "y": 6.1760595065818755
       },
       "isLocked": false,
-      "linkedName": "Neutral Point"
+      "linkedName": "Neutral Point (Left)"
     },
     {
       "anchor": {
         "x": 4.75,
-        "y": 7.5
+        "y": 7.35
       },
       "prevControl": {
         "x": 6.229209933508622,
-        "y": 7.511334942019223
+        "y": 7.361334942019223
       },
       "nextControl": {
         "x": 1.9709704361747233,
-        "y": 7.478704754300189
+        "y": 7.328704754300189
       },
       "isLocked": false,
       "linkedName": null
@@ -69,7 +69,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }

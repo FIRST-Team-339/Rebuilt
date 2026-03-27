@@ -41,16 +41,12 @@
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Neutral Point"
+      "linkedName": "Neutral Point (Right)"
     }
   ],
   "rotationTargets": [
     {
       "waypointRelativePos": 1,
-      "rotationDegrees": -90.0
-    },
-    {
-      "waypointRelativePos": 1.98,
       "rotationDegrees": -90.0
     }
   ],
@@ -81,7 +77,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -90.0
   },
   "reversed": false,
   "folder": null,

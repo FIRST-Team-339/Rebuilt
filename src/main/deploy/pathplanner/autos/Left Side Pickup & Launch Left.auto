@@ -5,15 +5,39 @@
     "data": {
       "commands": [
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StartIntaking"
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "Left Side Start to Launch Position"
+            "pathName": "Left Side Start to Neutral Point"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Neutral Point to Left Side Launch"
           }
         },
         {
           "type": "sequential",
           "data": {
             "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "LauncherSequence"
+                }
+              },
               {
                 "type": "named",
                 "data": {

@@ -29,12 +29,6 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "LauncherSequence"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
                   "name": "StopSerializerAndKicker"
                 }
               }
