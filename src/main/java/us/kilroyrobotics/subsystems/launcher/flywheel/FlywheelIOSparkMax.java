@@ -32,12 +32,12 @@ public class FlywheelIOSparkMax implements FlywheelIO {
         .pid(FlywheelConstants.kP, FlywheelConstants.kI, FlywheelConstants.kD);
     motorConfig.idleMode(IdleMode.kCoast);
     motorConfig.inverted(true);
-    motorConfig.smartCurrentLimit(40);
+    motorConfig.smartCurrentLimit(30);
     motorConfig.closedLoop.minOutput(0);
 
     SparkMaxConfig followerMotorConfig = new SparkMaxConfig();
     followerMotorConfig.idleMode(IdleMode.kCoast);
-    followerMotorConfig.smartCurrentLimit(40);
+    followerMotorConfig.smartCurrentLimit(30);
     followerMotorConfig.follow(motor, true);
     followerMotorConfig.closedLoop.minOutput(0);
 

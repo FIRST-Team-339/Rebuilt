@@ -1,0 +1,68 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Side Start to Depot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StartIntaking"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Depo to Left Side Launch"
+          }
+        },
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "LauncherSequence"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "LauncherSequence"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "LauncherSequence"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "LauncherSequence"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

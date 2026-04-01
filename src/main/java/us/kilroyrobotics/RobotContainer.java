@@ -297,7 +297,7 @@ public class RobotContainer {
         drive.joystickDrive(
             () -> -controller.getLeftY(),
             () -> -controller.getLeftX(),
-            () -> -controller.getRightX()));
+            () -> -controller.getRightX() * DriveConstants.kTeleopRotationalSpeedMultiplier));
 
     // Lock to 0° when A button is held
     controller
@@ -352,22 +352,8 @@ public class RobotContainer {
 
     controller
         .leftBumper()
-        .onTrue(
-            Commands.runOnce(
-                () ->
-                    autoRotate =
-                        autoRotate != AutoRotateType.kTrenchAndBump
-                            ? AutoRotateType.kTrenchAndBump
-                            : AutoRotateType.kOff));
-    controller
-        .rightBumper()
-        .onTrue(
-            Commands.runOnce(
-                () ->
-                    autoRotate =
-                        autoRotate != AutoRotateType.kHub
-                            ? AutoRotateType.kHub
-                            : AutoRotateType.kOff));
+        .onTrue(Commands.runOnce(() -> autoRotate = AutoRotateType.kTrenchAndBump));
+    controller.rightBumper().onTrue(Commands.runOnce(() -> autoRotate = AutoRotateType.kHub));
     controller.button(8).onTrue(cancelAutoRotate());
     controller
         .axisMagnitudeGreaterThan(Axis.kRightX.value, DriveConstants.kAutoRotateCancelThreshold)
@@ -389,7 +375,9 @@ public class RobotContainer {
                   drive.joystickDrive(
                       () -> -controller.getLeftY(),
                       () -> -controller.getLeftX(),
-                      () -> -controller.getRightX()));
+                      () ->
+                          -controller.getRightX()
+                              * DriveConstants.kTeleopRotationalSpeedMultiplier));
             });
 
     inTrenchAndBumpAutoRotate
@@ -506,7 +494,7 @@ public class RobotContainer {
                 () -> {
                   launcher.overrideFlywheelRPM(
                       (int)
-                          (((streamdeck.getRawAxis(0) + 1.0) / 2.0)
+                          ((streamdeck.getRawAxis(0))
                               * 6784
                               * FlywheelConstants.overrideMultiplier));
                 }))
