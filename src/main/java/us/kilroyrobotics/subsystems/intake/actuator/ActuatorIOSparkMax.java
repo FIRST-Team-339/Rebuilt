@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.Rotations;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
+import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -13,6 +14,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
+import org.littletonrobotics.junction.Logger;
 import us.kilroyrobotics.Constants.IntakeConstants.ActuatorConstants;
 
 public class ActuatorIOSparkMax implements ActuatorIO {
@@ -40,9 +42,10 @@ public class ActuatorIOSparkMax implements ActuatorIO {
     SparkMaxConfig motorConfig = new SparkMaxConfig();
     motorConfig.closedLoop.positionWrappingEnabled(true);
     motorConfig.closedLoop.positionWrappingInputRange(0.0, 1.0);
-    motorConfig.encoder.positionConversionFactor(1.0 / 5.0);
+    motorConfig.encoder.positionConversionFactor(1.0 / ActuatorConstants.kGearing);
+    motorConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
     motorConfig.absoluteEncoder.positionConversionFactor(1.0);
-    motorConfig.idleMode(IdleMode.kBrake);
+    motorConfig.idleMode(IdleMode.kCoast);
     motorConfig.smartCurrentLimit(30);
 
     motor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -51,15 +54,18 @@ public class ActuatorIOSparkMax implements ActuatorIO {
   @Override
   public void updateInputs(ActuatorIOInputs inputs) {
     inputs.connected = !Double.isNaN(motor.getAppliedOutput());
-    inputs.positionRads = Units.rotationsToRadians(motor.getAbsoluteEncoder().getPosition());
-    inputs.positionRotations = motor.getAbsoluteEncoder().getPosition();
-    inputs.atSetpoint = Radians.of(inputs.positionRads).isNear(desiredAngle, 0.15);
+    inputs.positionRads = Units.rotationsToRadians(motor.getEncoder().getPosition());
+    inputs.positionRotations = motor.getEncoder().getPosition();
+    inputs.atSetpoint = controller.atSetpoint();
     inputs.appliedVoltage = motor.getAppliedOutput();
     inputs.supplyCurrentAmps = 0.0;
     inputs.torqueCurrentAmps = motor.getOutputCurrent();
     inputs.tempCelsius = motor.getMotorTemperature();
 
-    motor.set(controller.calculate(inputs.positionRotations));
+    var test = controller.calculate(inputs.positionRotations);
+    motor.set(test);
+
+    Logger.recordOutput("GAHHHHH", test);
   }
 
   @Override
@@ -67,5 +73,10 @@ public class ActuatorIOSparkMax implements ActuatorIO {
     desiredAngle = Radians.of(outputs.positionRads);
 
     controller.setGoal(desiredAngle.in(Rotations));
+  }
+
+  @Override
+  public void resetEncoder() {
+    motor.getEncoder().setPosition(motor.getAbsoluteEncoder().getPosition());
   }
 }

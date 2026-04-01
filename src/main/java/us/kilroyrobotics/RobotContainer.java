@@ -100,7 +100,7 @@ public class RobotContainer {
   @SuppressWarnings("unused")
   private final Vision vision;
 
-  private final Intake intake;
+  public final Intake intake;
 
   // Controller
   public final CommandXboxController controller = new CommandXboxController(0);
@@ -224,11 +224,22 @@ public class RobotContainer {
         break;
     }
 
+    NamedCommands.registerCommand("StartIntaking", intake.triggerEvent(IntakeEvent.START_INTAKING));
+
     NamedCommands.registerCommand(
-        "SpinUpSerializerAndKicker", launcher.spinUpSerializerAndKicker());
+        "SpinUpSerializerAndKicker", launcher.spinUpSerializerAndKicker(false));
     NamedCommands.registerCommand(
         "ReverseSerializerAndKicker", launcher.reverseSerializerAndKicker());
-    NamedCommands.registerCommand("StopSerializerAndKicker", launcher.stopSerializerAndKicker());
+    NamedCommands.registerCommand(
+        "StopSerializerAndKicker", launcher.stopSerializerAndKicker(false));
+
+    NamedCommands.registerCommand(
+        "LauncherSequence",
+        Commands.sequence(
+            launcher.spinUpSerializerAndKicker(false),
+            Commands.waitSeconds(1.5),
+            launcher.reverseSerializerAndKicker(),
+            Commands.waitSeconds(0.1)));
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
@@ -286,7 +297,7 @@ public class RobotContainer {
         drive.joystickDrive(
             () -> -controller.getLeftY(),
             () -> -controller.getLeftX(),
-            () -> -controller.getRightX()));
+            () -> -controller.getRightX() * DriveConstants.kTeleopRotationalSpeedMultiplier));
 
     // Lock to 0° when A button is held
     controller
@@ -317,10 +328,12 @@ public class RobotContainer {
         .rightTrigger()
         .onTrue(
             Commands.parallel(
-                launcher.spinUpSerializerAndKicker(), intake.triggerEvent(IntakeEvent.AGITATE)))
+                launcher.spinUpSerializerAndKicker(
+                    true) /*, intake.triggerEvent(IntakeEvent.AGITATE)*/))
         .onFalse(
             Commands.parallel(
-                launcher.stopSerializerAndKicker(), intake.triggerEvent(IntakeEvent.RETRACT)));
+                launcher.stopSerializerAndKicker(
+                    true) /*, intake.triggerEvent(IntakeEvent.RETRACT)*/));
     controller.povDown().onTrue(intake.triggerEvent(IntakeEvent.EXTEND));
     controller.povUp().onTrue(intake.triggerEvent(IntakeEvent.RETRACT));
     controller
@@ -339,22 +352,8 @@ public class RobotContainer {
 
     controller
         .leftBumper()
-        .onTrue(
-            Commands.runOnce(
-                () ->
-                    autoRotate =
-                        autoRotate != AutoRotateType.kTrenchAndBump
-                            ? AutoRotateType.kTrenchAndBump
-                            : AutoRotateType.kOff));
-    controller
-        .rightBumper()
-        .onTrue(
-            Commands.runOnce(
-                () ->
-                    autoRotate =
-                        autoRotate != AutoRotateType.kHub
-                            ? AutoRotateType.kHub
-                            : AutoRotateType.kOff));
+        .onTrue(Commands.runOnce(() -> autoRotate = AutoRotateType.kTrenchAndBump));
+    controller.rightBumper().onTrue(Commands.runOnce(() -> autoRotate = AutoRotateType.kHub));
     controller.button(8).onTrue(cancelAutoRotate());
     controller
         .axisMagnitudeGreaterThan(Axis.kRightX.value, DriveConstants.kAutoRotateCancelThreshold)
@@ -376,7 +375,9 @@ public class RobotContainer {
                   drive.joystickDrive(
                       () -> -controller.getLeftY(),
                       () -> -controller.getLeftX(),
-                      () -> -controller.getRightX()));
+                      () ->
+                          -controller.getRightX()
+                              * DriveConstants.kTeleopRotationalSpeedMultiplier));
             });
 
     inTrenchAndBumpAutoRotate
@@ -485,7 +486,7 @@ public class RobotContainer {
         .button(8)
         .or(controller.leftTrigger())
         .onTrue(launcher.reverseSerializerAndKicker())
-        .onFalse(launcher.stopSerializerAndKicker());
+        .onFalse(launcher.stopSerializerAndKicker(true));
     streamdeck
         .button(9)
         .onTrue(
@@ -493,7 +494,7 @@ public class RobotContainer {
                 () -> {
                   launcher.overrideFlywheelRPM(
                       (int)
-                          (((streamdeck.getRawAxis(0) + 1.0) / 2.0)
+                          ((streamdeck.getRawAxis(0))
                               * 6784
                               * FlywheelConstants.overrideMultiplier));
                 }))

@@ -3,16 +3,32 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.65,
+        "x": 7.75,
         "y": 4.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.6386865888376505,
-        "y": 3.690679619441323
+        "x": 7.631142629005685,
+        "y": 2.779467817462095
       },
-      "isLocked": true,
-      "linkedName": "Middle Start"
+      "isLocked": false,
+      "linkedName": "Neutral Point (Right)"
+    },
+    {
+      "anchor": {
+        "x": 4.75,
+        "y": 0.65
+      },
+      "prevControl": {
+        "x": 6.229209933508622,
+        "y": 0.6613349420192233
+      },
+      "nextControl": {
+        "x": 1.9709704361747233,
+        "y": 0.6287047543001894
+      },
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
@@ -20,28 +36,22 @@
         "y": 2.5
       },
       "prevControl": {
-        "x": 2.2254342596585452,
-        "y": 2.618722862256817
+        "x": 1.6258833416591112,
+        "y": 2.204496183567211
       },
       "nextControl": null,
-      "isLocked": true,
+      "isLocked": false,
       "linkedName": "Right Side Launch"
     }
   ],
-  "rotationTargets": [],
-  "constraintZones": [],
-  "pointTowardsZones": [
+  "rotationTargets": [
     {
-      "fieldPosition": {
-        "x": 4.625594,
-        "y": 4.034536
-      },
-      "rotationOffset": 0.0,
-      "minWaypointRelativePos": 0.5032374100719434,
-      "maxWaypointRelativePos": 1.0,
-      "name": "Point Towards Zone"
+      "waypointRelativePos": 1.0,
+      "rotationDegrees": 0.0
     }
   ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.0,
@@ -59,7 +69,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -90.0
   },
   "useDefaultConstraints": true
 }

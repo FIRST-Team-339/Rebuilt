@@ -7,7 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Left Side Start to Launch Position"
+            "pathName": "Middle Start to Depot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StartIntaking"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Depo to Left Side Launch"
           }
         },
         {
