@@ -23,10 +23,14 @@ import us.kilroyrobotics.subsystems.intake.actuator.Actuator;
 import us.kilroyrobotics.subsystems.intake.actuator.ActuatorIO;
 import us.kilroyrobotics.subsystems.intake.roller.Roller;
 import us.kilroyrobotics.subsystems.intake.roller.RollerIO;
+import us.kilroyrobotics.subsystems.leds.LEDs;
+import us.kilroyrobotics.subsystems.leds.LEDs.LEDMode;
 
 public class Intake extends SubsystemBase {
   private final Roller roller;
   private final Actuator actuator;
+
+  private final LEDs leds;
 
   private IntakeSimulation intakeSimulation;
 
@@ -36,8 +40,9 @@ public class Intake extends SubsystemBase {
   @AutoLogOutput(key = "Intake/PendingEvent")
   private IntakeEvent pendingEvent = IntakeEvent.NONE;
 
-  public Intake(ActuatorIO actuatorIO, RollerIO rollerIO, SwerveDriveSimulation driveSimulation) {
-    this(actuatorIO, rollerIO);
+  public Intake(
+      ActuatorIO actuatorIO, RollerIO rollerIO, SwerveDriveSimulation driveSimulation, LEDs leds) {
+    this(actuatorIO, rollerIO, leds);
     this.intakeSimulation =
         IntakeSimulation.OverTheBumperIntake(
             "Fuel",
@@ -50,9 +55,11 @@ public class Intake extends SubsystemBase {
   }
 
   /** Creates a new Intake. */
-  public Intake(ActuatorIO actuatorIO, RollerIO rollerIO) {
+  public Intake(ActuatorIO actuatorIO, RollerIO rollerIO, LEDs leds) {
     this.actuator = new Actuator(actuatorIO);
     this.roller = new Roller(rollerIO, actuator::getCurrentPosition);
+
+    this.leds = leds;
   }
 
   private Timer timer = new Timer();
@@ -97,6 +104,7 @@ public class Intake extends SubsystemBase {
           setState(IntakeState.RETRACTING);
         } else if (eventIsTriggered(IntakeEvent.START_INTAKING)) {
           setState(IntakeState.INTAKING);
+          leds.setMode(LEDMode.kIntaking);
         }
       }
 
@@ -105,6 +113,7 @@ public class Intake extends SubsystemBase {
           rollerOutput = 0.0;
           if (Constants.currentMode == Mode.SIM) intakeSimulation.stopIntake();
           setState(IntakeState.EXTENDED);
+          leds.setMode(LEDMode.kOff);
         } else {
           if (Constants.currentMode == Mode.SIM) intakeSimulation.startIntake();
           rollerOutput = RollerConstants.kIntakePercent.get();
