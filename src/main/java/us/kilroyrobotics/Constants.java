@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotBase;
 import org.photonvision.simulation.SimCameraProperties;
+import us.kilroyrobotics.subsystems.vision.CameraInfo;
 import us.kilroyrobotics.util.LoggedTunableNumber;
 
 /**
@@ -56,7 +57,7 @@ public final class Constants {
   }
 
   /** Whether or not we are tuning the robot */
-  public static final boolean kTuning = false;
+  public static final boolean kTuning = true;
 
   public static final class FieldConstants {
     public static final Pose2d blueHubPose =
@@ -95,19 +96,56 @@ public final class Constants {
     public static final AprilTagFieldLayout aprilTagLayout =
         AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
 
-    // Camera names, must match names configured on coprocessor
-    public static final String camera0Name = "limelight-fl";
+    public static final CameraInfo camera0Info =
+        new CameraInfo(
+            "limelight",
+            new Transform3d(
+                0.2745,
+                0.19575,
+                0.2135,
+                new Rotation3d(Degrees.of(0.0), Degrees.of(-34.0), Degrees.of(-12.5))),
+            SimCameraProperties.LL2_640_480());
 
-    // Robot to camera transforms
-    // (Not used by Limelight, configure in web UI instead)
-    public static final Transform3d robotToCamera0 =
-        new Transform3d(
-            0.2745,
-            0.19575,
-            0.2135,
-            new Rotation3d(Degrees.of(0.0), Degrees.of(-34.0), Degrees.of(-12.5)));
-    public static final SimCameraProperties camera0SimProperties =
-        SimCameraProperties.LL2_640_480();
+    // Actual LifeCams are set to 800x600 but I don't want to make a new sim properties thing :p
+    public static final CameraInfo camera1Info =
+        new CameraInfo(
+            "LifeCam FLModule Left",
+            new Transform3d(
+                0.222576,
+                0.270504,
+                0.188966,
+                new Rotation3d(Degrees.of(0.0), Degrees.of(-15.0), Degrees.of(105.0))),
+            SimCameraProperties.PI4_LIFECAM_640_480());
+
+    public static final CameraInfo camera2Info =
+        new CameraInfo(
+            "LifeCam FRModule Left",
+            new Transform3d(
+                0.2630485,
+                -0.2264095,
+                0.1854195,
+                new Rotation3d(Degrees.of(0.0), Degrees.of(-15.0), Degrees.of(25.0))),
+            SimCameraProperties.PI4_LIFECAM_640_480());
+
+    public static final CameraInfo camera3Info =
+        new CameraInfo(
+            "LifeCam FRModule Right",
+            new Transform3d(
+                0.222576,
+                -0.270504,
+                0.188966,
+                new Rotation3d(Degrees.of(0.0), Degrees.of(-15.0), Degrees.of(-105.0))),
+            SimCameraProperties.PI4_LIFECAM_640_480());
+
+    public static final CameraInfo camera4Info =
+        new CameraInfo(
+            "LifeCam Launcher",
+            new Transform3d(
+                0.093623,
+                0.0,
+                0.469985,
+                new Rotation3d(Degrees.of(0.0), Degrees.of(-35.0), Degrees.of(180.0))),
+            SimCameraProperties.PI4_LIFECAM_640_480());
 
     // Basic filtering thresholds
     public static final double maxAmbiguity = 0.3;
@@ -122,7 +160,11 @@ public final class Constants {
     // (Adjust to trust some cameras more than others)
     public static final double[] cameraStdDevFactors =
         new double[] {
-          1.0, // Camera 0
+          25.0, // Camera 0
+          1.0, // Camera 1
+          1.0, // Camera 2
+          1.0, // Camera 3
+          1.0, // Camera 4
         };
 
     // Multipliers to apply for MegaTag 2 observations

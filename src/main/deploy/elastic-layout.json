@@ -8,19 +8,6 @@
         "layouts": [],
         "containers": [
           {
-            "title": "Limelight",
-            "x": 1152.0,
-            "y": 320.0,
-            "width": 544.0,
-            "height": 480.0,
-            "type": "Camera Stream",
-            "properties": {
-              "topic": "/CameraPublisher/limelight-fl",
-              "period": 0.06,
-              "rotation_turns": 0
-            }
-          },
-          {
             "title": "Hub Active",
             "x": 0.0,
             "y": 0.0,
@@ -208,6 +195,20 @@
               "period": 0.06,
               "data_type": "string"
             }
+          },
+          {
+            "title": "Launcher Cam",
+            "x": 1152.0,
+            "y": 320.0,
+            "width": 544.0,
+            "height": 480.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/photonvision_Port_1183_Input_MJPEG_Server",
+              "period": 0.06,
+              "rotation_turns": 0,
+              "compression": 100
+            }
           }
         ]
       }
@@ -217,19 +218,6 @@
       "grid_layout": {
         "layouts": [],
         "containers": [
-          {
-            "title": "Limelight",
-            "x": 1152.0,
-            "y": 320.0,
-            "width": 544.0,
-            "height": 480.0,
-            "type": "Camera Stream",
-            "properties": {
-              "topic": "/CameraPublisher/limelight-fl",
-              "period": 0.06,
-              "rotation_turns": 0
-            }
-          },
           {
             "title": "Hub Active",
             "x": 0.0,
@@ -440,6 +428,20 @@
               "period": 0.06,
               "data_type": "string"
             }
+          },
+          {
+            "title": "Launcher Cam",
+            "x": 1152.0,
+            "y": 320.0,
+            "width": 544.0,
+            "height": 480.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/photonvision_Port_1183_Input_MJPEG_Server",
+              "period": 0.06,
+              "rotation_turns": 0,
+              "compression": 100
+            }
           }
         ]
       }
@@ -614,14 +616,14 @@
         ],
         "containers": [
           {
-            "title": "Limelight",
-            "x": 1152.0,
-            "y": 320.0,
-            "width": 544.0,
-            "height": 480.0,
+            "title": "Limelight [0]",
+            "x": 1184.0,
+            "y": 0.0,
+            "width": 512.0,
+            "height": 288.0,
             "type": "Camera Stream",
             "properties": {
-              "topic": "/CameraPublisher/limelight-fl",
+              "topic": "/CameraPublisher/limelight",
               "period": 0.06,
               "rotation_turns": 0
             }
@@ -630,7 +632,7 @@
             "title": "Alerts",
             "x": 768.0,
             "y": 0.0,
-            "width": 384.0,
+            "width": 416.0,
             "height": 256.0,
             "type": "Alerts",
             "properties": {
@@ -639,11 +641,11 @@
             }
           },
           {
-            "title": "PhotonVision (SIM) Alerts",
-            "x": 1440.0,
-            "y": 0.0,
+            "title": "PhotonVision Alerts",
+            "x": 928.0,
+            "y": 512.0,
             "width": 256.0,
-            "height": 320.0,
+            "height": 288.0,
             "type": "Alerts",
             "properties": {
               "topic": "/AdvantageKit/RealOutputs/PhotonAlerts",
@@ -652,10 +654,10 @@
           },
           {
             "title": "PathPlanner Alerts",
-            "x": 1152.0,
-            "y": 0.0,
-            "width": 288.0,
-            "height": 320.0,
+            "x": 928.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 256.0,
             "type": "Alerts",
             "properties": {
               "topic": "/AdvantageKit/RealOutputs/PathPlanner",
@@ -666,7 +668,7 @@
             "title": "Field",
             "x": 0.0,
             "y": 256.0,
-            "width": 1152.0,
+            "width": 928.0,
             "height": 544.0,
             "type": "Field",
             "properties": {
@@ -681,6 +683,58 @@
               "robot_color": 4293221132,
               "trajectory_color": 4294967295,
               "show_robot_outside_widget": true
+            }
+          },
+          {
+            "title": "LifeCam FR Module Left [2]",
+            "x": 1184.0,
+            "y": 544.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/photonvision_Port_1188_Output_MJPEG_Server",
+              "period": 0.06,
+              "rotation_turns": 0
+            }
+          },
+          {
+            "title": "LifeCam Launcher [4]",
+            "x": 1440.0,
+            "y": 288.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/photonvision_Port_1184_Output_MJPEG_Server",
+              "period": 0.06,
+              "rotation_turns": 0
+            }
+          },
+          {
+            "title": "LifeCam FL Module Left [1]",
+            "x": 1184.0,
+            "y": 288.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/photonvision_Port_1186_Output_MJPEG_Server",
+              "period": 0.06,
+              "rotation_turns": 0
+            }
+          },
+          {
+            "title": "LifeCam FR Module Right [3]",
+            "x": 1440.0,
+            "y": 544.0,
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/photonvision_Port_1182_Output_MJPEG_Server",
+              "period": 0.06,
+              "rotation_turns": 0
             }
           }
         ]

@@ -8,10 +8,8 @@
 package us.kilroyrobotics.subsystems.vision;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Transform3d;
 import java.util.function.Supplier;
 import org.photonvision.simulation.PhotonCameraSim;
-import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
 import us.kilroyrobotics.Constants.VisionConstants;
 
@@ -28,12 +26,8 @@ public class VisionIOPhotonVisionSim extends VisionIOPhotonVision {
    * @param name The name of the camera.
    * @param poseSupplier Supplier for the robot pose to use in simulation.
    */
-  public VisionIOPhotonVisionSim(
-      String name,
-      SimCameraProperties cameraProperties,
-      Transform3d robotToCamera,
-      Supplier<Pose2d> poseSupplier) {
-    super(name, robotToCamera);
+  public VisionIOPhotonVisionSim(CameraInfo cameraInfo, Supplier<Pose2d> poseSupplier) {
+    super(cameraInfo);
     this.poseSupplier = poseSupplier;
 
     // Initialize vision sim
@@ -43,7 +37,9 @@ public class VisionIOPhotonVisionSim extends VisionIOPhotonVision {
     }
 
     // Add sim camera
-    cameraSim = new PhotonCameraSim(camera, cameraProperties, VisionConstants.aprilTagLayout);
+    cameraSim =
+        new PhotonCameraSim(
+            camera, cameraInfo.simCameraProperties(), VisionConstants.aprilTagLayout);
     visionSim.addCamera(cameraSim, robotToCamera);
   }
 

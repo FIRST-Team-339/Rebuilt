@@ -43,6 +43,7 @@ import us.kilroyrobotics.generated.BuildConstants;
 import us.kilroyrobotics.generated.TunerConstants;
 import us.kilroyrobotics.subsystems.drive.Zone;
 import us.kilroyrobotics.subsystems.intake.IntakeEvent;
+import us.kilroyrobotics.subsystems.leds.LEDs.LEDMode;
 import us.kilroyrobotics.util.Elastic;
 
 /**
@@ -159,6 +160,7 @@ public class Robot extends LoggedRobot {
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
+    robotContainer.leds.setMode(LEDMode.kAlliance);
     robotContainer.controller.setRumble(RumbleType.kBothRumble, 0.0);
   }
 
@@ -185,6 +187,8 @@ public class Robot extends LoggedRobot {
     if (autonomousCommand != null) {
       CommandScheduler.getInstance().schedule(autonomousCommand);
     }
+
+    robotContainer.leds.setMode(LEDMode.kOff);
   }
 
   /** This function is called periodically during autonomous. */
@@ -206,6 +210,8 @@ public class Robot extends LoggedRobot {
     }
 
     robotContainer.intake.resetActuatorEncoder();
+
+    robotContainer.leds.setMode(LEDMode.kOff);
   }
 
   /** This function is called periodically during operator control. */

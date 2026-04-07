@@ -53,25 +53,27 @@ public class Launcher extends SubsystemBase {
 
   //
   static {
-    distanceToRpm.put(0.0, 2000.0);
-    distanceToRpm.put(4.0, 2000.0);
-    distanceToRpm.put(5.0, 2500.0);
+    distanceToRpm.put(0.0, 2500.0);
+    distanceToRpm.put(6.5, 2700.0);
     distanceToRpm.put(7.0, 2700.0);
-    distanceToRpm.put(8.0, 2775.0);
-    distanceToRpm.put(9.0, 2925.0);
-    distanceToRpm.put(10.0, 3000.0);
-    distanceToRpm.put(11.0, 3150.0);
-    distanceToRpm.put(12.0, 3400.0);
-    distanceToRpm.put(13.0, 3550.0);
-    distanceToRpm.put(14.0, 3650.0);
-    distanceToRpm.put(15.0, 3750.0);
-    distanceToRpm.put(16.0, 3825.0);
-    distanceToRpm.put(17.0, 4000.0);
+    distanceToRpm.put(7.5, 2800.0);
+    distanceToRpm.put(8.0, 2850.0);
+    distanceToRpm.put(8.5, 2900.0);
+    distanceToRpm.put(9.0, 3000.0);
+    distanceToRpm.put(9.5, 3050.0);
+    distanceToRpm.put(10.0, 3100.0);
+    distanceToRpm.put(10.5, 3150.0);
+    distanceToRpm.put(11.0, 3250.0);
+    distanceToRpm.put(11.5, 3500.0);
+    distanceToRpm.put(12.0, 3600.0);
+    distanceToRpm.put(12.5, 3800.0);
+    distanceToRpm.put(13.0, 4250.0);
+    distanceToRpm.put(17.0, 5000.0);
   }
 
   private final Serializer serializer;
   private final Kicker kicker;
-  private final Flywheel flywheel;
+  public final Flywheel flywheel;
 
   private Supplier<ChassisSpeeds> chassisSpeedsSupplier;
   private Supplier<Pose2d> robotPoseSupplier;
@@ -255,9 +257,14 @@ public class Launcher extends SubsystemBase {
             .getDistance(robotPoseSupplier.get().getTranslation()));
   }
 
+  @AutoLogOutput(key = "Launcher/DistanceFromHubFeet", unit = "feet")
+  public double getDistanceFromHubInFeet() {
+    return getDistanceFromHub().in(Feet);
+  }
+
   @AutoLogOutput(key = "Launcher/DistanceAcceptable")
   public boolean distanceAcceptable() {
-    return getDistanceFromHub().gt(Feet.of(6.0));
+    return getDistanceFromHub().gt(Feet.of(7.0));
   }
 
   @AutoLogOutput(key = "Launcher/Trajectory")

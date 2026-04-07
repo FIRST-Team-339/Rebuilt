@@ -14,7 +14,6 @@
 package us.kilroyrobotics;
 
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Radians;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -78,10 +77,13 @@ import us.kilroyrobotics.subsystems.launcher.kicker.KickerIOSparkMax;
 import us.kilroyrobotics.subsystems.launcher.serializer.SerializerIO;
 import us.kilroyrobotics.subsystems.launcher.serializer.SerializerIOSim;
 import us.kilroyrobotics.subsystems.launcher.serializer.SerializerIOSparkMax;
+import us.kilroyrobotics.subsystems.leds.LEDs;
+import us.kilroyrobotics.subsystems.leds.LEDs.LEDMode;
 import us.kilroyrobotics.subsystems.shifts.AllianceShifts;
 import us.kilroyrobotics.subsystems.vision.Vision;
 import us.kilroyrobotics.subsystems.vision.VisionIO;
 import us.kilroyrobotics.subsystems.vision.VisionIOLimelight;
+import us.kilroyrobotics.subsystems.vision.VisionIOPhotonVision;
 import us.kilroyrobotics.subsystems.vision.VisionIOPhotonVisionSim;
 
 /**
@@ -101,6 +103,8 @@ public class RobotContainer {
   private final Vision vision;
 
   public final Intake intake;
+
+  public final LEDs leds;
 
   // Controller
   public final CommandXboxController controller = new CommandXboxController(0);
@@ -140,12 +144,19 @@ public class RobotContainer {
         vision =
             new Vision(
                 drive::addVisionMeasurement,
-                new VisionIOLimelight("limelight-fl", drive::getRotation));
+                new VisionIOLimelight(VisionConstants.camera0Info.cameraName(), drive::getRotation),
+                new VisionIOPhotonVision(VisionConstants.camera1Info),
+                new VisionIOPhotonVision(VisionConstants.camera2Info),
+                new VisionIOPhotonVision(VisionConstants.camera3Info),
+                new VisionIOPhotonVision(VisionConstants.camera4Info));
+
+        leds = new LEDs();
 
         intake =
             new Intake(
                 new ActuatorIOSparkMax(ActuatorConstants.kMotorCanId),
-                new RollerIOSparkMax(RollerConstants.kMotorCanId));
+                new RollerIOSparkMax(RollerConstants.kMotorCanId),
+                leds);
 
         launcher =
             new Launcher(
@@ -155,6 +166,7 @@ public class RobotContainer {
                     FlywheelConstants.kMotorCanId, FlywheelConstants.kFollowerMotorCanId),
                 drive::getChassisSpeeds,
                 drive::getPose);
+
         break;
 
       case SIM:
@@ -179,12 +191,19 @@ public class RobotContainer {
             new Vision(
                 drive::addVisionMeasurement,
                 new VisionIOPhotonVisionSim(
-                    VisionConstants.camera0Name,
-                    VisionConstants.camera0SimProperties,
-                    VisionConstants.robotToCamera0,
-                    driveSimulation::getSimulatedDriveTrainPose));
+                    VisionConstants.camera0Info, driveSimulation::getSimulatedDriveTrainPose),
+                new VisionIOPhotonVisionSim(
+                    VisionConstants.camera1Info, driveSimulation::getSimulatedDriveTrainPose),
+                new VisionIOPhotonVisionSim(
+                    VisionConstants.camera2Info, driveSimulation::getSimulatedDriveTrainPose),
+                new VisionIOPhotonVisionSim(
+                    VisionConstants.camera3Info, driveSimulation::getSimulatedDriveTrainPose),
+                new VisionIOPhotonVisionSim(
+                    VisionConstants.camera4Info, driveSimulation::getSimulatedDriveTrainPose));
 
-        intake = new Intake(new ActuatorIOSim(), new RollerIOSim(), driveSimulation);
+        leds = new LEDs();
+
+        intake = new Intake(new ActuatorIOSim(), new RollerIOSim(), driveSimulation, leds);
 
         launcher =
             new Launcher(
@@ -210,9 +229,18 @@ public class RobotContainer {
 
         allianceShifts = new AllianceShifts(controller);
 
-        vision = new Vision(drive::addVisionMeasurement, new VisionIO() {});
+        vision =
+            new Vision(
+                drive::addVisionMeasurement,
+                new VisionIO() {},
+                new VisionIO() {},
+                new VisionIO() {},
+                new VisionIO() {},
+                new VisionIO() {});
 
-        intake = new Intake(new ActuatorIO() {}, new RollerIO() {});
+        leds = new LEDs();
+
+        intake = new Intake(new ActuatorIO() {}, new RollerIO() {}, leds);
 
         launcher =
             new Launcher(
@@ -440,17 +468,36 @@ public class RobotContainer {
     inHubAutoRotate
         .and(() -> drive.getZoneType() == ZoneType.NORMAL_ALLIANCE)
         .onTrue(
+            Commands.sequence(
+                Commands.runOnce(
+                    () -> {
+                      drive.getDefaultCommand().cancel();
+
+                      drive.setDefaultCommand(
+                          drive.joystickDriveAtAngle(
+                              () -> -controller.getLeftY(),
+                              () -> -controller.getLeftX(),
+                              () -> new Rotation2d(launcher.getTargetRotation())));
+                    },
+                    launcher),
+                Commands.run(
+                    () -> {
+                      if (launcher.distanceAcceptable()
+                          && launcher.distanceAcceptable()
+                          && launcher.flywheel.rpmAcceptable()) {
+                        leds.setMode(LEDMode.kGoodToLaunch);
+                      } else {
+                        leds.setMode(LEDMode.kNotGoodToLaunch);
+                      }
+                    },
+                    leds,
+                    launcher)))
+        .onFalse(
             Commands.runOnce(
                 () -> {
-                  drive.getDefaultCommand().cancel();
-
-                  drive.setDefaultCommand(
-                      drive.joystickDriveAtAngle(
-                          () -> -controller.getLeftY(),
-                          () -> -controller.getLeftX(),
-                          () -> new Rotation2d(launcher.getTargetRotation())));
+                  leds.setMode(LEDMode.kOff);
                 },
-                launcher));
+                leds));
 
     inTrenchAndBumpAutoRotate
         .or(inHubAutoRotate)
@@ -465,18 +512,10 @@ public class RobotContainer {
     streamdeck
         .button(2)
         .onTrue(Commands.runOnce(() -> allianceShifts.setFirstAllianceShift(Alliance.Red)));
-    streamdeck
-        .button(3)
-        .onTrue(
-            Commands.runOnce(
-                () -> intake.overrideActuator(Degrees.of(ActuatorConstants.kExtendedDegs.get()))));
-    streamdeck.button(4).onTrue(Commands.runOnce(() -> intake.overrideActuator(Radians.of(0.0))));
-    streamdeck
-        .button(5)
-        .onTrue(
-            Commands.runOnce(
-                () -> intake.overrideRoller(RollerConstants.kIntakePercent.get()), intake));
-    streamdeck.button(6).onTrue(Commands.runOnce(() -> intake.overrideRoller(0.0), intake));
+    streamdeck.button(3).onTrue(intake.triggerEvent(IntakeEvent.EXTEND));
+    streamdeck.button(4).onTrue(intake.triggerEvent(IntakeEvent.RETRACT));
+    streamdeck.button(5).onTrue(intake.triggerEvent(IntakeEvent.START_INTAKING));
+    streamdeck.button(6).onTrue(intake.triggerEvent(IntakeEvent.STOP_INTAKING));
     streamdeck
         .button(7)
         .onTrue(
