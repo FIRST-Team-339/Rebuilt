@@ -408,7 +408,10 @@ public class RobotContainer {
                               * DriveConstants.kTeleopRotationalSpeedMultiplier));
             });
 
-    new Trigger(() -> drive.getZoneType() == ZoneType.TRENCH)
+    Trigger inTeleop = new Trigger(() -> DriverStation.isTeleopEnabled());
+
+    inTeleop
+        .and(() -> drive.getZoneType() == ZoneType.TRENCH)
         .onTrue(
             Commands.parallel(
                 drive.runOnce(
@@ -430,7 +433,7 @@ public class RobotContainer {
                     }),
                 intake.triggerEvent(IntakeEvent.EXTEND)));
 
-    inTrenchAndBumpAutoRotate
+    inTeleop
         .and(() -> drive.getZoneType() == ZoneType.BUMP)
         .onTrue(
             drive.runOnce(
@@ -494,6 +497,10 @@ public class RobotContainer {
                 leds));
 
     new Trigger(() -> drive.getZoneType() == ZoneType.NORMAL_OTHER).onTrue(returnToDefaultDrive);
+    inHubAutoRotate
+        .negate()
+        .and(() -> drive.getZoneType() == ZoneType.NORMAL_ALLIANCE)
+        .onTrue(returnToDefaultDrive);
 
     new Trigger(() -> autoRotate == AutoRotateType.kOff).onTrue(returnToDefaultDrive);
 
