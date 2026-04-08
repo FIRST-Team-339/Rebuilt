@@ -6,24 +6,27 @@ import static edu.wpi.first.units.Units.Rotations;
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.FeedbackSensor;
-import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.wpi.first.math.controller.BangBangController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import us.kilroyrobotics.Constants.LauncherConstants.FlywheelConstants;
 
 public class FlywheelIOSparkMax implements FlywheelIO {
   private final SparkMax motor;
   private final SparkMax followerMotor;
 
-  private final SparkClosedLoopController controller;
+  private final BangBangController controller;
+  private final SimpleMotorFeedforward feedforward;
 
   public FlywheelIOSparkMax(int motorId, int followerMotorId) {
     this.motor = new SparkMax(motorId, MotorType.kBrushless);
     this.followerMotor = new SparkMax(followerMotorId, MotorType.kBrushless);
-    this.controller = motor.getClosedLoopController();
+
+    this.controller = new BangBangController(50);
+    this.feedforward = new SimpleMotorFeedforward(FlywheelConstants.kS, FlywheelConstants.kV);
 
     SparkMaxConfig motorConfig = new SparkMaxConfig();
     motorConfig
@@ -32,12 +35,12 @@ public class FlywheelIOSparkMax implements FlywheelIO {
         .pid(FlywheelConstants.kP, FlywheelConstants.kI, FlywheelConstants.kD);
     motorConfig.idleMode(IdleMode.kCoast);
     motorConfig.inverted(true);
-    motorConfig.smartCurrentLimit(30);
+    motorConfig.smartCurrentLimit(40);
     motorConfig.closedLoop.minOutput(0);
 
     SparkMaxConfig followerMotorConfig = new SparkMaxConfig();
     followerMotorConfig.idleMode(IdleMode.kCoast);
-    followerMotorConfig.smartCurrentLimit(30);
+    followerMotorConfig.smartCurrentLimit(40);
     followerMotorConfig.follow(motor, true);
     followerMotorConfig.closedLoop.minOutput(0);
 
@@ -63,6 +66,10 @@ public class FlywheelIOSparkMax implements FlywheelIO {
 
   @Override
   public void applyOutputs(FlywheelIOOutputs outputs) {
-    controller.setSetpoint(outputs.velocityRPM, ControlType.kVelocity);
+    // motor.setVoltage(
+    //     controller.calculate(motor.getEncoder().getVelocity(), outputs.velocityRPM) * 12.0
+    //         + 0.9 * feedforward.calculate(outputs.velocityRPM));
+    // motor.set(controller.calculate(motor.getEncoder().getVelocity(), outputs.velocityRPM));
+    motor.setVoltage(feedforward.calculate(outputs.velocityRPM));
   }
 }

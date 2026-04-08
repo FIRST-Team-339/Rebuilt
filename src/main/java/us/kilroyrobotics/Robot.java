@@ -180,6 +180,8 @@ public class Robot extends LoggedRobot {
     autonomousCommand =
         Commands.sequence(autonomousDelayCommand, robotContainer.getAutonomousCommand());
 
+    robotContainer.leds.setMode(LEDMode.kOff);
+
     robotContainer.intake.resetActuatorEncoder();
     CommandScheduler.getInstance().schedule(robotContainer.intake.triggerEvent(IntakeEvent.EXTEND));
 
@@ -187,8 +189,6 @@ public class Robot extends LoggedRobot {
     if (autonomousCommand != null) {
       CommandScheduler.getInstance().schedule(autonomousCommand);
     }
-
-    robotContainer.leds.setMode(LEDMode.kOff);
   }
 
   /** This function is called periodically during autonomous. */

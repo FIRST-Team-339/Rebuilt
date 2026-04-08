@@ -408,8 +408,7 @@ public class RobotContainer {
                               * DriveConstants.kTeleopRotationalSpeedMultiplier));
             });
 
-    inTrenchAndBumpAutoRotate
-        .and(() -> drive.getZoneType() == ZoneType.TRENCH)
+    new Trigger(() -> drive.getZoneType() == ZoneType.TRENCH)
         .onTrue(
             Commands.parallel(
                 drive.runOnce(
@@ -429,12 +428,7 @@ public class RobotContainer {
                               () -> -controller.getLeftX() * DriveConstants.kTrenchSpeedMultiplier,
                               () -> rotation));
                     }),
-                Commands.runOnce(
-                    () -> {
-                      if (intake.getCurrentState().ordinal() < IntakeState.EXTENDED.ordinal()) {
-                        intake.triggerEvent(IntakeEvent.EXTEND);
-                      }
-                    })));
+                intake.triggerEvent(IntakeEvent.EXTEND)));
 
     inTrenchAndBumpAutoRotate
         .and(() -> drive.getZoneType() == ZoneType.BUMP)
@@ -499,10 +493,7 @@ public class RobotContainer {
                 },
                 leds));
 
-    inTrenchAndBumpAutoRotate
-        .or(inHubAutoRotate)
-        .and(() -> drive.getZoneType() == ZoneType.NORMAL_OTHER)
-        .onTrue(returnToDefaultDrive);
+    new Trigger(() -> drive.getZoneType() == ZoneType.NORMAL_OTHER).onTrue(returnToDefaultDrive);
 
     new Trigger(() -> autoRotate == AutoRotateType.kOff).onTrue(returnToDefaultDrive);
 
