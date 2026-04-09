@@ -26,7 +26,7 @@ public class LEDs extends SubsystemBase {
   private static Color kilroyOrange = new Color(1.0f, 0.07f, 0.0f);
 
   private AddressableLED led = new AddressableLED(0);
-  private AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(81);
+  private AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(30);
 
   public static enum LEDMode {
     kOff(() -> LEDPattern.kOff),
@@ -38,7 +38,7 @@ public class LEDs extends SubsystemBase {
                         : Color.kRed)
                 .mask(mask)),
     kIntaking(() -> LEDPattern.solid(kilroyOrange).mask(mask)),
-    kNotGoodToLaunch(() -> LEDPattern.solid(Color.kPaleVioletRed)),
+    kNotGoodToLaunch(() -> LEDPattern.solid(Color.kDarkMagenta)),
     kGoodToLaunch(() -> LEDPattern.solid(Color.kGreen));
 
     public final Supplier<LEDPattern> pattern;
@@ -52,7 +52,7 @@ public class LEDs extends SubsystemBase {
 
   /** Creates a new LEDs. */
   public LEDs() {
-    led.setColorOrder(ColorOrder.kGRB);
+    led.setColorOrder(ColorOrder.kBRG);
     led.setLength(ledBuffer.getLength());
     led.setData(ledBuffer);
     led.start();
@@ -65,6 +65,7 @@ public class LEDs extends SubsystemBase {
   @Override
   public void periodic() {
     mode.pattern.get().applyTo(ledBuffer);
+    // LEDPattern.solid(Color.kBlue).applyTo(ledBuffer);
     led.setData(ledBuffer);
   }
 }

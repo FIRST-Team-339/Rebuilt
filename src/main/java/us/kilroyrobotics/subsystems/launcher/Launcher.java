@@ -226,7 +226,9 @@ public class Launcher extends SubsystemBase {
     if (flywheelRPMOverriden) {
       flywheel.setRPM(flywheelRPMOverrideValue);
     } else {
-      flywheel.setRPM(distanceToRpm.get(getDistanceFromHub().in(Feet)).intValue());
+      flywheel.setRPM(
+          distanceToRpm.get(getDistanceFromHub().in(Feet)).intValue()
+              + FlywheelConstants.kCustomDelta);
     }
   }
 

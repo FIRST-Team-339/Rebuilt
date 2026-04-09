@@ -408,7 +408,9 @@ public class RobotContainer {
                               * DriveConstants.kTeleopRotationalSpeedMultiplier));
             });
 
-    inTrenchAndBumpAutoRotate
+    Trigger inTeleop = new Trigger(() -> DriverStation.isTeleopEnabled());
+
+    inTeleop
         .and(() -> drive.getZoneType() == ZoneType.TRENCH)
         .onTrue(
             Commands.parallel(
@@ -429,14 +431,9 @@ public class RobotContainer {
                               () -> -controller.getLeftX() * DriveConstants.kTrenchSpeedMultiplier,
                               () -> rotation));
                     }),
-                Commands.runOnce(
-                    () -> {
-                      if (intake.getCurrentState().ordinal() < IntakeState.EXTENDED.ordinal()) {
-                        intake.triggerEvent(IntakeEvent.EXTEND);
-                      }
-                    })));
+                intake.triggerEvent(IntakeEvent.EXTEND)));
 
-    inTrenchAndBumpAutoRotate
+    inTeleop
         .and(() -> drive.getZoneType() == ZoneType.BUMP)
         .onTrue(
             drive.runOnce(
@@ -483,7 +480,7 @@ public class RobotContainer {
                 Commands.run(
                     () -> {
                       if (launcher.distanceAcceptable()
-                          && launcher.distanceAcceptable()
+                          && launcher.rotationAcceptable()
                           && launcher.flywheel.rpmAcceptable()) {
                         leds.setMode(LEDMode.kGoodToLaunch);
                       } else {
@@ -499,9 +496,10 @@ public class RobotContainer {
                 },
                 leds));
 
-    inTrenchAndBumpAutoRotate
-        .or(inHubAutoRotate)
-        .and(() -> drive.getZoneType() == ZoneType.NORMAL_OTHER)
+    new Trigger(() -> drive.getZoneType() == ZoneType.NORMAL_OTHER).onTrue(returnToDefaultDrive);
+    inHubAutoRotate
+        .negate()
+        .and(() -> drive.getZoneType() == ZoneType.NORMAL_ALLIANCE)
         .onTrue(returnToDefaultDrive);
 
     new Trigger(() -> autoRotate == AutoRotateType.kOff).onTrue(returnToDefaultDrive);
