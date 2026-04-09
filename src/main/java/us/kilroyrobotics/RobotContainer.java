@@ -480,7 +480,7 @@ public class RobotContainer {
                 Commands.run(
                     () -> {
                       if (launcher.distanceAcceptable()
-                          && launcher.distanceAcceptable()
+                          && launcher.rotationAcceptable()
                           && launcher.flywheel.rpmAcceptable()) {
                         leds.setMode(LEDMode.kGoodToLaunch);
                       } else {

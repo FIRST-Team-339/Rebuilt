@@ -26,7 +26,7 @@ public class LEDs extends SubsystemBase {
   private static Color kilroyOrange = new Color(1.0f, 0.07f, 0.0f);
 
   private AddressableLED led = new AddressableLED(0);
-  private AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(98);
+  private AddressableLEDBuffer ledBuffer = new AddressableLEDBuffer(30);
 
   public static enum LEDMode {
     kOff(() -> LEDPattern.kOff),
@@ -52,7 +52,7 @@ public class LEDs extends SubsystemBase {
 
   /** Creates a new LEDs. */
   public LEDs() {
-    led.setColorOrder(ColorOrder.kGRB);
+    led.setColorOrder(ColorOrder.kBRG);
     led.setLength(ledBuffer.getLength());
     led.setData(ledBuffer);
     led.start();
