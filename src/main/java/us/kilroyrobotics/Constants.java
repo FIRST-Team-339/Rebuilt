@@ -202,15 +202,15 @@ public final class Constants {
 
       /** The set percent of the motor when intaking fuel */
       public static final LoggedTunableNumber kIntakePercent =
-          new LoggedTunableNumber("Intake/Roller/IntakePercent", 0.6);
+          new LoggedTunableNumber("Intake/Roller/IntakePercent", -0.6);
 
       /** The set percent of the motor when agitating/launching fuel */
       public static final LoggedTunableNumber kAgitatePercent =
-          new LoggedTunableNumber("Intake/Roller/AgitatePercent", 0.1);
+          new LoggedTunableNumber("Intake/Roller/AgitatePercent", -0.1);
 
       /** The set percent of the motor when outtaking fuel */
       public static final LoggedTunableNumber kOuttakePercent =
-          new LoggedTunableNumber("Intake/Roller/OuttakePercent", -0.6);
+          new LoggedTunableNumber("Intake/Roller/OuttakePercent", 0.6);
 
       public static final Translation3d kRollerTranslation = new Translation3d(-0.162, 0.0, 0.593);
     }
