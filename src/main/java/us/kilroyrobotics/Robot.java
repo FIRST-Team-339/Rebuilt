@@ -38,6 +38,7 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import us.kilroyrobotics.Constants.IntakeConstants;
 import us.kilroyrobotics.Constants.Mode;
 import us.kilroyrobotics.generated.BuildConstants;
 import us.kilroyrobotics.generated.TunerConstants;
@@ -54,6 +55,7 @@ import us.kilroyrobotics.util.Elastic;
  */
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
+  private Command intakeMotorCommand;
   private RobotContainer robotContainer;
 
   private final Debouncer controllerConnectedDebouncer =
@@ -133,6 +135,7 @@ public class Robot extends LoggedRobot {
     streamdeckDisconnected = new Alert("Streamdeck disconnected!", Alert.AlertType.kWarning);
 
     SmartDashboard.putNumber("AutonomousModeDelay", 0.0);
+    SmartDashboard.putNumber("IntakeSpeed", IntakeConstants.RollerConstants.kIntakePercent.get());
   }
 
   /** This function is called periodically during all modes. */
@@ -200,6 +203,7 @@ public class Robot extends LoggedRobot {
   public void teleopInit() {
     Elastic.selectTab("Teleoperated");
     Zone.setAllianceOrientation(DriverStation.getAlliance().orElse(Alliance.Blue));
+    Command intakeMotorSpeedCommand = new WaitCommand(SmartDashboard.getNumber("IntakeSpeed", 0.5));
 
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to

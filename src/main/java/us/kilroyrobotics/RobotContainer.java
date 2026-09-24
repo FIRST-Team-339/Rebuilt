@@ -112,6 +112,8 @@ public class RobotContainer {
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
+  // private final LoggedDashboardChooser<Command> intakeSpeedChooser;
+
   private final Alert autoPathInfo =
       new Alert("Selected Autonomous is NOT a PathPlanner autonomous", AlertType.kInfo);
 
@@ -546,4 +548,10 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     return autoChooser.get();
   }
+
+  /**
+   * Use this to pass the intake speed command to the main {@link Robot} class.
+   *
+   * @return the command to run in tele-op
+   */
 }

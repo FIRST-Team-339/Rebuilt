@@ -202,7 +202,7 @@ public final class Constants {
 
       /** The set percent of the motor when intaking fuel */
       public static final LoggedTunableNumber kIntakePercent =
-          new LoggedTunableNumber("Intake/Roller/IntakePercent", -0.6);
+          new LoggedTunableNumber("Intake/Roller/IntakePercent", 0.6);
 
       /** The set percent of the motor when agitating/launching fuel */
       public static final LoggedTunableNumber kAgitatePercent =
