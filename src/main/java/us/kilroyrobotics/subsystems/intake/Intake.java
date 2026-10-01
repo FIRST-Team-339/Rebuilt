@@ -10,12 +10,14 @@ import static edu.wpi.first.units.Units.Radians;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.ironmaple.simulation.IntakeSimulation;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.littletonrobotics.junction.AutoLogOutput;
 import us.kilroyrobotics.Constants;
+import us.kilroyrobotics.Constants.IntakeConstants;
 import us.kilroyrobotics.Constants.IntakeConstants.ActuatorConstants;
 import us.kilroyrobotics.Constants.IntakeConstants.RollerConstants;
 import us.kilroyrobotics.Constants.Mode;
@@ -116,7 +118,10 @@ public class Intake extends SubsystemBase {
           leds.setMode(LEDMode.kOff);
         } else {
           if (Constants.currentMode == Mode.SIM) intakeSimulation.startIntake();
-          rollerOutput = RollerConstants.kIntakePercent.get();
+          rollerOutput =
+              -1
+                  * SmartDashboard.getNumber(
+                      "IntakeSpeed", IntakeConstants.RollerConstants.kIntakePercent.get());
         }
       }
 
